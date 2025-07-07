@@ -1,16 +1,16 @@
-import express from 'express';
-import dotenv from 'dotenv';
 import cookie from 'cookie-parser';
 import cors from 'cors';
-import path from 'path';
+import dotenv from 'dotenv';
+import express from 'express';
 
-import {connect} from './lib/connect.db.js';
+import { connect } from './lib/connect.db.js';
 import authRoutes from "./routes/auth.routes.js";
+
+const app = express();
 
 dotenv.config();
 const Port= process.env.Port;
 app.use(express.json());
-const __dirname=path.resolve();
 app.use(cookie()); 
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
@@ -18,7 +18,7 @@ app.use(cors({
   credentials: true
 }));
 
-app.use("/api/auth", authRoutes);
+app.use("/auth", authRoutes);
 
 app.listen(Port, () => {
   console.log('Server is running on port port:'+Port);
