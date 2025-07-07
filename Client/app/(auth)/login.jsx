@@ -3,20 +3,19 @@ import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import validate from "../../utils/validator";
-
-export default function signup() {
+export default function login() {
   const router = useRouter();
-    const handleSubmit = (values) => {
-      console.log(values);
-    };
-  
+  const handleSubmit = (values) => {
+    console.log(values);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-[#2b2b2b]">
       <View className="flex-1 justify-center items-center px-4 space-y-6">
         {/* Header */}
         <View className="items-center">
           <Text className="text-white text-3xl font-bold">KnockOut</Text>
-          <Text className="text-white text-xl font-normal">Let's Create Your Account</Text>
+          <Text className="text-white text-xl font-normal">Tell about you</Text>
         </View>
 
         {/* Form */}
@@ -42,6 +41,7 @@ export default function signup() {
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     value={values.email}
+                    keyboardType="email-address"
                     placeholder="Enter your email"
                     placeholderTextColor="#aaa"
                   />
@@ -84,10 +84,10 @@ export default function signup() {
           <View className="flex justify-center items-center">
               <TouchableOpacity
                 className="flex flex-row justify-center mt-5 p-2 items-center"
-                onPress={() => router.push("/login")}>
-                <Text className="text-white font-semibold">Alerady have Account :  </Text>
+                onPress={() => router.push("/signup")}>
+                <Text className="text-white font-semibold">New User? </Text>
                 <Text className="text-base font-semibold underline text-[#f49b33]">
-                  LogIn
+                  Sign up
                 </Text>
               </TouchableOpacity>
               </View>
