@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import validate from "../../utils/validator";
+import validate from "../../src/utils/validator.js";
 
 export default function signup() {
   const router = useRouter();

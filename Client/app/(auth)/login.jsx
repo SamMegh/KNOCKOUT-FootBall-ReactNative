@@ -2,11 +2,13 @@ import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import validate from "../../utils/validator";
+import { useAuthStore } from "../../src/store/useAuthStore";
+import validate from "../../src/utils/validator.js";
 export default function login() {
   const router = useRouter();
-  const handleSubmit = (values) => {
-    console.log(values);
+  const {login}=useAuthStore();
+  const handleSubmit = async(values) => {
+    await login(values);
   };
 
   return (

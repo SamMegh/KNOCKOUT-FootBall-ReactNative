@@ -1,6 +1,18 @@
-import axios from 'axios';
+import { create } from 'zustand';
+import Instance from '../utils/axios.configuration';
 
-const Instance = axios.create({
-        baseURL: import.meta.env.MODE==="development"?'http://localhost:8081/api/':"/api",
-    withCredentials: true,
-})
+
+export const useAuthStore= create((set, get)=>({
+    isAuthUser:null,
+
+    login:async(data)=>{
+        try {
+            const res= await Instance.post("/auth/login",data);
+            set({isAuthUser:res.data});
+            console.log(res.data)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+}))
