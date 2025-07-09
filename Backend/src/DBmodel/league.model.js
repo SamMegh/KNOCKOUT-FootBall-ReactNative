@@ -1,0 +1,46 @@
+import mongoos from 'mongoose';
+
+const leagueSchema = new mongoos.Schema({
+    name:{
+        type: String,
+        required: true
+    },
+    totalWeeks:{
+        type: Number,
+        default:1
+    },
+    lifelinePerUser:{
+        type: Number,
+        default:1
+    },
+    maxTimeTeamSelect:{
+        type: Number,
+        default:1
+    },
+    paticipantsId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:'User'
+    },
+    paticipantsNames:{
+        type: String,
+    },
+    start:{
+        type: Date,
+        required: true
+    },
+    end:{
+        type: Date,
+        required: true
+    },
+    joinfee:{
+        type:Number,
+        required: true
+    }
+
+},{
+    timestamps:true
+});
+
+const League = mongoos.model("League", leagueSchema)
+
+export default League;
