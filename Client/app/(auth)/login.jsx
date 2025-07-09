@@ -97,4 +97,8 @@ export default function login() {
       </View>
     </SafeAreaView>
   );
+}export function joinleague() {
+    return (
+        <View />)
 }
+
