@@ -2,12 +2,14 @@ import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../../src/store/useAuthStore.js";
 import validate from "../../src/utils/validator.js";
 
 export default function signup() {
   const router = useRouter();
+  const {signup} = useAuthStore();
     const handleSubmit = (values) => {
-      console.log(values);
+      signup(values);
     };
   
   return (
@@ -22,7 +24,7 @@ export default function signup() {
         {/* Form */}
         <View className="w-full px-4">
           <Formik
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ email: "", name:"", password: "" }}
             validationSchema={validate}
             onSubmit={handleSubmit}
           >
@@ -35,6 +37,8 @@ export default function signup() {
               touched,
             }) => (
               <View className="space-y-4">
+
+                {/* email */}
                 <View>
                   <Text className="text-white mb-1">Email</Text>
                   <TextInput
@@ -53,6 +57,25 @@ export default function signup() {
                   )}
                 </View>
 
+                  {/* name */}
+                <View>
+                  <Text className="text-white mb-1">Name</Text>
+                  <TextInput
+                    className="h-10 border border-white text-white rounded px-2"
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    value={values.name}
+                    placeholder="Enter your name"
+                    placeholderTextColor="#aaa"
+                  />
+                  {touched.name && errors.name && (
+                    <Text className="text-red-500 text-xs mb-2">
+                      {errors.name}
+                    </Text>
+                  )}
+                </View>
+
+                  {/* password */}
                 <View>
                   <Text className="text-white mb-1">Password</Text>
                   <TextInput

@@ -13,6 +13,16 @@ export const useAuthStore= create((set, get)=>({
         } catch (error) {
             console.log(error);
         }
-    }
+    },
+
+    signup:async(data)=>{
+        try {
+            const res= await Instance.post("/auth/signup",data);
+            set({isAuthUser:res.data});
+            console.log(res.data)
+        } catch (error) {
+            console.log(error);
+        }
+    },
 
 }))
