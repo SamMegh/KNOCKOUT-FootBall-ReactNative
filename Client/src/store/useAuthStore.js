@@ -24,5 +24,23 @@ export const useAuthStore= create((set, get)=>({
             console.log(error);
         }
     },
+    
+    logout:async()=>{
+        try {
+            await Instance.get("/auth/logout");
+            set({isAuthUser:null});
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    check:async()=>{
+        try {
+            const res= await Instance.get("/auth/check");
+            set({isAuthUser:res.data});
+        } catch (error) {
+            console.log(error);
+        }
+    },
 
 }))
