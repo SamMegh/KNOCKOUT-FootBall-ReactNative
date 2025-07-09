@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
-import validate from "../../src/utils/validator.js";
+import signupvalidate from "../../src/utils/signupValidator.js";
 
 export default function signup() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function signup() {
         <View className="w-full px-4">
           <Formik
             initialValues={{ email: "", name:"", password: "" }}
-            validationSchema={validate}
+            validationSchema={signupvalidate}
             onSubmit={handleSubmit}
           >
             {({
@@ -108,7 +108,7 @@ export default function signup() {
           <View className="flex justify-center items-center">
               <TouchableOpacity
                 className="flex flex-row justify-center mt-5 p-2 items-center"
-                onPress={() => router.push("/login")}>
+                onPress={() => router.replace("/login")}>
                 <Text className="text-white font-semibold">Alerady have Account :  </Text>
                 <Text className="text-base font-semibold underline text-[#f49b33]">
                   LogIn

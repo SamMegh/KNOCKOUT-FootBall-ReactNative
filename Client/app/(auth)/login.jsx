@@ -2,15 +2,14 @@ import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "../../src/store/useAuthStore";
-import validate from "../../src/utils/validator.js";
+import { useAuthStore } from "../../src/store/useAuthStore.js";
+import loginvalidate from "../../src/utils/loginValidator.js";
 export default function login() {
   const router = useRouter();
-  const {login}=useAuthStore();
+  const {isAuthUser, login}=useAuthStore();
   const handleSubmit = async(values) => {
     await login(values);
   };
-
   return (
     <SafeAreaView className="flex-1 bg-[#2b2b2b]">
       <View className="flex-1 justify-center items-center px-4 space-y-6">
@@ -24,7 +23,7 @@ export default function login() {
         <View className="w-full px-4">
           <Formik
             initialValues={{ email: "", password: "" }}
-            validationSchema={validate}
+            validationSchema={loginvalidate}
             onSubmit={handleSubmit}
           >
             {({
@@ -86,7 +85,7 @@ export default function login() {
           <View className="flex justify-center items-center">
               <TouchableOpacity
                 className="flex flex-row justify-center mt-5 p-2 items-center"
-                onPress={() => router.push("/signup")}>
+                onPress={() => router.replace("/signup")}>
                 <Text className="text-white font-semibold">New User? </Text>
                 <Text className="text-base font-semibold underline text-[#f49b33]">
                   Sign up

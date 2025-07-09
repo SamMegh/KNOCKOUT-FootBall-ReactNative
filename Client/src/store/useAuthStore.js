@@ -2,14 +2,15 @@ import { create } from 'zustand';
 import Instance from '../utils/axios.configuration';
 
 
-export const useAuthStore= create((set, get)=>({
+export const useAuthStore= create((set)=>({
     isAuthUser:null,
 
     login:async(data)=>{
         try {
+            console.log(data);
             const res= await Instance.post("/auth/login",data);
-            set({isAuthUser:res.data});
-            console.log(res.data)
+            // set({isAuthUser:res.data});
+            console.log(res);
         } catch (error) {
             console.log(error);
         }
@@ -24,7 +25,7 @@ export const useAuthStore= create((set, get)=>({
             console.log(error);
         }
     },
-    
+
     logout:async()=>{
         try {
             await Instance.get("/auth/logout");

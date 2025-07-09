@@ -1,10 +1,18 @@
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "../src/store/useAuthStore.js";
 
 export default function App() {
+  const {isAuthUser} = useAuthStore();
   const router = useRouter();
-
+  console.log(isAuthUser)
+useEffect(()=>{
+  if(isAuthUser){
+    router.push("/home");
+  }
+},[isAuthUser])
   return (
     <SafeAreaView className="flex-1 bg-[#2b2b2b]">
       <View className="flex-1 justify-center items-center px-4 text-center">
