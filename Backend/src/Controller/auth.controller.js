@@ -1,6 +1,5 @@
 import bcrypt from 'bcryptjs';
 import User from '../DBmodel/user.db.model.js';
-import { generateToken } from '../lib/utils.js';
 
 export const signup = async (req, res) => {
     const { name, email, password } = req.body;
@@ -25,7 +24,6 @@ export const signup = async (req, res) => {
         });
 
         if (newUser) {
-            generateToken(newUser._id, res);
             await newUser.save();
             res.status(201).json({
                 id: newUser._id,
@@ -55,12 +53,10 @@ export const login = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
-        generateToken(loguser._id, res);
         res.status(200).json({
             _id: loguser._id,
             name: loguser.name,
-            email: loguser.email,
-            profileimage:loguser.profileimage
+            email: loguser.email
         });
 
     } catch (error) {
@@ -68,25 +64,3 @@ export const login = async (req, res) => {
     }
 
 };
-
-export const logout = (req, res) => {
-    try {
-        if (!req.cookies.JWT) {
-            return res.status(400).json({ message: 'User not logged in' });
-        }
-        res.cookie('JWT', '', { maxAge: 1 });
-        res.status(200).json({ message: 'Logged out successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Internal server error' + error });
-    }
-};
-
-
-export const checkToken = (req, res) => {
-    try{
-        res.status(200).json(req.user);
-    }
-    catch(error){
-        res.status(500).json({ message: 'Internal server error' + error });
-    }
-}

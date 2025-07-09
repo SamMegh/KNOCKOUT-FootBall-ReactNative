@@ -6,7 +6,8 @@ import { useAuthStore } from "../../src/store/useAuthStore.js";
 import loginvalidate from "../../src/utils/loginValidator.js";
 export default function login() {
   const router = useRouter();
-  const {isAuthUser, login}=useAuthStore();
+  const {login}=useAuthStore();
+
   const handleSubmit = async(values) => {
     await login(values);
   };

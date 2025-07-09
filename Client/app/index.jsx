@@ -7,10 +7,9 @@ import { useAuthStore } from "../src/store/useAuthStore.js";
 export default function App() {
   const {isAuthUser} = useAuthStore();
   const router = useRouter();
-  console.log(isAuthUser)
 useEffect(()=>{
   if(isAuthUser){
-    router.push("/home");
+    router.replace("/home");
   }
 },[isAuthUser])
   return (
