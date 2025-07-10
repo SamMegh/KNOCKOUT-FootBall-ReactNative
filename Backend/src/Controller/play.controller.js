@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import League from "../DBmodel/league.model.js";
 import User from '../DBmodel/user.db.model.js';
 
@@ -15,10 +16,27 @@ export const getleague = async (req, res) => {
     }
 }
 
+export const getmyleague = async (req, res) => {
+    try {
+        const {userId}=req.body;
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const currentDate = new Date();
+        const upcommingLeagues = await League.find({
+            start: { $gt: currentDate },
+            participantsId: {$in: [userObjectId]}
+        });
+        res.status(200).json(upcommingLeagues);
+    } catch (error) {
+        res.status(500).json({
+            message: "unable to get leagues" + error
+        });
+    }
+}
+
 export const createleague = async (req, res) => {
     try {
         let totalWeeks = 1;
-        // const {name, joinfee,maxTeam,end,start,paticipantsNames,paticipantsId,maxTimeTeamSelect,lifelinePerUser,totalWeeks}=req.body;
+        // const {name, joinfee,maxTeam,end,start,paticipantsNames,participantsId,maxTimeTeamSelect,lifelinePerUser,totalWeeks}=req.body;
         const { name, joinfee, weeks, start } = req.body;
         if (weeks <= 0) {
             return res.status(400).json({
@@ -57,7 +75,7 @@ export const createleague = async (req, res) => {
                 end: newLeague.end,
                 start: newLeague.start,
                 paticipantsNames: newLeague.paticipantsNames,
-                paticipantsId: newLeague.paticipantsId,
+                participantsId: newLeague.participantsId,
                 maxTimeTeamSelect: newLeague.maxTimeTeamSelect,
                 lifelinePerUser: newLeague.lifelinePerUser,
                 totalWeeks: newLeague.totalWeeks
@@ -70,6 +88,7 @@ export const createleague = async (req, res) => {
         });
     }
 }
+
 export const joinleague = async (req, res) => {
     try {
         const { userId, leagueId } = req.body;
@@ -95,7 +114,7 @@ export const joinleague = async (req, res) => {
             leagueId,
             {
                 $push: {
-                    paticipantsId: { $each: [user._id] },
+                    participantsId: { $each: [user._id] },
                     paticipantsNames: { $each: [user.name] }
                 }
             },

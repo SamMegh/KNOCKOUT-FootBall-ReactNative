@@ -17,11 +17,11 @@ const leagueSchema = new mongoose.Schema({
         type: Number,
         default: 1
     }, 
-    paticipantsId: [{
+    participantsId: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }],
-    paticipantsNames: [{
+    participantsNames: [{
         type: String
     }],
     start: {
