@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
+import { useEffect } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
@@ -7,11 +8,15 @@ import signupvalidate from "../../src/utils/signupValidator.js";
 
 export default function signup() {
   const router = useRouter();
-  const {signup} = useAuthStore();
+  const {isAuthUser, signup} = useAuthStore();
     const handleSubmit = (values) => {
       signup(values);
     };
-  
+    useEffect(()=>{
+      if(isAuthUser){
+        router.replace("/home");
+      }
+    },[isAuthUser, router])
   return (
     <SafeAreaView className="flex-1 bg-[#2b2b2b]">
       <View className="flex-1 justify-center items-center px-4 space-y-6">
@@ -105,6 +110,7 @@ export default function signup() {
               </View>
             )}
           </Formik>
+          {/* alrady account */}
           <View className="flex justify-center items-center">
               <TouchableOpacity
                 className="flex flex-row justify-center mt-5 p-2 items-center"
