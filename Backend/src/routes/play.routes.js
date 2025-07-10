@@ -4,7 +4,7 @@ import { createleague, getleague, joinleague } from '../Controller/play.controll
 const router = express.Router();
 
 router.get("/getleague",getleague);
-router.get("/createleague",createleague);
+router.post("/createleague",createleague);
 router.get("/joinleague",joinleague);
 
 export default router;

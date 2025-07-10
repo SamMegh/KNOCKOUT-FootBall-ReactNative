@@ -1,6 +1,6 @@
-import mongoos from 'mongoose';
+import mongoose from 'mongoose';
 
-const leagueSchema = new mongoos.Schema({
+const leagueSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -17,12 +17,12 @@ const leagueSchema = new mongoos.Schema({
         type: Number,
         default: 1
     },
-    paticipantsId: {
+    participantsId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    paticipantsNames: {
-        type: String,
+    participantsNames: {
+        type: String
     },
     start: {
         type: Date,
@@ -42,11 +42,10 @@ const leagueSchema = new mongoos.Schema({
         type: Number,
         required: true
     }
-
 }, {
     timestamps: true
 });
 
-const League = mongoos.model("League", leagueSchema)
+const League = mongoose.model("League", leagueSchema);
 
 export default League;
