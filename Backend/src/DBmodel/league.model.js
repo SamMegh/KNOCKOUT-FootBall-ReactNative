@@ -1,44 +1,50 @@
 import mongoos from 'mongoose';
 
 const leagueSchema = new mongoos.Schema({
-    name:{
+    name: {
         type: String,
         required: true
     },
-    totalWeeks:{
+    totalWeeks: {
         type: Number,
-        default:1
+        default: 1
     },
-    lifelinePerUser:{
+    lifelinePerUser: {
         type: Number,
-        default:1
+        default: 1
     },
-    maxTimeTeamSelect:{
+    maxTimeTeamSelect: {
         type: Number,
-        default:1
+        default: 1
     },
-    paticipantsId:{
+    paticipantsId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref:'User'
+        ref: 'User'
     },
-    paticipantsNames:{
+    paticipantsNames: {
         type: String,
     },
-    start:{
+    start: {
         type: Date,
         required: true
     },
-    end:{
+    end: {
         type: Date,
         required: true
     },
-    joinfee:{
-        type:Number,
+    maxTeam: {
+        type: Number,
+        min: 1,
+        max: 7,
+        default: 7
+    },
+    joinfee: {
+        type: Number,
         required: true
     }
 
-},{
-    timestamps:true
+}, {
+    timestamps: true
 });
 
 const League = mongoos.model("League", leagueSchema)
