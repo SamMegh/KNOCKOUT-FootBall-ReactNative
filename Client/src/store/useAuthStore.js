@@ -6,7 +6,7 @@ export const useAuthStore= create((set)=>({
     login:async(data)=>{
         try {
             const res= await Instance.post("/auth/login",data);
-            set({isAuthUser:res.data});
+            set({isAuthUser:res.data.user});
         } catch (error) {
             console.log(error);
         }
