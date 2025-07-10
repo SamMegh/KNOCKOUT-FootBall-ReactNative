@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/getleague",getleague);
 router.post("/createleague",createleague);
-router.get("/joinleague",joinleague);
+router.post("/joinleague",joinleague);
 
 export default router;

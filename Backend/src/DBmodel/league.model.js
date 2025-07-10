@@ -16,14 +16,14 @@ const leagueSchema = new mongoose.Schema({
     maxTimeTeamSelect: {
         type: Number,
         default: 1
-    },
-    participantsId: {
+    }, 
+    paticipantsId: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    },
-    participantsNames: {
+    }],
+    paticipantsNames: [{
         type: String
-    },
+    }],
     start: {
         type: Date,
         required: true

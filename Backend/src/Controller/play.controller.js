@@ -1,19 +1,19 @@
 import League from "../DBmodel/league.model.js";
+import User from '../DBmodel/user.db.model.js';
 
 export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
-            start:{$gt:currentDate}
+            start: { $gt: currentDate }
         });
         res.status(200).json(upcommingLeagues);
     } catch (error) {
         res.status(500).json({
-            message:"unable to get leagues"+error
+            message: "unable to get leagues" + error
         });
     }
 }
-
 
 export const createleague = async (req, res) => {
     try {
@@ -66,14 +66,52 @@ export const createleague = async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({
-            message:"unable to create leagues"+error
+            message: "unable to create leagues" + error
         });
     }
 }
 export const joinleague = async (req, res) => {
     try {
+        const { userId, leagueId } = req.body;
+        const currentDate = new Date();
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Unable to get the user"
+            });
+        }
+
+        const league = await League.findById(leagueId);
+
+        if (!league || currentDate > league.end) {
+            return res.status(400).json({
+                message: "Unable to get the league"
+            });
+        }
+
+        await League.findByIdAndUpdate(
+            leagueId,
+            {
+                $push: {
+                    paticipantsId: { $each: [user._id] },
+                    paticipantsNames: { $each: [user.name] }
+                }
+            },
+            { new: true } // optional if you want updated doc back
+        );
+
+        res.status(200).json({
+            message: "User added successfully"
+        });
 
     } catch (error) {
-        console.log(error)
+        res.status(500).json({
+            message: "Unable to join league",
+            error: error.message
+        });
     }
-}
+};
+
+    
