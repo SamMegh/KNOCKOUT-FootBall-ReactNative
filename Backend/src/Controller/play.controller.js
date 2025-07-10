@@ -2,11 +2,19 @@ import League from "../DBmodel/league.model.js";
 
 export const getleague = async (req, res) => {
     try {
-
+        const currentDate = new Date();
+        const upcommingLeagues = await League.find({
+            start:{$gt:currentDate}
+        });
+        res.status(200).json(upcommingLeagues);
     } catch (error) {
-        console.log(error)
+        res.status(500).json({
+            message:"unable to get leagues"+error
+        });
     }
 }
+
+
 export const createleague = async (req, res) => {
     try {
         let totalWeeks = 1;
@@ -57,7 +65,9 @@ export const createleague = async (req, res) => {
             })
         }
     } catch (error) {
-        console.log(error)
+        res.status(500).json({
+            message:"unable to create leagues"+error
+        });
     }
 }
 export const joinleague = async (req, res) => {
