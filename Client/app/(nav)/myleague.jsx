@@ -1,10 +1,12 @@
-import { useEffect } from "react"
-
+import { useEffect } from "react";
+import { Text, View } from 'react-native';
+import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 function myleague() {
+    const {myleagues,getmyleagues}= useLeagueStore();
     useEffect(()=>{
-        
-    })
+getmyleagues();
+    },[getmyleagues])
   return (
     <View>
           {myleagues && myleagues.map((league, index) => (

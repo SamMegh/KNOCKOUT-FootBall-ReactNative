@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import League from "../DBmodel/league.model.js";
 import User from '../DBmodel/user.db.model.js';
 
@@ -6,7 +5,15 @@ export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
-            start: { $gt: currentDate }
+           $or: [
+    {
+      start: { $lte: currentDate },
+      end: { $gte: currentDate }
+    },
+    {
+      start: { $gt: currentDate }
+    }
+  ]
         });
         res.status(200).json(upcommingLeagues);
     } catch (error) {
@@ -19,11 +26,10 @@ export const getleague = async (req, res) => {
 export const getmyleague = async (req, res) => {
     try {
         const {userId}=req.body;
-        const userObjectId = new mongoose.Types.ObjectId(userId);
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
             start: { $gt: currentDate },
-            participantsId: {$in: [userObjectId]}
+            participantsId: {$in: [userId]}
         });
         res.status(200).json(upcommingLeagues);
     } catch (error) {
