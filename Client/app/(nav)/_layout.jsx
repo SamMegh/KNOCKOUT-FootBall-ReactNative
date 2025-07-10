@@ -4,12 +4,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuthStore } from '../../src/store/useAuthStore';
 
 export default function NavLayout() {
-  const {isAuthUser} = useAuthStore();
+  const { isAuthUser } = useAuthStore();
   if (!isAuthUser) return <Redirect href="/login" />;
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Drawer
-        screenOptions={{
+        screenOptions={({ route }) => ({
           headerShown: true,
           drawerStyle: {
             backgroundColor: '#fff',
@@ -19,7 +20,8 @@ export default function NavLayout() {
             backgroundColor: '#2b2b2b',
           },
           headerTintColor: '#fff',
-        }}
+          title: route.name.charAt(0).toUpperCase() + route.name.slice(1),
+        })}
       />
     </GestureHandlerRootView>
   );

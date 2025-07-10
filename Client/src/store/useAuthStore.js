@@ -20,5 +20,8 @@ export const useAuthStore= create((set)=>({
             console.log(error);
         }
     },
+    logout: ()=>{
+        set({isAuthUser:null});
+    }
 
 }))

@@ -14,6 +14,7 @@ useEffect(()=>{
 },[isAuthUser])
   return (
     <SafeAreaView className="flex-1 bg-[#2b2b2b]">
+      
       <View className="flex-1 justify-center items-center px-4 text-center">
           <Text className="text-white text-xl mb-2">Welcome to</Text>
           <Text className="text-white text-3xl font-bold mb-6">KnockOut</Text>
