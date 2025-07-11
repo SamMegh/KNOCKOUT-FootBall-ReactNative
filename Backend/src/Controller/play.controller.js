@@ -5,7 +5,8 @@ import User from '../DBmodel/user.db.model.js';
 export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
-        const upcommingLeagues = await League.find({
+        const {userId} = req.body;
+        const upcomingLeagues = await League.find({
             $or: [
                 {
                     start: { $lte: currentDate },
@@ -14,9 +15,10 @@ export const getleague = async (req, res) => {
                 {
                     start: { $gt: currentDate }
                 }
-            ]
+            ],
+            participants: { $ne: userId }
         });
-        res.status(200).json(upcommingLeagues);
+        res.status(200).json(upcomingLeagues);
     } catch (error) {
         res.status(500).json({
             message: "unable to get leagues" + error
@@ -29,7 +31,7 @@ export const getmyleague = async (req, res) => {
         const { userId } = req.body;
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
-            start: { $gt: currentDate },
+            end: { $gte: currentDate },
             participantsId: { $in: [userId] }
         });
         res.status(200).json(upcommingLeagues);
@@ -133,6 +135,7 @@ export const joinleague = async (req, res) => {
         });
     }
 };
+
 const _createTeam = async (userId, userName, leagueId, leagueName) => {
     try {
         const userLeagueData = new LeagueData({
@@ -143,6 +146,7 @@ const _createTeam = async (userId, userName, leagueId, leagueName) => {
         res.status(500).json({ message: "unable to create a team " + error });
     }
 }
+
 export const jointeam = async (req, res) => {
     try {
         const currentDate = new Date();
@@ -169,7 +173,6 @@ export const jointeam = async (req, res) => {
         );
 
         if (existingTeam) {
-            // Update the existing teamName for the day
             await LeagueData.updateOne(
                 { userId, leagueId, "teams.day": existingTeam.day },
                 {
@@ -177,7 +180,6 @@ export const jointeam = async (req, res) => {
                 }
             );
         } else {
-            // Push new team
             await LeagueData.updateOne(
                 { userId, leagueId },
                 {
@@ -191,10 +193,22 @@ export const jointeam = async (req, res) => {
             );
         }
 
-        return res.status(200).json({ message: "Team joined/updated successfully" });
+        return res.status(200).json({ message: "joined successfully" });
 
     } catch (error) {
         console.error("Join Team Error:", error);
         return res.status(500).json({ message: "Unable to join the team", error: error.message });
     }
 };
+
+export const myteam = async (req, res) => {
+    try {
+        const { userId, leagueId } = req.body;
+        if (!userId || !leagueId) return res.status(400).json({ message: "All fields are required to get the team " });
+        const myteamdata = await LeagueData.find({ userId, leagueId });
+        if (!myteamdata) return res.status(400).json({ message: "no team found for this league" });
+        res.status(200).json(myteamdata)
+    } catch (error) {
+        res.status(500).json({ message: "unable to get the team " + error });
+    }
+}

@@ -5,6 +5,7 @@ import Instance from '../utils/axios.configuration';
 export const useLeagueStore = create((set, get) => ({
   leagues: null,
   myleagues: [],
+  myteam:null,
 
   createleague: async (data) => {
     try {
@@ -15,10 +16,14 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  joinleague: async (data) => {
+  joinleague: async (leagueId) => {
     try {
-      const res = await Instance.post("/play/joinleague", data);
-      set({ myleagues: [...prev, res.data] });
+      const {isAuthUser}= useAuthStore.getState();;
+      
+      const res = await Instance.post("/play/joinleague", {
+        leagueId,
+        userId:isAuthUser._id
+      });
     } catch (error) {
       console.log("Error joining league", error);
     }
@@ -26,7 +31,7 @@ export const useLeagueStore = create((set, get) => ({
   
   getmyleagues: async () => {
     try {
-      const {isAuthUser}= useAuthStore.getState();;
+      const {isAuthUser}= useAuthStore.getState();
       if(!isAuthUser)return;
     const res = await Instance.post("/play/myleagues", {userId:isAuthUser._id});
       set({ myleagues: res.data });
@@ -37,8 +42,28 @@ export const useLeagueStore = create((set, get) => ({
 
   getleague: async () => {
     try {
-      const res = await Instance.get("/play/leagues");
+      const {isAuthUser}= useAuthStore.getState();
+      const res = await Instance.post("/play/leagues",{
+        userId:isAuthUser._id
+      });
       set({ leagues: res.data });
+    } catch (error) {
+      console.log("Error getting leagues", error);
+    }
+  },
+  jointeam:async(data)=>{
+    try {
+      const res = await Instance.post("/play/jointeam",{data})
+      console.log(res.message);
+    } catch (error) {
+      console.log("Error getting leagues", error);
+    }
+  },
+  getmyteam:async(data)=>{
+    try {
+      const res = await Instance.post("/play/myteam",{data});
+      console.log(res.data);
+      set({myteam:res.data});
     } catch (error) {
       console.log("Error getting leagues", error);
     }
