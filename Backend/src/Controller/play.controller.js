@@ -147,28 +147,54 @@ export const jointeam = async (req, res) => {
     try {
         const currentDate = new Date();
         const { userId, leagueId, day, teamName } = req.body;
-        let data = await LeagueData.findOne({ userId, leagueId });
-        const alreadyEver = data.teams.some(entry => entry.teamName === teamName);
-        if(alreadyEver) return res.status(400).json("you previously joind this team");
-        await LeagueData.findOneAndUpdate(
-            {
-                userId,
-                leagueId
-            },
-            {
-                $push: {
-                    teams: {
-                        day,
-                        teamName
+
+        if (!userId || !leagueId || !day || !teamName) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const newDate = new Date(day);
+
+        if (currentDate >= newDate) {
+            return res.status(400).json({ message: "Invalid date to join team" });
+        }
+
+        const data = await LeagueData.findOne({ userId, leagueId });
+
+        if (!data) {
+            return res.status(404).json({ message: "League data not found" });
+        }
+
+        const existingTeam = data.teams.find(entry =>
+            new Date(entry.day).toISOString().split("T")[0] === newDate.toISOString().split("T")[0]
+        );
+
+        if (existingTeam) {
+            // Update the existing teamName for the day
+            await LeagueData.updateOne(
+                { userId, leagueId, "teams.day": existingTeam.day },
+                {
+                    $set: { "teams.$.teamName": teamName }
+                }
+            );
+        } else {
+            // Push new team
+            await LeagueData.updateOne(
+                { userId, leagueId },
+                {
+                    $push: {
+                        teams: {
+                            day: newDate,
+                            teamName
+                        }
                     }
                 }
-            }
-        )
-res.status(200).json({
-    message:"successfully added"
-})
-    } catch (error) {
-        res.status(500).json({ message: "unable to join to team " + error });
-    }
-}
+            );
+        }
 
+        return res.status(200).json({ message: "Team joined/updated successfully" });
+
+    } catch (error) {
+        console.error("Join Team Error:", error);
+        return res.status(500).json({ message: "Unable to join the team", error: error.message });
+    }
+};
