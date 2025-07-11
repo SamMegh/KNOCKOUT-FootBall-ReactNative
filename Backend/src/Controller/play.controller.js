@@ -1,3 +1,4 @@
+import LeagueData from "../DBmodel/league.data.model.js";
 import League from "../DBmodel/league.model.js";
 import User from '../DBmodel/user.db.model.js';
 
@@ -5,15 +6,15 @@ export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
-           $or: [
-    {
-      start: { $lte: currentDate },
-      end: { $gte: currentDate }
-    },
-    {
-      start: { $gt: currentDate }
-    }
-  ]
+            $or: [
+                {
+                    start: { $lte: currentDate },
+                    end: { $gte: currentDate }
+                },
+                {
+                    start: { $gt: currentDate }
+                }
+            ]
         });
         res.status(200).json(upcommingLeagues);
     } catch (error) {
@@ -25,11 +26,11 @@ export const getleague = async (req, res) => {
 
 export const getmyleague = async (req, res) => {
     try {
-        const {userId}=req.body;
+        const { userId } = req.body;
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
             start: { $gt: currentDate },
-            participantsId: {$in: [userId]}
+            participantsId: { $in: [userId] }
         });
         res.status(200).json(upcommingLeagues);
     } catch (error) {
@@ -102,31 +103,25 @@ export const joinleague = async (req, res) => {
 
         const user = await User.findById(userId);
 
-        if (!user) {
-            return res.status(400).json({
-                message: "Unable to get the user"
-            });
-        }
+        if (!user) return res.status(400).json({ message: "Unable to get the user" });
+
 
         const league = await League.findById(leagueId);
 
-        if (!league || currentDate > league.end) {
-            return res.status(400).json({
-                message: "Unable to get the league"
-            });
-        }
+        if (!league || currentDate > league.end) return res.status(400).json({ message: "Unable to get the league" });
 
+        if (league.participantsId.some(id => id.toString() === userId.toString())) return res.status(400).json({ message: "You are already in this league" });
         await League.findByIdAndUpdate(
             leagueId,
             {
                 $push: {
                     participantsId: { $each: [user._id] },
-                    paticipantsNames: { $each: [user.name] }
+                    participantsNames: { $each: [user.name] }
                 }
             },
             { new: true } // optional if you want updated doc back
         );
-
+        await _createTeam(user._id, user.name, league._id, league.name);
         res.status(200).json({
             message: "User added successfully"
         });
@@ -138,5 +133,42 @@ export const joinleague = async (req, res) => {
         });
     }
 };
+const _createTeam = async (userId, userName, leagueId, leagueName) => {
+    try {
+        const userLeagueData = new LeagueData({
+            userId, userName, leagueId, leagueName
+        });
+        userLeagueData.save();
+    } catch (error) {
+        res.status(500).json({ message: "unable to create a team " + error });
+    }
+}
+export const jointeam = async (req, res) => {
+    try {
+        const currentDate = new Date();
+        const { userId, leagueId, day, teamName } = req.body;
+        let data = await LeagueData.findOne({ userId, leagueId });
+        const alreadyEver = data.teams.some(entry => entry.teamName === teamName);
+        if(alreadyEver) return res.status(400).json("you previously joind this team");
+        await LeagueData.findOneAndUpdate(
+            {
+                userId,
+                leagueId
+            },
+            {
+                $push: {
+                    teams: {
+                        day,
+                        teamName
+                    }
+                }
+            }
+        )
+res.status(200).json({
+    message:"successfully added"
+})
+    } catch (error) {
+        res.status(500).json({ message: "unable to join to team " + error });
+    }
+}
 
-    
