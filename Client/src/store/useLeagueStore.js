@@ -59,10 +59,10 @@ export const useLeagueStore = create((set, get) => ({
       console.log("Error getting leagues", error);
     }
   },
-  getmyteam:async(data)=>{
+  getmyteam:async(leagueId)=>{
     try {
-      const res = await Instance.post("/play/myteam",{data});
-      console.log(res.data);
+      const {isAuthUser}= useAuthStore.getState();
+      const res = await Instance.post("/play/myteam",{userId:isAuthUser._id , leagueId});
       set({myteam:res.data});
     } catch (error) {
       console.log("Error getting leagues", error);

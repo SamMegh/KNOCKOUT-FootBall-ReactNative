@@ -5,7 +5,7 @@ import User from '../DBmodel/user.db.model.js';
 export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
-        const {userId} = req.body;
+        const { userId } = req.body;
         const upcomingLeagues = await League.find({
             $or: [
                 {
@@ -157,13 +157,18 @@ export const jointeam = async (req, res) => {
         }
 
         const newDate = new Date(day);
-
         if (currentDate >= newDate) {
             return res.status(400).json({ message: "Invalid date to join team" });
         }
 
         const data = await LeagueData.findOne({ userId, leagueId });
-
+        if(data.end<=currentDate){
+            if(data.end<currentDate){
+            return res.status(400).json({ message: "unable to join team becoues league is ended" });
+        }else{
+            return res.status(400).json({ message: "unable to join team becoues it is last day of the league" });
+        }
+        }
         if (!data) {
             return res.status(404).json({ message: "League data not found" });
         }
@@ -171,7 +176,9 @@ export const jointeam = async (req, res) => {
         const existingTeam = data.teams.find(entry =>
             new Date(entry.day).toISOString().split("T")[0] === newDate.toISOString().split("T")[0]
         );
-
+        if (data.teams.some(team => team.teamName === teamName)) {
+            return res.status(400).json("team is already selected");
+        }
         if (existingTeam) {
             await LeagueData.updateOne(
                 { userId, leagueId, "teams.day": existingTeam.day },
@@ -205,7 +212,7 @@ export const myteam = async (req, res) => {
     try {
         const { userId, leagueId } = req.body;
         if (!userId || !leagueId) return res.status(400).json({ message: "All fields are required to get the team " });
-        const myteamdata = await LeagueData.find({ userId, leagueId });
+        const myteamdata = await LeagueData.findOne({ $and: [{ userId }, { leagueId }] });
         if (!myteamdata) return res.status(400).json({ message: "no team found for this league" });
         res.status(200).json(myteamdata)
     } catch (error) {
