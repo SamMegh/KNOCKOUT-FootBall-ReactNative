@@ -6,6 +6,7 @@ import express from 'express';
 import { connect } from './lib/connect.db.js';
 import authRoutes from "./routes/auth.routes.js";
 import playRoutes from "./routes/play.routes.js";
+import matchRoutes from "./routes/match.route.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cors({
 
 app.use("/auth", authRoutes);
 app.use("/play", playRoutes);
+app.use("/data", matchRoutes);
 
 app.listen(Port, () => {
   console.log('Server is running on port port:'+Port);

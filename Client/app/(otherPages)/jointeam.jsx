@@ -1,6 +1,6 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
@@ -9,6 +9,7 @@ export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
   const { myteam, getmyteam } = useLeagueStore();
   const { id } = useLocalSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     if (id) getmyteam(id);
@@ -28,6 +29,11 @@ export default function JoinTeam() {
 
   return (
     <SafeAreaView>
+      <TouchableOpacity onPress={()=>router.replace('/myleague')}>
+        <Text>
+          go Back
+        </Text>
+      </TouchableOpacity>
     <View className="p-4">
       <Text className="text-lg font-bold mb-2">User: {myteam.userName}</Text>
       <Text className="text-lg font-bold ">League: {myteam.leagueName}</Text>
