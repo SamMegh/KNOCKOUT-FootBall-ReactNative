@@ -1,7 +1,7 @@
 import express from 'express';
-import { getmatches } from '../Controller/match.controller.js';
+import { getmatch } from '../Controller/match.controller.js';
 const router = express.Router();
 
-router.get("/getmatches",getmatches);
+router.get("/getmatch",getmatch);
 
 export default router

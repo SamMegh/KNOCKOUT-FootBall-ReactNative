@@ -68,15 +68,13 @@ export const useLeagueStore = create((set, get) => ({
       console.log("Error getting leagues", error);
     }
   },
-  getData: async () => {
+  getDayData: async () => {
     try {
-      const dateFrom = '2025-07-14';
-      const dateTo = '2025-07-20';
+      const date = '2025-07-12';
 
-     const res= Instance.get(`/data/getmatches`, {
+     const res= Instance.get(`/data/getmatch`, {
         params: {
-          dateFrom,
-          dateTo
+          date
         }
       });
     } catch (error) {

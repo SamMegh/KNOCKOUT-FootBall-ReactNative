@@ -113,6 +113,7 @@ export const joinleague = async (req, res) => {
         if (!league || currentDate > league.end) return res.status(400).json({ message: "Unable to get the league" });
 
         if (league.participantsId.some(id => id.toString() === userId.toString())) return res.status(400).json({ message: "You are already in this league" });
+        await _createTeam(user._id, user.name, league._id, league.name);
         await League.findByIdAndUpdate(
             leagueId,
             {
@@ -123,7 +124,7 @@ export const joinleague = async (req, res) => {
             },
             { new: true } // optional if you want updated doc back
         );
-        await _createTeam(user._id, user.name, league._id, league.name);
+        
         res.status(200).json({
             message: "User added successfully"
         });
@@ -131,21 +132,77 @@ export const joinleague = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: "Unable to join league",
-            error: error.message
+            error: error
         });
     }
 };
 
 const _createTeam = async (userId, userName, leagueId, leagueName) => {
-    try {
-        const userLeagueData = new LeagueData({
-            userId, userName, leagueId, leagueName
-        });
-        userLeagueData.save();
-    } catch (error) {
-        res.status(500).json({ message: "unable to create a team " + error });
+  try {
+    const league = await League.findById(leagueId);
+
+    function dateformat(date) {
+      const newDate = new Date(date);
+      const yyyy = newDate.getFullYear();
+      const mm = (newDate.getMonth() + 1).toString().padStart(2, '0');
+      const dd = newDate.getDate().toString().padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
-}
+
+    const start = new Date(league.start);
+    const end = new Date(league.end);
+    const allDates = new Set();
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 10)) {
+      const dateFrom = dateformat(d);
+      const dTo = new Date(d);
+      dTo.setDate(dTo.getDate() + 9);
+      if (dTo > end) dTo.setTime(end.getTime());
+      const dateTo = dateformat(dTo);
+
+      const response = await fetch(`https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
+        headers: {
+          'X-Auth-Token': process.env.FOOTBAL_API,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!data.matches) {
+        console.log(`No matches found between ${dateFrom} and ${dateTo}`);
+        continue;
+      }
+
+      data.matches.forEach(match => {
+        const date = match.utcDate.split('T')[0];
+        allDates.add(date);
+      });
+    }
+
+    const uniqueDates = [...allDates];
+
+    if (uniqueDates.length === 0) {
+      throw new Error("No matches data found in API response");
+    }
+
+    const userLeagueData = new LeagueData({
+      userId,
+      userName,
+      leagueId,
+      leagueName,
+      teams: uniqueDates.map(date => ({
+        day: new Date(date),
+        teamName: "Not Selected"
+      }))
+    });
+
+    await userLeagueData.save();
+
+  } catch (error) {
+    console.error("Error in _createTeam:", error);
+  }
+};
+
 
 export const jointeam = async (req, res) => {
     try {
@@ -162,12 +219,12 @@ export const jointeam = async (req, res) => {
         }
 
         const data = await LeagueData.findOne({ userId, leagueId });
-        if(data.end<=currentDate){
-            if(data.end<currentDate){
-            return res.status(400).json({ message: "unable to join team becoues league is ended" });
-        }else{
-            return res.status(400).json({ message: "unable to join team becoues it is last day of the league" });
-        }
+        if (data.end <= currentDate) {
+            if (data.end < currentDate) {
+                return res.status(400).json({ message: "unable to join team becoues league is ended" });
+            } else {
+                return res.status(400).json({ message: "unable to join team becoues it is last day of the league" });
+            }
         }
         if (!data) {
             return res.status(404).json({ message: "League data not found" });

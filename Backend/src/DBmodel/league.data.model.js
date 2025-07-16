@@ -6,6 +6,7 @@ const teamEntrySchema = new mongoose.Schema({
   },
   teamName: {
     type: String,
+    default:"Not Selected"
   }
 });
 

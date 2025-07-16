@@ -1,12 +1,12 @@
 
-export const getmatches = async (req, res) => {
+export const getmatch = async (req, res) => {
   try {
     const { date } = req.query;
     const response = await fetch(
       `https://api.football-data.org/v4/matches?date=${date}`,
       {
         headers: {
-          'X-Auth-Token': '6420e902ac81458f9c129ecbace43829',
+          'X-Auth-Token': process.env.FOOTBAL_API,
         },
       }
     );
