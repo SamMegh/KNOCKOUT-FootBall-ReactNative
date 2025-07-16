@@ -1,5 +1,5 @@
 import express from 'express';
-import { createleague, getleague, getmyleague, joinleague, jointeam, myteam } from '../Controller/play.controller.js';
+import { createleague, getleague, getmyleague, joinleague, jointeam, myteam, teams } from '../Controller/play.controller.js';
 
 const router = express.Router();
 
@@ -9,5 +9,6 @@ router.post("/createleague",createleague);
 router.post("/joinleague",joinleague);
 router.post("/jointeam",jointeam);
 router.post("/myteam",myteam);
+router.get("/teams",teams);
 
 export default router;

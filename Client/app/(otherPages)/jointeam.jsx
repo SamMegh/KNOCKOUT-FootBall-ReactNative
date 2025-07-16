@@ -29,11 +29,9 @@ export default function JoinTeam() {
 
   return (
     <SafeAreaView>
-      <TouchableOpacity onPress={()=>router.replace('/myleague')}>
-        <Text>
-          go Back
-        </Text>
-      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.back()}>
+          <Text className="text-base text-blue-600 mb-4">← Go Back</Text>
+        </TouchableOpacity>
     <View className="p-4">
       <Text className="text-lg font-bold mb-2">User: {myteam.userName}</Text>
       <Text className="text-lg font-bold ">League: {myteam.leagueName}</Text>

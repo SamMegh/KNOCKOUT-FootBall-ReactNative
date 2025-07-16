@@ -276,3 +276,13 @@ export const myteam = async (req, res) => {
         res.status(500).json({ message: "unable to get the team " + error });
     }
 }
+export const teams = async (req,res)=>{
+    try {
+        const {leagueid}= req.query;
+        if (!leagueid) return res.status(400).json({ message: "leagueid query parameter is required." });
+        const teams = await LeagueData.find( { leagueId: leagueid });
+        res.status(200).json(teams)
+    } catch (error) {
+         res.status(500).json({ message: "unable to get the teams " + error });
+    }
+}

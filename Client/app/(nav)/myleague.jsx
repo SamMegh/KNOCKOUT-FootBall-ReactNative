@@ -17,8 +17,8 @@ function myleague() {
             key={index}
             onPress={() =>
               router.push({
-                pathname: "/jointeam",
-                params: { id: league._id },
+                pathname: "/leaguedata",
+                params: { leagueid: league._id },
               })
             }
           >
