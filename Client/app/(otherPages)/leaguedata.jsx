@@ -9,13 +9,13 @@ function LeagueData() {
   const { leagueid } = useLocalSearchParams();
   const { isAuthUser } = useAuthStore();
   const router = useRouter();
-  const { leagueTeams, getteams } = useLeagueStore();
+  const { leagueTeams, getleagueteams } = useLeagueStore();
 
   if (!isAuthUser) return <Redirect href="/login" />;
 
   useEffect(() => {
-    if (leagueid) getteams(leagueid);
-  }, [leagueid]);
+    if (leagueid) getleagueteams(leagueid);
+  }, [leagueid,getleagueteams]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">

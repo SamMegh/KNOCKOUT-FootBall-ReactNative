@@ -7,6 +7,7 @@ export const useLeagueStore = create((set, get) => ({
   myleagues: [],
   myteam: null,
   leagueTeams: [],
+  matchOfTheDay:[],
 
   createleague: async (data) => {
     try {
@@ -72,26 +73,26 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  getDayData: async () => {
+  getDayData: async (day) => {
     try {
-      const date = '2025-07-12';
-
-      const res = Instance.get(`/data/getmatch`, {
+      const res = await Instance.get(`/data/getmatch`, {
         params: {
-          date
+          date:day
         }
       });
+      set({matchOfTheDay:res.data})
     } catch (error) {
       console.log(error)
     }
   },
 
-  getteams: async (leagueid) => {
+  getleagueteams: async (leagueid) => {
     try {
-      const res = await Instance.get("/play/teams", { params: { leagueid } })
+      const res = await Instance.get("/play/leagueteams", { params: { leagueid } })
       set({ leagueTeams: res.data });
     } catch (error) {
       console.log(error)
     }
-  }
+  },
+
 }));

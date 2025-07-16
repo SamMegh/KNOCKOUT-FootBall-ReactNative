@@ -12,7 +12,11 @@ export const getmatch = async (req, res) => {
     );
 
     const data = await response.json();
-    res.status(200).json(data.matches);
+    const matches = (data.matches || []).map(match => ({
+      home: match.homeTeam.name,
+      away: match.awayTeam.name
+    }));
+    res.status(200).json(matches);
   } catch (error) {
     res.status(500).json({ message: 'Unable to fetch matches: ' + error.message });
   }

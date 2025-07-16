@@ -9,6 +9,6 @@ router.post("/createleague",createleague);
 router.post("/joinleague",joinleague);
 router.post("/jointeam",jointeam);
 router.post("/myteam",myteam);
-router.get("/teams",teams);
+router.get("/leagueteams",teams);
 
 export default router;
