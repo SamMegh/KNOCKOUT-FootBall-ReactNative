@@ -18,7 +18,7 @@ export const getleague = async (req, res) => {
             ],
             participantsId: { $ne: userId }
         });
-        
+
         res.status(200).json(upcomingLeagues);
     } catch (error) {
         res.status(500).json({
@@ -115,7 +115,7 @@ export const joinleague = async (req, res) => {
 
         if (league.participantsId.some(id => id.toString() === userId.toString())) return res.status(400).json({ message: "You are already in this league" });
         await _createTeam(user._id, user.name, league._id, league.name);
-        await League.findByIdAndUpdate(
+        const newleaguedata = await League.findByIdAndUpdate(
             leagueId,
             {
                 $push: {
@@ -125,9 +125,9 @@ export const joinleague = async (req, res) => {
             },
             { new: true } // optional if you want updated doc back
         );
-        
+
         res.status(200).json({
-            message: "User added successfully"
+            newleaguedata
         });
 
     } catch (error) {
@@ -139,71 +139,70 @@ export const joinleague = async (req, res) => {
 };
 
 const _createTeam = async (userId, userName, leagueId, leagueName) => {
-  try {
-    const league = await League.findById(leagueId);
+    try {
+        const league = await League.findById(leagueId);
 
-    function dateformat(date) {
-      const newDate = new Date(date);
-      const yyyy = newDate.getFullYear();
-      const mm = (newDate.getMonth() + 1).toString().padStart(2, '0');
-      const dd = newDate.getDate().toString().padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
+        function dateformat(date) {
+            const newDate = new Date(date);
+            const yyyy = newDate.getFullYear();
+            const mm = (newDate.getMonth() + 1).toString().padStart(2, '0');
+            const dd = newDate.getDate().toString().padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        const start = new Date(league.start);
+        const end = new Date(league.end);
+        const allDates = new Set();
+
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 10)) {
+            const dateFrom = dateformat(d);
+            const dTo = new Date(d);
+            dTo.setDate(dTo.getDate() + 9);
+            if (dTo > end) dTo.setTime(end.getTime());
+            const dateTo = dateformat(dTo);
+
+            const response = await fetch(`https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
+                headers: {
+                    'X-Auth-Token': process.env.FOOTBAL_API,
+                },
+            });
+
+            const data = await response.json();
+
+            if (!data.matches) {
+                console.log(`No matches found between ${dateFrom} and ${dateTo}`);
+                continue;
+            }
+
+            data.matches.forEach(match => {
+                const date = match.utcDate.split('T')[0];
+                allDates.add(date);
+            });
+        }
+
+        const uniqueDates = [...allDates];
+
+        if (uniqueDates.length === 0) {
+            throw new Error("No matches data found in API response");
+        }
+
+        const userLeagueData = new LeagueData({
+            userId,
+            userName,
+            leagueId,
+            leagueName,
+            teams: uniqueDates.map(date => ({
+                day: new Date(date),
+                teamName: "Not Selected"
+            }))
+        });
+
+        await userLeagueData.save();
+
+    } catch (error) {
+        console.error("Error in _createTeam:", error);
     }
-
-    const start = new Date(league.start);
-    const end = new Date(league.end);
-    const allDates = new Set();
-
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 10)) {
-      const dateFrom = dateformat(d);
-      const dTo = new Date(d);
-      dTo.setDate(dTo.getDate() + 9);
-      if (dTo > end) dTo.setTime(end.getTime());
-      const dateTo = dateformat(dTo);
-
-      const response = await fetch(`https://api.football-data.org/v4/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
-        headers: {
-          'X-Auth-Token': process.env.FOOTBAL_API,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!data.matches) {
-        console.log(`No matches found between ${dateFrom} and ${dateTo}`);
-        continue;
-      }
-
-      data.matches.forEach(match => {
-        const date = match.utcDate.split('T')[0];
-        allDates.add(date);
-      });
-    }
-
-    const uniqueDates = [...allDates];
-
-    if (uniqueDates.length === 0) {
-      throw new Error("No matches data found in API response");
-    }
-
-    const userLeagueData = new LeagueData({
-      userId,
-      userName,
-      leagueId,
-      leagueName,
-      teams: uniqueDates.map(date => ({
-        day: new Date(date),
-        teamName: "Not Selected"
-      }))
-    });
-
-    await userLeagueData.save();
-
-  } catch (error) {
-    console.error("Error in _createTeam:", error);
-  }
 };
-
 
 export const jointeam = async (req, res) => {
     try {
@@ -231,34 +230,16 @@ export const jointeam = async (req, res) => {
             return res.status(404).json({ message: "League data not found" });
         }
 
-        const existingTeam = data.teams.find(entry =>
-            new Date(entry.day).toISOString().split("T")[0] === newDate.toISOString().split("T")[0]
-        );
         if (data.teams.some(team => team.teamName === teamName)) {
             return res.status(400).json("team is already selected");
         }
-        if (existingTeam) {
-            await LeagueData.updateOne(
-                { userId, leagueId, "teams.day": existingTeam.day },
-                {
-                    $set: { "teams.$.teamName": teamName }
-                }
-            );
-        } else {
-            await LeagueData.updateOne(
-                { userId, leagueId },
-                {
-                    $push: {
-                        teams: {
-                            day: newDate,
-                            teamName
-                        }
-                    }
-                }
-            );
-        }
+        const updatedLeague = await LeagueData.findOneAndUpdate(
+            { userId, leagueId, "teams.day": day },
+            { $set: { "teams.$.teamName": teamName } },
+            { new: true }
+        );
 
-        return res.status(200).json({ message: "joined successfully" });
+        return res.status(200).json(updatedLeague);
 
     } catch (error) {
         console.error("Join Team Error:", error);
@@ -277,13 +258,14 @@ export const myteam = async (req, res) => {
         res.status(500).json({ message: "unable to get the team " + error });
     }
 }
-export const teams = async (req,res)=>{
+
+export const teams = async (req, res) => {
     try {
-        const {leagueid}= req.query;
+        const { leagueid } = req.query;
         if (!leagueid) return res.status(400).json({ message: "leagueid query parameter is required." });
-        const teams = await LeagueData.find( { leagueId: leagueid });
+        const teams = await LeagueData.find({ leagueId: leagueid });
         res.status(200).json(teams)
     } catch (error) {
-         res.status(500).json({ message: "unable to get the teams " + error });
+        res.status(500).json({ message: "unable to get the teams " + error });
     }
 }
