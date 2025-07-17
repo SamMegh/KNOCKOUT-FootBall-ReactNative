@@ -13,7 +13,7 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
-  const { myteam, getmyteam, getDayData, matchOfTheDay } = useLeagueStore();
+  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } = useLeagueStore();
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
@@ -22,6 +22,7 @@ export default function JoinTeam() {
   const [data, setData] = useState({
     day: "",
     teamName: "",
+    leagueId: "",
   });
 
   // Fetch team data initially
@@ -91,8 +92,9 @@ export default function JoinTeam() {
                 className="flex-1 text-blue-500 underline text-center"
                 onPress={() => {
                   setData({
-                    day: item.day.split('T')[0],
+                    day: item.day.split("T")[0],
                     teamName: item.teamName,
+                    leagueId:myteam.leagueId
                   });
                   setShowDropDown(true);
                 }}
@@ -124,7 +126,9 @@ export default function JoinTeam() {
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
-                        <Text className="font-bold" onPress={()=>{}}>{item.home}</Text>
+                        <Text className="font-bold" onPress={() => {jointeam(data.leagueId, data.day, item.home )}}>
+                          {item.home}
+                        </Text>
                         <Text className="mx-2 font-semibold">Vs</Text>
                         <Text className="font-bold">{item.away}</Text>
                       </View>
