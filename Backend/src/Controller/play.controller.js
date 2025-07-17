@@ -18,6 +18,7 @@ export const getleague = async (req, res) => {
             ],
             participantsId: { $ne: userId }
         });
+        
         res.status(200).json(upcomingLeagues);
     } catch (error) {
         res.status(500).json({
