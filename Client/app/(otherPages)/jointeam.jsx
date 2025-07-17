@@ -13,7 +13,8 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
-  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } = useLeagueStore();
+  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } =
+    useLeagueStore();
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
@@ -64,7 +65,7 @@ export default function JoinTeam() {
 
   return (
     <SafeAreaView className="flex-1">
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={() => router.replace("/leaguedata")}>
         <Text className="text-base text-blue-600 mb-4">← Go Back</Text>
       </TouchableOpacity>
 
@@ -94,7 +95,7 @@ export default function JoinTeam() {
                   setData({
                     day: item.day.split("T")[0],
                     teamName: item.teamName,
-                    leagueId:myteam.leagueId
+                    leagueId: myteam.leagueId,
                   });
                   setShowDropDown(true);
                 }}
@@ -126,11 +127,32 @@ export default function JoinTeam() {
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
-                        <Text className="font-bold" onPress={() => {jointeam(data.leagueId, data.day, item.home )}}>
+                        <Text
+                          className="font-bold"
+                          onPress={() => {
+                            setShowDropDown(false);
+                            jointeam(data.leagueId, data.day, item.home);
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                            });
+                          }}
+                        >
                           {item.home}
                         </Text>
                         <Text className="mx-2 font-semibold">Vs</Text>
-                        <Text className="font-bold">{item.away}</Text>
+                        <Text className="font-bold"
+                        onPress={() => {
+                            setShowDropDown(false);
+                            jointeam(data.leagueId, data.day, item.away);
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                            });
+                          }}
+                        >{item.away}</Text>
                       </View>
                     )}
                   />

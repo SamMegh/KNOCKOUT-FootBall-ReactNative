@@ -50,6 +50,7 @@ export const useLeagueStore = create((set, get) => ({
       const res = await Instance.post("/play/leagues", {
         userId: isAuthUser._id
       });
+      console.log(res.data)
       set({ leagues: res.data });
     } catch (error) {
       console.log("Error getting leagues", error);
