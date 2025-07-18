@@ -7,7 +7,11 @@ module.exports = {
   ],
   presets: [require("nativewind/preset")],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'Nedian-Bold': ['Nedian-Bold', 'sans-serif'], // custom font
+      },
+    },
   },
   plugins: [],
 };

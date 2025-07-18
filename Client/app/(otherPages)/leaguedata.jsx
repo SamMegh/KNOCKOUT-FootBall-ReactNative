@@ -52,7 +52,7 @@ const sortedLeagueData = mergedLeagueData.sort((a, b) =>
                   });
                 }
               }}
-              className="mb-4 p-4 rounded-xl shadow"
+              className="mb-4 p-4 rounded-xl boxShadow"
               style={{
                 backgroundColor:
                   isAuthUser._id === user.userId ? "#A4BCFF" : "#CCCCCC",
