@@ -9,6 +9,10 @@ const leagueSchema = new mongoose.Schema({
         type: Number,
         default: 1
     },
+    owner:{
+        typer:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    },
     lifelinePerUser: {
         type: Number,
         default: 1
@@ -31,12 +35,6 @@ const leagueSchema = new mongoose.Schema({
     end: {
         type: Date,
         required: true
-    },
-    maxTeam: {
-        type: Number,
-        min: 1,
-        max: 7,
-        default: 7
     },
     joinfee: {
         type: Number,
