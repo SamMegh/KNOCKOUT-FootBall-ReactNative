@@ -45,15 +45,13 @@ export const getmyleague = async (req, res) => {
 
 export const createleague = async (req, res) => {
     try {
-        let totalWeeks = 1;
-        // const {name, joinfee,maxTeam,end,start,paticipantsNames,participantsId,maxTimeTeamSelect,lifelinePerUser,totalWeeks}=req.body;
-        const { name, joinfee, weeks, start } = req.body;
-        if (weeks <= 0) {
+        const { name, joinfee, owner, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks } = req.body;
+        // const { name, joinfee, weeks, start } = req.body;
+        if (!start || !name || !joinfee || !owner || !maxTimeTeamSelect || !lifelinePerUser || (!totalWeeks && !end)) {
             return res.status(400).json({
                 message: "invalid data to create a league"
             })
         }
-        if (weeks) totalWeeks = weeks;
 
 
         // Function to get next Saturday from a date
@@ -64,16 +62,31 @@ export const createleague = async (req, res) => {
             result.setDate(result.getDate() + daysUntilSaturday + (weekOffset * 7));
             return result;
         }
+        //function for finding number of weeks as per start and end 
+        function getTotalWeeks(startDateStr, endDateStr) {
+            const start = new Date(startDateStr);
+            const end = new Date(endDateStr);
 
+            if (isNaN(start) || isNaN(end)) {
+                throw new Error("Invalid date format");
+            }
+
+            const millisecondsPerWeek = 1000 * 60 * 60 * 24 * 7;
+            const diffInMs = end - start;
+
+            if (diffInMs < 0) {
+                throw new Error("End date must be after start date");
+            }
+
+            return Math.ceil(diffInMs / millisecondsPerWeek);
+        }
         // Calculate end date based on number of weeks
-        let end = getNextSaturday(start, (totalWeeks - 1));
+        if (!end) { end = getNextSaturday(start, (totalWeeks - 1)); }
+
+        if (!totalWeeks) { totalWeeks = getTotalWeeks(start, end) }
 
         const newLeague = new League({
-            name,
-            joinfee,
-            end,
-            start,
-            totalWeeks
+            name, joinfee, owner, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks
         });
         if (newLeague) {
             await newLeague.save();
