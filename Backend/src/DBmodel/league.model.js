@@ -9,9 +9,21 @@ const leagueSchema = new mongoose.Schema({
         type: Number,
         default: 1
     },
-    owner:{
-        typer:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+    type: {
+        type: String,
+        enum: ["public", "private"],
+        required: true,
+        default: "private"
+    },
+    ownerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "User"
+    },
+    ownerName:{
+        type:String,
+        required: true,
+        ref : "User"
     },
     lifelinePerUser: {
         type: Number,
@@ -20,7 +32,7 @@ const leagueSchema = new mongoose.Schema({
     maxTimeTeamSelect: {
         type: Number,
         default: 1
-    }, 
+    },
     participantsId: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

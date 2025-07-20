@@ -45,14 +45,16 @@ export const getmyleague = async (req, res) => {
 
 export const createleague = async (req, res) => {
     try {
-        const { name, joinfee, owner, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks } = req.body;
+        let { name, joinfee, ownerId, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
         // const { name, joinfee, weeks, start } = req.body;
-        if (!start || !name || !joinfee || !owner || !maxTimeTeamSelect || !lifelinePerUser || (!totalWeeks && !end)) {
+        if (!start || !name || !joinfee || !ownerId  || (!totalWeeks && !end)) {
             return res.status(400).json({
                 message: "invalid data to create a league"
             })
         }
 
+        const owner_in_DB= await User.findById(ownerId);
+        if(!owner_in_DB)return res.status(400).json("invalid user to create league")
 
         // Function to get next Saturday from a date
         function getNextSaturday(date, weekOffset) {
@@ -86,7 +88,7 @@ export const createleague = async (req, res) => {
         if (!totalWeeks) { totalWeeks = getTotalWeeks(start, end) }
 
         const newLeague = new League({
-            name, joinfee, owner, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks
+            name, joinfee, ownerId, ownerName:owner_in_DB.name, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks, type
         });
         if (newLeague) {
             await newLeague.save();
@@ -97,11 +99,14 @@ export const createleague = async (req, res) => {
                 maxTeam: newLeague.maxTeam,
                 end: newLeague.end,
                 start: newLeague.start,
-                paticipantsNames: newLeague.paticipantsNames,
+                paticipantsNames: newLeague.participantsNames,
                 participantsId: newLeague.participantsId,
                 maxTimeTeamSelect: newLeague.maxTimeTeamSelect,
                 lifelinePerUser: newLeague.lifelinePerUser,
-                totalWeeks: newLeague.totalWeeks
+                totalWeeks: newLeague.totalWeeks,
+                type : newLeague.type,
+                ownerId : newLeague.ownerId,
+                ownerName : newLeague.ownerName
 
             })
         }
@@ -111,6 +116,23 @@ export const createleague = async (req, res) => {
         });
     }
 }
+
+export const getMyCreatedLeagues = async (req, res) => {
+    try {
+        const { ownerId } = req.query;
+
+        if (!ownerId) {
+            return res.status(400).json({ message: "Missing ownerId in query" });
+        }
+
+        const created_leagues_by_me = await League.find({ ownerId: ownerId });
+
+        res.status(200).json(created_leagues_by_me);
+    } catch (error) {
+        res.status(500).json({ message: "Error getting your created leagues: " + error.message });
+    }
+};
+
 
 export const joinleague = async (req, res) => {
     try {
