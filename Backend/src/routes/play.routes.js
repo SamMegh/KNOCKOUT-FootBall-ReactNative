@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.post("/leagues",getleague);
 router.post("/myleagues",getmyleague);
-router.post("/createleague",createleague);
+router.post("/createleague",createleague);//let { name, joinfee, ownerId, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
 router.get("/yourleagues",getMyCreatedLeagues);//const {ownerId}= req.query;
 router.post("/joinleague",joinleague);
 router.post("/jointeam",jointeam);

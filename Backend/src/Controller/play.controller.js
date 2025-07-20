@@ -133,7 +133,6 @@ export const getMyCreatedLeagues = async (req, res) => {
     }
 };
 
-
 export const joinleague = async (req, res) => {
     try {
         const { userId, leagueId } = req.body;
