@@ -18,6 +18,9 @@ function LeagueData() {
       getmyteam(leagueid);
       getleagueteams(leagueid);
     }
+    else{
+      router.back();
+    }
   }, [leagueid, getleagueteams, getmyteam]);
 const mergedLeagueData = myteam
   ? [myteam, ...leagueTeams.filter((team) => team.userId !== myteam.userId)]

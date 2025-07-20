@@ -27,7 +27,6 @@ export const useLeagueStore = create((set, get) => ({
         leagueId,
         userId: isAuthUser._id
       });
-      console.log(res.data)
       set((state) => ({ myleagues: [...state.myleagues, res.data] }));
     } catch (error) {
       console.log("Error joining league", error);
@@ -55,19 +54,19 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  createmyownleague:async(data)=>{
+  createmyownleague: async (data) => {
     try {
       const { isAuthUser } = useAuthStore.getState();
-      const res = await Instance.post("/play/createleague",{
+      const res = await Instance.post("/play/createleague", {
         ownerId: isAuthUser._id,
-        joinfee:data.joinfee,
+        joinfee: data.joinfee,
         name: data.name,
-        end:data.end,
-        start:data.start,
-        maxTimeTeamSelect:data.maxTimeTeamSelect,
-        lifelinePerUser:data.lifelinePerUser
+        end: data.end,
+        start: data.start,
+        maxTimeTeamSelect: data.maxTimeTeamSelect,
+        lifelinePerUser: data.lifelinePerUser
       })
-      set({myownleagues:[...get().myownleagues,res.data]})
+      set({ myownleagues: [...get().myownleagues, res.data] })
 
     } catch (error) {
       console.log("unable to create league ", error);
@@ -101,14 +100,18 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
+  removeLeague: (id) => set((state) => ({
+    leagues: state.leagues.filter((l) => l._id !== id)
+  })),
+
   getmyteam: async (leagueId) => {
+    set({ myteam: null })
     try {
       const { isAuthUser } = useAuthStore.getState();
       const res = await Instance.post("/play/myteam", { userId: isAuthUser._id, leagueId });
       set({ myteam: res.data });
     } catch (error) {
       set({ myteam: null });
-      console.log("Error getting leagues", error);
     }
   },
 

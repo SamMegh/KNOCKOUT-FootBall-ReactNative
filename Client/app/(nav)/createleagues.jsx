@@ -28,7 +28,7 @@ function createleague() {
             onPress={() => {
               router.push({
                 pathname: "/leaguedata",
-                params: { id: league._id },
+                params: { leagueid: league._id },
               });
             }}
             className="mb-4 p-4 rounded-xl bg-[#CCCCCC] boxShadow"
