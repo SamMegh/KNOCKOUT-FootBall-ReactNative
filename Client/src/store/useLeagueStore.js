@@ -7,7 +7,8 @@ export const useLeagueStore = create((set, get) => ({
   myleagues: [],
   myteam: null,
   leagueTeams: [],
-  matchOfTheDay:[],
+  matchOfTheDay: [],
+  myownleagues: [],
 
   createleague: async (data) => {
     try {
@@ -44,6 +45,17 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
+  getmecreatedleagues: async () => {
+    try {
+      const { isAuthUser } = useAuthStore.getState();
+      const res = await Instance.get("/play/yourleagues", { params: { ownerId: isAuthUser._id } });
+      set({ myownleagues: res.data });
+    } catch (error) {
+      console.log("Error while getting leagues", error);
+    }
+  },
+
+
   getleague: async () => {
     try {
       const { isAuthUser } = useAuthStore.getState();
@@ -60,13 +72,13 @@ export const useLeagueStore = create((set, get) => ({
   jointeam: async (leagueId, day, teamName) => {
     try {
       const { isAuthUser } = useAuthStore.getState();
-      const res = await Instance.post("/play/jointeam", { 
+      const res = await Instance.post("/play/jointeam", {
         userId: (isAuthUser._id),
         leagueId,
         day,
         teamName
-       })
-      set({myteam:res.data});
+      })
+      set({ myteam: res.data });
     } catch (error) {
       console.log("Error getting leagues", error);
     }
@@ -78,6 +90,7 @@ export const useLeagueStore = create((set, get) => ({
       const res = await Instance.post("/play/myteam", { userId: isAuthUser._id, leagueId });
       set({ myteam: res.data });
     } catch (error) {
+      set({ myteam: null });
       console.log("Error getting leagues", error);
     }
   },
@@ -86,10 +99,10 @@ export const useLeagueStore = create((set, get) => ({
     try {
       const res = await Instance.get(`/data/getmatch`, {
         params: {
-          date:day
+          date: day
         }
       });
-      set({matchOfTheDay:res.data})
+      set({ matchOfTheDay: res.data })
     } catch (error) {
       console.log(error)
     }

@@ -6,7 +6,9 @@ import { useAuthStore } from "../../src/store/useAuthStore";
 function createnewleague() {
   const router = useRouter();
   const {isAuthUser} = useAuthStore();
-  const handleSubmit=()=>{}
+  const handleSubmit=async()=>{
+    
+  }
   if (!isAuthUser) return <Redirect href="/login" />;
   return (
     <View>

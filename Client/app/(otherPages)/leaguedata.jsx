@@ -28,7 +28,7 @@ const sortedLeagueData = mergedLeagueData.sort((a, b) =>
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="p-4">
-        <TouchableOpacity onPress={() => router.replace("/myleague")}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Text className="text-base text-blue-600 mb-4">← Go Back</Text>
         </TouchableOpacity>
 
