@@ -160,9 +160,9 @@ export const joinleague = async (req, res) => {
             { new: true } // optional if you want updated doc back
         );
 
-        res.status(200).json({
+        res.status(200).json(
             newleaguedata
-        });
+        );
 
     } catch (error) {
         res.status(500).json({
