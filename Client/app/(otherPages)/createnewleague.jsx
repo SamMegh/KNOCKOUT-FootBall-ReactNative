@@ -1,13 +1,15 @@
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore";
+import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 function createnewleague() {
   const router = useRouter();
   const {isAuthUser} = useAuthStore();
-  const handleSubmit=async()=>{
-    
+  const {createmyownleague}= useLeagueStore();
+  const handleSubmit=async(values)=>{
+await createmyownleague(values);
   }
   if (!isAuthUser) return <Redirect href="/login" />;
   return (

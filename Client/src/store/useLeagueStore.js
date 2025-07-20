@@ -55,6 +55,24 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
+  createmyownleague:async(data)=>{
+    try {
+      const { isAuthUser } = useAuthStore.getState();
+      const res = await Instance.post("/play/createleague",{
+        ownerId: isAuthUser._id,
+        joinfee:data.joinfee,
+        name: data.name,
+        end:data.end,
+        start:data.start,
+        maxTimeTeamSelect:data.maxTimeTeamSelect,
+        lifelinePerUser:data.lifelinePerUser
+      })
+      set({myownleagues:[...get().myownleagues,res.data]})
+
+    } catch (error) {
+      console.log("unable to create league ", error);
+    }
+  },
 
   getleague: async () => {
     try {
@@ -62,7 +80,6 @@ export const useLeagueStore = create((set, get) => ({
       const res = await Instance.post("/play/leagues", {
         userId: isAuthUser._id
       });
-      console.log(res.data)
       set({ leagues: res.data });
     } catch (error) {
       console.log("Error getting leagues", error);

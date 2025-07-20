@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity } from "react-native";
 import { useLeagueStore } from "../../src/store/useLeagueStore.js";
 
 function JoinLeague() {
@@ -10,26 +10,22 @@ function JoinLeague() {
   }, []);
 
   return (
-    <View>
+    <ScrollView className="flex-1 p-3">
       {leagues &&
         leagues.map((league, index) => (
-          <TouchableOpacity key={index} onPress={() => joinleague(league._id)}>
-            <View
-              style={{
-                padding: 10,
-                marginVertical: 5,
-                backgroundColor: "#eee",
-              }}
-            >
-              <Text>Name: {league.name}</Text>
+          <TouchableOpacity key={index} onPress={() => joinleague(league._id)} className="mb-4 p-4 rounded-xl bg-[#CCCCCC] boxShadow">
+              <Text className="text-xl font-semibold text-blue-700 mb-2">{league.name}</Text>
+              <Text>id: {league._id}</Text>
               <Text>Join fee: {league.joinfee}</Text>
               <Text>Start: {new Date(league.start).toDateString()}</Text>
               <Text>End: {new Date(league.end).toDateString()}</Text>
-              <Text>Type: {league.type}</Text>
-            </View>
+              <Text>life line per user: {league.lifelinePerUser}</Text>
+              <Text>number of time team can repeat: {league.maxTimeTeamSelect}</Text>
+              <Text>owner: {league.ownerName}</Text>
+              <Text>weeks: {league.totalWeeks}</Text>
           </TouchableOpacity>
         ))}
-    </View>
+    </ScrollView>
   );
 }
 

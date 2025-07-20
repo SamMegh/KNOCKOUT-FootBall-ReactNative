@@ -47,14 +47,14 @@ export const createleague = async (req, res) => {
     try {
         let { name, joinfee, ownerId, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
         // const { name, joinfee, weeks, start } = req.body;
-        if (!start || !name || !joinfee || !ownerId  || (!totalWeeks && !end)) {
+        if (!start ||!name ||!joinfee ||!ownerId || (!totalWeeks && !end)) {
             return res.status(400).json({
-                message: "invalid data to create a league"
+                message: "all required to create a league"
             })
         }
 
-        const owner_in_DB= await User.findById(ownerId);
-        if(!owner_in_DB)return res.status(400).json("invalid user to create league")
+        const owner_in_DB = await User.findById(ownerId);
+        if (!owner_in_DB) return res.status(400).json("invalid user to create league")
 
         // Function to get next Saturday from a date
         function getNextSaturday(date, weekOffset) {
@@ -88,7 +88,7 @@ export const createleague = async (req, res) => {
         if (!totalWeeks) { totalWeeks = getTotalWeeks(start, end) }
 
         const newLeague = new League({
-            name, joinfee, ownerId, ownerName:owner_in_DB.name, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks, type
+            name, joinfee, ownerId, ownerName: owner_in_DB.name, end, start, maxTimeTeamSelect, lifelinePerUser, totalWeeks, type
         });
         if (newLeague) {
             await newLeague.save();
@@ -104,9 +104,9 @@ export const createleague = async (req, res) => {
                 maxTimeTeamSelect: newLeague.maxTimeTeamSelect,
                 lifelinePerUser: newLeague.lifelinePerUser,
                 totalWeeks: newLeague.totalWeeks,
-                type : newLeague.type,
-                ownerId : newLeague.ownerId,
-                ownerName : newLeague.ownerName
+                type: newLeague.type,
+                ownerId: newLeague.ownerId,
+                ownerName: newLeague.ownerName
 
             })
         }
