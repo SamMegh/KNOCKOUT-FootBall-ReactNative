@@ -4,10 +4,10 @@ import { protection } from '../midlayer/protect.midlayer.js';
 
 const router = express.Router();
 
-router.post("/leagues", protection, getleague);
-router.post("/myleagues", protection, getmyleague);
-router.post("/createleague", protection, createleague);//let { name, joinfee, ownerId, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
-router.get("/yourleagues", protection, getMyCreatedLeagues);//const {ownerId}= req.query;
+router.get("/leagues", protection, getleague);
+router.get("/myleagues", protection, getmyleague);
+router.post("/createleague", protection, createleague);//let { name, joinfee, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
+router.get("/myownleagues", protection, getMyCreatedLeagues);
 router.post("/joinleague", protection, joinleague);
 router.post("/jointeam", protection, jointeam);
 router.post("/myteam", protection, myteam);

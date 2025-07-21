@@ -5,7 +5,7 @@ import User from '../DBmodel/user.db.model.js';
 export const getleague = async (req, res) => {
     try {
         const currentDate = new Date();
-        const { userId } = req.body;
+        const userId = req.user._id
         const upcomingLeagues = await League.find({
             $or: [
                 {
@@ -29,7 +29,7 @@ export const getleague = async (req, res) => {
 
 export const getmyleague = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user._id
         const currentDate = new Date();
         const upcommingLeagues = await League.find({
             end: { $gte: currentDate },
@@ -45,7 +45,8 @@ export const getmyleague = async (req, res) => {
 
 export const createleague = async (req, res) => {
     try {
-        let { name, joinfee, ownerId, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
+        const ownerId = req.user._id
+        let { name, joinfee, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
         // const { name, joinfee, weeks, start } = req.body;
         if (!start ||!name ||!joinfee ||!ownerId || (!totalWeeks && !end)) {
             return res.status(400).json({
@@ -119,12 +120,7 @@ export const createleague = async (req, res) => {
 
 export const getMyCreatedLeagues = async (req, res) => {
     try {
-        const { ownerId } = req.query;
-
-        if (!ownerId) {
-            return res.status(400).json({ message: "Missing ownerId in query" });
-        }
-
+        const ownerId = req.user._id
         const created_leagues_by_me = await League.find({ ownerId: ownerId });
 
         res.status(200).json(created_leagues_by_me);
@@ -135,7 +131,8 @@ export const getMyCreatedLeagues = async (req, res) => {
 
 export const joinleague = async (req, res) => {
     try {
-        const { userId, leagueId } = req.body;
+        const userId= req.user._id;
+        const { leagueId } = req.body;
         const currentDate = new Date();
 
         const user = await User.findById(userId);
@@ -241,9 +238,10 @@ const _createTeam = async (userId, userName, leagueId, leagueName) => {
 export const jointeam = async (req, res) => {
     try {
         const currentDate = new Date();
-        const { userId, leagueId, day, teamName } = req.body;
+        const userId= req.user._id
+        const { leagueId, day, teamName } = req.body;
 
-        if (!userId || !leagueId || !day || !teamName) {
+        if (!leagueId || !day || !teamName) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
@@ -283,8 +281,9 @@ export const jointeam = async (req, res) => {
 
 export const myteam = async (req, res) => {
     try {
-        const { userId, leagueId } = req.body;
-        if (!userId || !leagueId) return res.status(400).json({ message: "All fields are required to get the team " });
+        const userId =req.user._id;
+        const { leagueId } = req.body;
+        if (!leagueId) return res.status(400).json({ message: "All fields are required to get the team " });
         const myteamdata = await LeagueData.findOne({ $and: [{ userId }, { leagueId }] });
         if (!myteamdata) return res.status(400).json({ message: "no team found for this league" });
         res.status(200).json(myteamdata)
