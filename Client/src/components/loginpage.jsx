@@ -54,7 +54,7 @@ export default function Login() {
                 <View>
                   <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Email</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border lowercase border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font- -Bold px-4 text-white border lowecasety border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
@@ -74,7 +74,7 @@ export default function Login() {
                 <View>
                   <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Password</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border  border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border lowercase  border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}

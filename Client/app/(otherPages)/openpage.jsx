@@ -71,18 +71,18 @@ export default function OpenPage() {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: '#000', // black background
     justifyContent: 'center',
     height:"100vh"
   },
   mainBox: {
-    flex: 1,
     alignItems: 'center',
     padding: 20, 
   },
   contentBox: {
-    width: screenWidth * 0.9,
+    width: screenWidth * 0.9, // 90% of screen width
+    minHeight: 500, // Minimum height for the content box
     borderWidth: 2,
     borderColor: 'white',
     borderRadius: 20,
