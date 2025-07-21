@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getItem, setItem } from '../utils/asyncstorage.js';
+import { removeItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
 export const useAuthStore= create((set)=>({
     isAuthUser:null,
@@ -29,8 +29,19 @@ export const useAuthStore= create((set)=>({
             console.log(error);
         }
     },
+
     logout: ()=>{
         set({isAuthUser:null});
+        removeItem();
     },
 
+    check:async()=>{
+try {
+    const res = await Instance.get("/auth/check");
+    set({isAuthUser:res.data});
+} catch (error) {
+    set({isAuthUser:null});
+        removeItem();
+}
+    }
 }))

@@ -3,10 +3,11 @@ import User from "../DBmodel/user.db.model.js"
 
 export const protection = async (req, res, next) => {
   try {
-    const token = req.cookies.JWT
-    if (!token) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader|| !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: "unauthroized access: no token provided" });
     }
+    const token = authHeader.split(' ')[1];
     const decode = jwt.verify(token, process.env.JWT_SECRET);
     if (!decode) {
       return res.status(401).json({ message: "unauthroized access: invalid token provided" });

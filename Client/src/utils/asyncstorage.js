@@ -30,3 +30,11 @@ export const getItem = async () => {
     return null;
   }
 };
+
+export const removeItem = async () => {
+  try {
+    await AsyncStorage.removeItem("Token");
+  } catch (error) {
+    console.error('Error removing item:', error);
+  }
+};

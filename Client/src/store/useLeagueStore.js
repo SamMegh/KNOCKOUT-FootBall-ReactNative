@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { useAuthStore } from "../store/useAuthStore.js";
 import Instance from '../utils/axios.configuration';
-
+import { getItem } from '../utils/asyncstorage.js';
 export const useLeagueStore = create((set, get) => ({
   leagues: null,
   myleagues: [],
@@ -9,7 +9,6 @@ export const useLeagueStore = create((set, get) => ({
   leagueTeams: [],
   matchOfTheDay: [],
   myownleagues: [],
-
   createleague: async (data) => {
     try {
       const res = await Instance.post("/play/createleague", data);
@@ -34,12 +33,14 @@ export const useLeagueStore = create((set, get) => ({
   },
 
   getmyleagues: async () => {
+    const token = await getItem();
     try {
       const { isAuthUser } = useAuthStore.getState();
       if (!isAuthUser) return;
       const res = await Instance.post("/play/myleagues", { userId: isAuthUser._id });
       set({ myleagues: res.data });
     } catch (error) {
+      set({isAuthUser:null})
       console.log("Error joining league", error);
     }
   },

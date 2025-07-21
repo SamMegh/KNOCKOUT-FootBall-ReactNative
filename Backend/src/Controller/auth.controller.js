@@ -71,3 +71,12 @@ export const login = async (req, res) => {
     }
 
 };
+
+export const check = async(req,res)=>{
+    try {
+        const user = req.user;
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: "unable to check authontication " + error });
+    }
+}
