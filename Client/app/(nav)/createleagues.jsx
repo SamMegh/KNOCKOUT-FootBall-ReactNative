@@ -8,7 +8,7 @@ function createleague() {
   const { getmecreatedleagues, myownleagues } = useLeagueStore();
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
-  if (!isAuthUser) return <Redirect href="/login" />;
+  if (!isAuthUser) return <Redirect href="/" />;
   useEffect(() => {
     getmecreatedleagues();
   }, [getmecreatedleagues]);

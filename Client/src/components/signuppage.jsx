@@ -5,21 +5,18 @@ import { useEffect } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
-import loginvalidate from "../../src/utils/loginValidator.js";
-export default function login() {
+import signupvalidate from "../../src/utils/signupValidator.js";
 
+
+export default function Signup() {
   const [fontsLoaded] = useFonts({
     'Nedian-Bold': require('../../assets/fonts/Nedian-Bold.otf'),
     'UrbanJungleDEMO': require('../../assets/fonts/UrbanJungleDEMO.otf'),
   });
-
-
-
   const router = useRouter();
-  const { isAuthUser, login } = useAuthStore();
-
-  const handleSubmit = async (values) => {
-    await login(values);
+  const { isAuthUser, signup } = useAuthStore();
+  const handleSubmit = (values) => {
+    signup(values);
   };
   useEffect(() => {
     if (isAuthUser) {
@@ -28,18 +25,18 @@ export default function login() {
   }, [isAuthUser, router])
   return (
     <SafeAreaView className="flex-1 bg-black">
-      <View className="flex-1 w-screen justify-center items-center px-4 space-y-6">
+      <View className="flex-1 justify-center items-center px-4 space-y-6">
         {/* Header */}
         <View className="items-center my-9">
-          <Text className="text-white font-UrbanJungleDEMO text-4xl font-normal tracking-wider my-1 ">KnockOut</Text>
-          <Text className="text-white  font-Nedian-Bold text-xl font-normal my-1  ">Tell about You</Text>
+          <Text className="text-white font-UrbanJungleDEMO tracking-widest text-4xl font-normal my-1 ">KnockOut</Text>
+          <Text className="text-white  font-Nedian-Bold text-xl font-normal my-1 ">Let's Create Your Account</Text>
         </View>
 
         {/* Form */}
         <View className="w-full px-4">
           <Formik
-            initialValues={{ email: "", password: "" }}
-            validationSchema={loginvalidate}
+            initialValues={{ email: "", name: "", password: "" }}
+            validationSchema={signupvalidate}
             onSubmit={handleSubmit}
           >
             {({
@@ -51,10 +48,12 @@ export default function login() {
               touched,
             }) => (
               <View className="space-y-6">
+
+                {/* email */}
                 <View>
                   <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Email</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border lowercase border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font-Nedian-Bold lowercase px-4 text-white border border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
@@ -63,7 +62,6 @@ export default function login() {
                     placeholder="Enter your email"
                     placeholderTextColor="rgba(255,255,255,0.7)"
                   />
-
                   {touched.email && errors.email && (
                     <Text className="text-red-500 font-Nedian-Bold mb-2">
                       {errors.email}
@@ -71,10 +69,30 @@ export default function login() {
                   )}
                 </View>
 
+                {/* name */}
+                <View>
+                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Name</Text>
+                  <TextInput
+                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border border-white/30 bg-white/10"
+                    underlineColorAndroid="transparent"
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    value={values.name}
+                    placeholder="Enter your name"
+                    placeholderTextColor="rgba(255,255,255,0.7)"
+                  />
+                  {touched.name && errors.name && (
+                    <Text className="text-red-500 font-Nedian-Bold my-2">
+                      {errors.name}
+                    </Text>
+                  )}
+                </View>
+
+                {/* password */}
                 <View>
                   <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Password</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border  border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font-UrbanJungleDEMO tracking-widest px-4 text-white border border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
@@ -84,12 +102,11 @@ export default function login() {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                   />
                   {touched.password && errors.password && (
-                    <Text className="text-red-500 font-Nedian-Bold mb-2">
+                    <Text className="text-red-500 font-Nedian-Bold  mb-2">
                       {errors.password}
                     </Text>
                   )}
                 </View>
-
                 <TouchableOpacity
                   onPress={handleSubmit}
                   className="h-12 my-6 flex justify-center text-center align-middle items-center w-full rounded-full  px-4 text-white border border-white/30 bg-white/10"
@@ -101,22 +118,8 @@ export default function login() {
               </View>
             )}
           </Formik>
-          <View className="font-Nedian-Bold text-xl text-white hover:text-black">
-            <TouchableOpacity
-              className="flex flex-row justify-center mt-5 p-3 items-center"
-              onPress={() => router.replace("/signup")}>
-              <Text className="font-Nedian-Bold text-xl text-white hover:text-black">New User? </Text>
-              <Text className="font-UrbanJungleDEMO tracking-widest text-xl  hover:text-black underline text-white">
-                Sign up
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
     </SafeAreaView>
   );
-} export function joinleague() {
-  return (
-    <View />)
 }
-

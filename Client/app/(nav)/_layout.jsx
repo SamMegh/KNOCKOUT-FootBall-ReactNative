@@ -5,7 +5,7 @@ import { useAuthStore } from '../../src/store/useAuthStore';
 
 export default function NavLayout() {
   const { isAuthUser } = useAuthStore();
-  if (!isAuthUser) return <Redirect href="/login" />;
+  if (!isAuthUser) return <Redirect href="/" />;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

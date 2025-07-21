@@ -11,7 +11,7 @@ function createnewleague() {
   const handleSubmit=async(values)=>{
 await createmyownleague(values);
   }
-  if (!isAuthUser) return <Redirect href="/login" />;
+  if (!isAuthUser) return <Redirect href="/" />;
   return (
     <View>
       <TouchableOpacity onPress={() => router.back()}>

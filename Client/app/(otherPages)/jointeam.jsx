@@ -51,7 +51,7 @@ export default function JoinTeam() {
     }
   }, [showDropDown, data.day]);
 
-  if (!isAuthUser) return <Redirect href="/login" />;
+  if (!isAuthUser) return <Redirect href="/" />;
 
   if (!myteam) {
     return (

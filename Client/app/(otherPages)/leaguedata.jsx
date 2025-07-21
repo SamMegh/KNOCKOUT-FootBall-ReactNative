@@ -11,7 +11,7 @@ function LeagueData() {
   const router = useRouter();
   const { leagueTeams, getleagueteams, getmyteam, myteam } = useLeagueStore();
 
-  if (!isAuthUser) return <Redirect href="/login" />;
+  if (!isAuthUser) return <Redirect href="/" />;
 
   useEffect(() => {
     if (leagueid) {
