@@ -5,8 +5,14 @@ import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import signupvalidate from "../../src/utils/signupValidator.js";
+import { useFonts } from "expo-font";
+
 
 export default function signup() {
+  const [fontsLoaded] = useFonts({
+    'Nedian-Bold': require('../../assets/fonts/Nedian-Bold.otf'),
+    'UrbanJungleDEMO': require('../../assets/fonts/UrbanJungleDEMO.otf'),
+  });
   const router = useRouter();
   const { isAuthUser, signup } = useAuthStore();
   const handleSubmit = (values) => {
@@ -18,12 +24,12 @@ export default function signup() {
     }
   }, [isAuthUser, router])
   return (
-    <SafeAreaView className="flex-1 bg-teal-500">
+    <SafeAreaView className="flex-1 bg-black">
       <View className="flex-1 justify-center items-center px-4 space-y-6">
         {/* Header */}
         <View className="items-center my-9">
-          <Text className="text-white font-Nedian-Bold text-4xl font-normal my-1 ">KnockOut</Text>
-          <Text className="text-[#e4bf57]  font-Nedian-Bold text-xl font-normal my-1 ">Let's Create Your Account</Text>
+          <Text className="text-white font-UrbanJungleDEMO tracking-widest text-4xl font-normal my-1 ">KnockOut</Text>
+          <Text className="text-white  font-Nedian-Bold text-xl font-normal my-1 ">Let's Create Your Account</Text>
         </View>
 
         {/* Form */}
@@ -45,9 +51,9 @@ export default function signup() {
 
                 {/* email */}
                 <View>
-                  <Text className="text-[#e4bf57] font-Nedian-Bold my-2">Email</Text>
+                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Email</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font-Nedian-Bold lowercase px-4 text-white border border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
@@ -65,7 +71,7 @@ export default function signup() {
 
                 {/* name */}
                 <View>
-                  <Text className="text-[#e4bf57] font-Nedian-Bold my-2">Name</Text>
+                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Name</Text>
                   <TextInput
                     className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
@@ -84,9 +90,9 @@ export default function signup() {
 
                 {/* password */}
                 <View>
-                  <Text className="text-[#e4bf57] font-Nedian-Bold my-2">Password</Text>
+                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Password</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border border-white/30 bg-white/10"
+                    className="h-12 w-full rounded-full font-UrbanJungleDEMO tracking-widest px-4 text-white border border-white/30 bg-white/10"
                     underlineColorAndroid="transparent"
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
@@ -105,7 +111,7 @@ export default function signup() {
                   onPress={handleSubmit}
                   className="h-12 my-6 flex justify-center text-center align-middle items-center w-full rounded-full  px-4 text-white border border-white/30 bg-white/10"
                 >
-                  <Text className="font-Nedian-Bold text-xl text-[#e4bf57] hover:text-black">
+                  <Text className="font-UrbanJungleDEMO tracking-widest text-xl text-white hover:text-black">
                     Submit
                   </Text>
                 </TouchableOpacity>
@@ -118,7 +124,7 @@ export default function signup() {
               className="flex flex-row justify-center mt-5 p-4 items-center"
               onPress={() => router.replace("/login")}>
            <Text className="font-Nedian-Bold text-l text-white hover:text-black">Alerady have Account :  </Text>
-             <Text className="font-Nedian-Bold text-xl  hover:text-black underline text-[#e4bf57]">
+             <Text className="font-UrbanJungleDEMO tracking-widest text-xl  hover:text-black underline text-white">
                  LogIn
               </Text>
             </TouchableOpacity>
