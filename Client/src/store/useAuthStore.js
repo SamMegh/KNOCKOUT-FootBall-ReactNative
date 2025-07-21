@@ -5,7 +5,10 @@ export const useAuthStore= create((set)=>({
     isAuthUser:null,
     login:async(data)=>{
         try {
-            const res= await Instance.post("/auth/login",data);
+            const res= await Instance.post("/auth/login",{
+                email:data.email.toLowerCase(),
+                password: data.password
+            });
             set({isAuthUser:res.data.user});
         } catch (error) {
             console.log(error);
@@ -14,7 +17,11 @@ export const useAuthStore= create((set)=>({
 
     signup:async(data)=>{
         try {
-            const res= await Instance.post("/auth/signup",data);
+            const res= await Instance.post("/auth/signup",{
+                email:data.email.toLowerCase(),
+                password: data.password,
+                name: data.name
+            });
             set({isAuthUser:res.data});
         } catch (error) {
             console.log(error);
