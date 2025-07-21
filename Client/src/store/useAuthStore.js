@@ -1,6 +1,6 @@
 import { create } from 'zustand';
+import { getItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
-
 export const useAuthStore= create((set)=>({
     isAuthUser:null,
     login:async(data)=>{
@@ -10,6 +10,8 @@ export const useAuthStore= create((set)=>({
                 password: data.password
             });
             set({isAuthUser:res.data.user});
+            await setItem(res.data.token);
+            
         } catch (error) {
             console.log(error);
         }
