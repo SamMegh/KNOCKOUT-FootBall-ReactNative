@@ -7,17 +7,27 @@ export const getleague = async (req, res) => {
         const currentDate = new Date();
         const userId = req.user._id
         const upcomingLeagues = await League.find({
-            $or: [
+            $and: [
                 {
-                    start: { $lte: currentDate },
-                    end: { $gte: currentDate }
+                    $or: [
+                        {
+                            start: { $lte: currentDate },
+                            end: { $gte: currentDate } // ongoing
+                        },
+                        {
+                            start: { $gt: currentDate } // upcoming
+                        }
+                    ]
                 },
                 {
-                    start: { $gt: currentDate }
+                    type: "public" // Only public leagues
+                },
+                {
+                    participantsId: { $ne: userId } // User is not a participant
                 }
-            ],
-            participantsId: { $ne: userId }
+            ]
         });
+
 
         res.status(200).json(upcomingLeagues);
     } catch (error) {
@@ -48,7 +58,7 @@ export const createleague = async (req, res) => {
         const ownerId = req.user._id
         let { name, joinfee, end, start, maxTimeTeamSelect, type, lifelinePerUser, totalWeeks } = req.body;
         // const { name, joinfee, weeks, start } = req.body;
-        if (!start ||!name ||!joinfee ||!ownerId || (!totalWeeks && !end)) {
+        if (!start || !name || !joinfee || !ownerId || (!totalWeeks && !end)) {
             return res.status(400).json({
                 message: "all required to create a league"
             })
@@ -131,7 +141,7 @@ export const getMyCreatedLeagues = async (req, res) => {
 
 export const joinleague = async (req, res) => {
     try {
-        const userId= req.user._id;
+        const userId = req.user._id;
         const { leagueId } = req.body;
         const currentDate = new Date();
 
@@ -238,7 +248,7 @@ const _createTeam = async (userId, userName, leagueId, leagueName) => {
 export const jointeam = async (req, res) => {
     try {
         const currentDate = new Date();
-        const userId= req.user._id
+        const userId = req.user._id
         const { leagueId, day, teamName } = req.body;
 
         if (!leagueId || !day || !teamName) {
@@ -281,7 +291,7 @@ export const jointeam = async (req, res) => {
 
 export const myteam = async (req, res) => {
     try {
-        const userId =req.user._id;
+        const userId = req.user._id;
         const { leagueId } = req.body;
         if (!leagueId) return res.status(400).json({ message: "All fields are required to get the team " });
         const myteamdata = await LeagueData.findOne({ $and: [{ userId }, { leagueId }] });
@@ -300,5 +310,37 @@ export const teams = async (req, res) => {
         res.status(200).json(teams)
     } catch (error) {
         res.status(500).json({ message: "unable to get the teams " + error });
+    }
+}
+
+export const leaguebyname = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const currentDate = new Date();
+        const { name } = req.body;
+        const leagues = await League.find({
+            $and: [
+                {
+                    $or: [
+                        {
+                            start: { $lte: currentDate },
+                            end: { $gte: currentDate } // ongoing
+                        },
+                        {
+                            start: { $gt: currentDate } // upcoming
+                        }
+                    ]
+                },
+                {
+                    name: { $regex: `^${name}`, $options: "i" }  // Only by matching name
+                },
+                {
+                    participantsId: { $ne: userId } // User is not a participant
+                }
+            ]      
+        }).limit(6);
+        res.status(200).json(leagues);
+    } catch (error) {
+        res.status(500).json({ message: "unable to get the league " + error });
     }
 }

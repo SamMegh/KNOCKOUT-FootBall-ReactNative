@@ -50,6 +50,7 @@ function JoinLeague() {
           <Text>Join fee: {league.joinfee}</Text>
           <Text>Start: {new Date(league.start).toDateString()}</Text>
           <Text>End: {new Date(league.end).toDateString()}</Text>
+          <Text>type: {league.type}</Text>
           <Text>Life line per user: {league.lifelinePerUser}</Text>
           <Text>
             Number of time team can repeat: {league.maxTimeTeamSelect}
