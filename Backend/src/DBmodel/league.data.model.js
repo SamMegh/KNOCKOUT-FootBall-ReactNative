@@ -6,7 +6,7 @@ const teamEntrySchema = new mongoose.Schema({
   },
   teamName: {
     type: String,
-    default:"Not Selected"
+    default: "Not Selected"
   }
 });
 
@@ -29,7 +29,23 @@ const leagueDataSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  teams: [teamEntrySchema] 
+  win: {
+    type: Number,
+    default: 0
+  },
+  loss: {
+    type: Number,
+    default: 0
+  },
+  draw: {
+    type: Number,
+    default: 0
+  },
+  noSelected: {
+    type: Number,
+    default: 0
+  },
+  teams: [teamEntrySchema]
 }, {
   timestamps: true
 });
