@@ -131,7 +131,10 @@ export default function JoinTeam() {
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
                         <View>
                           {/* home team image */}
-                         
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.home_png }}
+                          />
                           {/* home team */}
                           <Text
                             className="font-bold"
@@ -150,7 +153,12 @@ export default function JoinTeam() {
                         </View>
                         <Text className="mx-2 font-semibold">Vs</Text>
                         <View >
-                         
+                          {/* away team image */}
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.away_png }}
+                          />
+                          {/* away team */}
                           <Text
                             className="font-bold"
                             onPress={() => {
