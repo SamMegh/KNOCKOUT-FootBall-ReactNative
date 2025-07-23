@@ -41,6 +41,10 @@ const leagueDataSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  lifeline: {
+    type: Number,
+    default: 1
+  },
   noSelected: {
     type: Number,
     default: 0

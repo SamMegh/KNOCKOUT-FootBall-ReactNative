@@ -261,6 +261,12 @@ export const jointeam = async (req, res) => {
         }
 
         const data = await LeagueData.findOne({ userId, leagueId });
+        if(data.lifeline==0){
+            return res.status(400).json({ message: "you use your all life line" });
+        }
+        if(data.noSelected>0){
+            return res.status(400).json({ message: "you not select team in the previous match" });
+        }
         if (data.end <= currentDate) {
             if (data.end < currentDate) {
                 return res.status(400).json({ message: "unable to join team becoues league is ended" });

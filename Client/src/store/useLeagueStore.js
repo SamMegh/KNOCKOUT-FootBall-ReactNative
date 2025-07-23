@@ -1,6 +1,4 @@
 import { create } from 'zustand';
-import { useAuthStore } from "../store/useAuthStore.js";
-import { getItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
 export const useLeagueStore = create((set, get) => ({
   leagues: null,

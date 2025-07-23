@@ -2,6 +2,8 @@ import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
+  StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -111,7 +113,7 @@ export default function JoinTeam() {
         <TouchableWithoutFeedback onPress={() => setShowDropDown(false)}>
           <View className="absolute inset-0 justify-center items-center bg-black bg-opacity-40">
             <TouchableWithoutFeedback>
-              <View className="bg-blue-300 w-3/4 p-4 rounded">
+              <View className="bg-blue-300 w-[90%] p-4 rounded text-center">
                 <Text
                   className=" text-right text-xl font-bold text-red-600 mb-2"
                   onPress={() => setShowDropDown(false)}
@@ -127,32 +129,43 @@ export default function JoinTeam() {
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
-                        <Text
-                          className="font-bold"
-                          onPress={() => {
-                            setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.home);
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                            });
-                          }}
-                        >
-                          {item.home}
-                        </Text>
+                        <View>
+                          {/* home team image */}
+                         
+                          {/* home team */}
+                          <Text
+                            className="font-bold"
+                            onPress={() => {
+                              setShowDropDown(false);
+                              jointeam(data.leagueId, data.day, item.home);
+                              setData({
+                                day: "",
+                                teamName: "",
+                                leagueId: "",
+                              });
+                            }}
+                          >
+                            {item.home}
+                          </Text>
+                        </View>
                         <Text className="mx-2 font-semibold">Vs</Text>
-                        <Text className="font-bold"
-                        onPress={() => {
-                            setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.away);
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                            });
-                          }}
-                        >{item.away}</Text>
+                        <View >
+                         
+                          <Text
+                            className="font-bold"
+                            onPress={() => {
+                              setShowDropDown(false);
+                              jointeam(data.leagueId, data.day, item.away);
+                              setData({
+                                day: "",
+                                teamName: "",
+                                leagueId: "",
+                              });
+                            }}
+                          >
+                            {item.away}
+                          </Text>
+                        </View>
                       </View>
                     )}
                   />
@@ -165,3 +178,17 @@ export default function JoinTeam() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tinyLogo: {
+    width: 50,
+    height: 50,
+  },
+  logo: {
+    width: 66,
+    height: 58,
+  },
+});
