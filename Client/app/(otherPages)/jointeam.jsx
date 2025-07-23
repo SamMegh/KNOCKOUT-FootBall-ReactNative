@@ -27,9 +27,9 @@ export default function JoinTeam() {
     day: "",
     teamName: "",
     leagueId: "",
+    startTime:"",
   });
   const currentDate= new Date();
-  console.log(new Date(currentDate).toDateString());
 
   // Fetch team data initially
   useEffect(() => {
@@ -95,13 +95,12 @@ export default function JoinTeam() {
                 {new Date(item.day).toDateString()}
               </Text>
               <Text
-                className={`flex-1 underline text-center ${item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10)? "text-gray-500 cursor-not-allowed" : "text-blue-500"}`}
+                className={`flex-1 underline text-center ${new Date() >= new Date(new Date(item.day).getTime() - 15 * 60 * 1000)? "text-gray-500 cursor-not-allowed" : "text-blue-500"}`}
                 onPress={() => {
                   if(item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10))return;
                   setData({
                     day: item.day.split("T")[0],
-                    teamName: item.teamName,
-                    leagueId: myteam.leagueId,
+                    leagueId: myteam.leagueId
                   });
                   setShowDropDown(true);
                 }}
@@ -134,7 +133,15 @@ export default function JoinTeam() {
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
-                        <View>
+                        <TouchableOpacity onPress={() => {
+                              setShowDropDown(false);
+                              jointeam(data.leagueId, data.day, item.home, item.startTime);
+                              setData({
+                                day: "",
+                                teamName: "",
+                                leagueId: "",
+                              });
+                            }}>
                           {/* home team image */}
                           <Image
                             style={styles.tinyLogo}
@@ -143,21 +150,21 @@ export default function JoinTeam() {
                           {/* home team */}
                           <Text
                             className="font-bold"
-                            onPress={() => {
+                            
+                          >
+                            {item.home}
+                          </Text>
+                        </TouchableOpacity>
+                        <Text className="mx-2 font-semibold">Vs</Text>
+                        <TouchableOpacity onPress={() => {
                               setShowDropDown(false);
-                              jointeam(data.leagueId, data.day, item.home);
+                              jointeam(data.leagueId, data.day, item.away, item.startTime);
                               setData({
                                 day: "",
                                 teamName: "",
                                 leagueId: "",
                               });
-                            }}
-                          >
-                            {item.home}
-                          </Text>
-                        </View>
-                        <Text className="mx-2 font-semibold">Vs</Text>
-                        <View >
+                            }}>
                           {/* away team image */}
                           <Image
                             style={styles.tinyLogo}
@@ -166,19 +173,11 @@ export default function JoinTeam() {
                           {/* away team */}
                           <Text
                             className="font-bold"
-                            onPress={() => {
-                              setShowDropDown(false);
-                              jointeam(data.leagueId, data.day, item.away);
-                              setData({
-                                day: "",
-                                teamName: "",
-                                leagueId: "",
-                              });
-                            }}
+                            
                           >
                             {item.away}
                           </Text>
-                        </View>
+                        </TouchableOpacity>
                       </View>
                     )}
                   />

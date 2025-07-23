@@ -4,6 +4,9 @@ const teamEntrySchema = new mongoose.Schema({
   day: {
     type: Date,
   },
+  startTime: {
+    type: Date,
+  },
   teamName: {
     type: String,
     default: "Not Selected"

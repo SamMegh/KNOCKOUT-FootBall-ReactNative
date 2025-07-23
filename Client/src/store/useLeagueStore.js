@@ -64,13 +64,15 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  jointeam: async (leagueId, day, teamName) => {
+  jointeam: async (leagueId, day, teamName, startTime) => {
     try {
       const res = await Instance.post("/play/jointeam", {
         leagueId,
         day,
-        teamName
+        teamName,
+        startTime
       })
+      console.log(res.data)
       set({ myteam: res.data });
     } catch (error) {
       console.log("Error getting leagues", error);

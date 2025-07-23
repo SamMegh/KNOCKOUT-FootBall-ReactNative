@@ -17,6 +17,7 @@ export const getmatch = async (req, res) => {
       home_png: match.homeTeam.crest,
       away: match.awayTeam.name,
       away_png: match.awayTeam.crest,
+      startTime: match.utcDate
     }));
     res.status(200).json(matches);
   } catch (error) {
