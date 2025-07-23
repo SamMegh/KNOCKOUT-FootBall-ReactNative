@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   FlatList,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -113,7 +114,8 @@ export default function JoinTeam() {
         <TouchableWithoutFeedback onPress={() => setShowDropDown(false)}>
           <View className="absolute inset-0 justify-center items-center bg-black bg-opacity-40">
             <TouchableWithoutFeedback>
-              <View className="bg-blue-300 w-[90%] p-4 rounded text-center">
+              <ScrollView className='w-[90%] max-h-[60vh] absolute bg-blue-300 p-4 rounded text-center'>
+              <View className="">
                 <Text
                   className=" text-right text-xl font-bold text-red-600 mb-2"
                   onPress={() => setShowDropDown(false)}
@@ -179,6 +181,7 @@ export default function JoinTeam() {
                   />
                 )}
               </View>
+              </ScrollView>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
