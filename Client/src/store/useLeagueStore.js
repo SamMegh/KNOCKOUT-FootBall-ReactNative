@@ -71,8 +71,7 @@ export const useLeagueStore = create((set, get) => ({
         day,
         teamName,
         startTime
-      })
-      console.log(res.data)
+      });
       set({ myteam: res.data });
     } catch (error) {
       console.log("Error getting leagues", error);
