@@ -9,8 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'Nedian-Bold': ['Nedian-Bold', 'sans-serif'], // custom fontUrbanJungleDEMO
-        'UrbanJungleDEMO': ['UrbanJungleDEMO', 'sans-serif'], // custom fontUrbanJungleDEMO
+        'NedianMedium': ['NedianMedium', 'sans-serif'],
       },
     },
   },

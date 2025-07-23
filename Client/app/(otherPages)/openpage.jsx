@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000', // black background
     justifyContent: 'center',
-    height:"100vh"
+    height:"100vh",
+    width: '100vw',
   },
   mainBox: {
     alignItems: 'center',
@@ -82,7 +83,7 @@ const styles = StyleSheet.create({
   },
   contentBox: {
     width: screenWidth * 0.9, // 90% of screen width
-    minHeight: 500, // Minimum height for the content box
+    minHeight: 700, // Minimum height for the content box
     borderWidth: 2,
     borderColor: 'white',
     borderRadius: 20,

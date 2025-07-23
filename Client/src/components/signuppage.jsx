@@ -2,38 +2,52 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { useEffect } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import signupvalidate from "../../src/utils/signupValidator.js";
 
-
 export default function Signup() {
   const [fontsLoaded] = useFonts({
-    'Nedian-Bold': require('../../assets/fonts/Nedian-Bold.otf'),
-    'UrbanJungleDEMO': require('../../assets/fonts/UrbanJungleDEMO.otf'),
+    'NedianMedium': require('../../assets/fonts/Nedian-Medium.otf'),
   });
+
   const router = useRouter();
   const { isAuthUser, signup } = useAuthStore();
+
   const handleSubmit = (values) => {
     signup(values);
   };
+
   useEffect(() => {
     if (isAuthUser) {
       router.replace("/home");
     }
-  }, [isAuthUser, router])
+  }, [isAuthUser, router]);
+
+  if (!fontsLoaded) return null;
+
   return (
-    <SafeAreaView className="flex-1 bg-black">
-      <View className="flex-1 justify-center items-center px-4 space-y-6">
+    <SafeAreaView style={styles.container}>
+      <View style={styles.innerContainer}>
         {/* Header */}
-        <View className="items-center my-9">
-          <Text className="text-white font-UrbanJungleDEMO tracking-widest text-4xl font-normal my-1 ">KnockOut</Text>
-          <Text className="text-white  font-Nedian-Bold text-xl font-normal my-1 ">Let's Create Your Account</Text>
+        <View style={styles.header}>
+          <Text style={[styles.title, { fontFamily: 'NedianMedium' }]}>
+            KnockOut
+          </Text>
+          <Text style={styles.subtitle}>
+            Let's Create Your Account
+          </Text>
         </View>
 
         {/* Form */}
-        <View className="w-full px-4">
+        <View style={styles.formContainer}>
           <Formik
             initialValues={{ email: "", name: "", password: "" }}
             validationSchema={signupvalidate}
@@ -47,14 +61,12 @@ export default function Signup() {
               errors,
               touched,
             }) => (
-              <View className="space-y-6">
-
-                {/* email */}
+              <View style={styles.form}>
+                {/* Email */}
                 <View>
-                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Email</Text>
+                  <Text style={styles.label}>Email</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold lowercase px-4 text-white border border-white/30 bg-white/10"
-                    underlineColorAndroid="transparent"
+                    style={styles.input}
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     value={values.email}
@@ -63,18 +75,15 @@ export default function Signup() {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                   />
                   {touched.email && errors.email && (
-                    <Text className="text-red-500 font-Nedian-Bold mb-2">
-                      {errors.email}
-                    </Text>
+                    <Text style={styles.errorText}>{errors.email}</Text>
                   )}
                 </View>
 
-                {/* name */}
+                {/* Name */}
                 <View>
-                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Name</Text>
+                  <Text style={styles.label}>Name</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-Nedian-Bold px-4 text-white border border-white/30 bg-white/10"
-                    underlineColorAndroid="transparent"
+                    style={styles.input}
                     onChangeText={handleChange("name")}
                     onBlur={handleBlur("name")}
                     value={values.name}
@@ -82,18 +91,15 @@ export default function Signup() {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                   />
                   {touched.name && errors.name && (
-                    <Text className="text-red-500 font-Nedian-Bold my-2">
-                      {errors.name}
-                    </Text>
+                    <Text style={styles.errorText}>{errors.name}</Text>
                   )}
                 </View>
 
-                {/* password */}
+                {/* Password */}
                 <View>
-                  <Text className="text-white font-UrbanJungleDEMO tracking-widest my-2">Password</Text>
+                  <Text style={styles.label}>Password</Text>
                   <TextInput
-                    className="h-12 w-full rounded-full font-UrbanJungleDEMO tracking-widest px-4 text-white border border-white/30 bg-white/10"
-                    underlineColorAndroid="transparent"
+                    style={styles.input}
                     onChangeText={handleChange("password")}
                     onBlur={handleBlur("password")}
                     value={values.password}
@@ -102,18 +108,13 @@ export default function Signup() {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                   />
                   {touched.password && errors.password && (
-                    <Text className="text-red-500 font-Nedian-Bold  mb-2">
-                      {errors.password}
-                    </Text>
+                    <Text style={styles.errorText}>{errors.password}</Text>
                   )}
                 </View>
-                <TouchableOpacity
-                  onPress={handleSubmit}
-                  className="h-12 my-6 flex justify-center text-center align-middle items-center w-full rounded-full  px-4 text-white border border-white/30 bg-white/10"
-                >
-                  <Text className="font-UrbanJungleDEMO tracking-widest text-xl text-white hover:text-black">
-                    Submit
-                  </Text>
+
+                {/* Submit Button */}
+                <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                  <Text style={styles.buttonText}>Submit</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -123,3 +124,82 @@ export default function Signup() {
     </SafeAreaView>
   );
 }
+
+
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+  },
+  header: {
+    alignItems: "center",
+    marginVertical: 36,
+  },
+  title: {
+    color: "#fff",
+    fontSize: 36,
+    letterSpacing: 2,
+    marginBottom: 8,
+  },
+  subtitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "Prismfont_CLv2", // Ensure this font is loaded
+  },
+  formContainer: {
+    width: 320, // fixed width
+    paddingHorizontal: 6,
+  },
+  form: {
+    gap: 20,
+  },
+  label: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "NedianMedium",
+    letterSpacing: 1.5,
+    marginBottom: 8,
+  },
+  input: {
+    height: 48,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    color: "#fff",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    fontFamily: "Prismfont_CLv2",
+    marginBottom: 4,
+    width: "100%",
+  },
+  errorText: {
+    color: "#f87171",
+    fontFamily: "Prismfont_CLv2",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  button: {
+    height: 48,
+    marginTop: 24,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    width: "100%",
+  },
+  buttonText: {
+    fontSize: 18,
+    color: "#fff",
+    fontFamily: "NedianMedium",
+    letterSpacing: 1.5,
+  },
+});
