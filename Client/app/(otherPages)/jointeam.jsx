@@ -28,6 +28,8 @@ export default function JoinTeam() {
     teamName: "",
     leagueId: "",
   });
+  const currentDate= new Date();
+  console.log(new Date(currentDate).toDateString());
 
   // Fetch team data initially
   useEffect(() => {
@@ -93,8 +95,9 @@ export default function JoinTeam() {
                 {new Date(item.day).toDateString()}
               </Text>
               <Text
-                className="flex-1 text-blue-500 underline text-center"
+                className={`flex-1 underline text-center ${item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10)? "text-gray-500 cursor-not-allowed" : "text-blue-500"}`}
                 onPress={() => {
+                  if(item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10))return;
                   setData({
                     day: item.day.split("T")[0],
                     teamName: item.teamName,
