@@ -4,6 +4,9 @@ const teamEntrySchema = new mongoose.Schema({
   day: {
     type: Date,
   },
+  startTime: {
+    type: Date,
+  },
   teamName: {
     type: String,
     default: "Not Selected"
@@ -40,6 +43,10 @@ const leagueDataSchema = new mongoose.Schema({
   draw: {
     type: Number,
     default: 0
+  },
+  lifeline: {
+    type: Number,
+    default: 1
   },
   noSelected: {
     type: Number,

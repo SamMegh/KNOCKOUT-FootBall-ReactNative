@@ -2,6 +2,9 @@ import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -24,7 +27,9 @@ export default function JoinTeam() {
     day: "",
     teamName: "",
     leagueId: "",
+    startTime:"",
   });
+  const currentDate= new Date();
 
   // Fetch team data initially
   useEffect(() => {
@@ -90,12 +95,12 @@ export default function JoinTeam() {
                 {new Date(item.day).toDateString()}
               </Text>
               <Text
-                className="flex-1 text-blue-500 underline text-center"
+                className={`flex-1 underline text-center ${new Date() >= new Date(new Date(item.day).getTime() - 15 * 60 * 1000)? "text-gray-500 cursor-not-allowed" : "text-blue-500"}`}
                 onPress={() => {
+                  if(item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10))return;
                   setData({
                     day: item.day.split("T")[0],
-                    teamName: item.teamName,
-                    leagueId: myteam.leagueId,
+                    leagueId: myteam.leagueId
                   });
                   setShowDropDown(true);
                 }}
@@ -111,7 +116,8 @@ export default function JoinTeam() {
         <TouchableWithoutFeedback onPress={() => setShowDropDown(false)}>
           <View className="absolute inset-0 justify-center items-center bg-black bg-opacity-40">
             <TouchableWithoutFeedback>
-              <View className="bg-blue-300 w-3/4 p-4 rounded">
+              <ScrollView className='w-[90%] max-h-[60vh] absolute bg-blue-300 p-4 rounded text-center'>
+              <View className="">
                 <Text
                   className=" text-right text-xl font-bold text-red-600 mb-2"
                   onPress={() => setShowDropDown(false)}
@@ -127,37 +133,57 @@ export default function JoinTeam() {
                     keyExtractor={(_, index) => index.toString()}
                     renderItem={({ item }) => (
                       <View className="flex-row items-center justify-between bg-slate-200 rounded p-2 m-1">
-                        <Text
-                          className="font-bold"
-                          onPress={() => {
-                            setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.home);
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                            });
-                          }}
-                        >
-                          {item.home}
-                        </Text>
+                        <TouchableOpacity onPress={() => {
+                              setShowDropDown(false);
+                              jointeam(data.leagueId, data.day, item.home, item.startTime);
+                              setData({
+                                day: "",
+                                teamName: "",
+                                leagueId: "",
+                              });
+                            }}>
+                          {/* home team image */}
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.home_png }}
+                          />
+                          {/* home team */}
+                          <Text
+                            className="font-bold"
+                            
+                          >
+                            {item.home}
+                          </Text>
+                        </TouchableOpacity>
                         <Text className="mx-2 font-semibold">Vs</Text>
-                        <Text className="font-bold"
-                        onPress={() => {
-                            setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.away);
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                            });
-                          }}
-                        >{item.away}</Text>
+                        <TouchableOpacity onPress={() => {
+                              setShowDropDown(false);
+                              jointeam(data.leagueId, data.day, item.away, item.startTime);
+                              setData({
+                                day: "",
+                                teamName: "",
+                                leagueId: "",
+                              });
+                            }}>
+                          {/* away team image */}
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.away_png }}
+                          />
+                          {/* away team */}
+                          <Text
+                            className="font-bold"
+                            
+                          >
+                            {item.away}
+                          </Text>
+                        </TouchableOpacity>
                       </View>
                     )}
                   />
                 )}
               </View>
+              </ScrollView>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
@@ -165,3 +191,17 @@ export default function JoinTeam() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tinyLogo: {
+    width: 50,
+    height: 50,
+  },
+  logo: {
+    width: 66,
+    height: 58,
+  },
+});

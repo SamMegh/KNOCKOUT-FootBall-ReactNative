@@ -249,9 +249,9 @@ export const jointeam = async (req, res) => {
     try {
         const currentDate = new Date();
         const userId = req.user._id
-        const { leagueId, day, teamName } = req.body;
+        const { leagueId, day, teamName, startTime } = req.body;
 
-        if (!leagueId || !day || !teamName) {
+        if (!leagueId || !day || !teamName || !startTime) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
@@ -261,6 +261,12 @@ export const jointeam = async (req, res) => {
         }
 
         const data = await LeagueData.findOne({ userId, leagueId });
+        if(data.lifeline==0){
+            return res.status(400).json({ message: "you use your all life line" });
+        }
+        if(data.noSelected>0){
+            return res.status(400).json({ message: "you not select team in the previous match" });
+        }
         if (data.end <= currentDate) {
             if (data.end < currentDate) {
                 return res.status(400).json({ message: "unable to join team becoues league is ended" });
@@ -277,7 +283,9 @@ export const jointeam = async (req, res) => {
         }
         const updatedLeague = await LeagueData.findOneAndUpdate(
             { userId, leagueId, "teams.day": day },
-            { $set: { "teams.$.teamName": teamName } },
+            { $set: { "teams.$.teamName": teamName,
+                "teams.$.startTime":new Date(startTime)
+             } },
             { new: true }
         );
 
