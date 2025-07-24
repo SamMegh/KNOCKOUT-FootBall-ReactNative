@@ -1,10 +1,164 @@
-import { Text, View } from 'react-native';
-import { useLeagueStore } from '../../src/store/useLeagueStore';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 export default function Home() {
-  const {getDayData}= useLeagueStore();
+
+  const myLeagues = [
+    {
+      id: '1',
+      name: 'Champions League',
+      status: 'Ongoing',
+      players: 128,
+    },
+    {
+      id: '2',
+      name: 'IPL Fantasy',
+      status: 'Upcoming',
+      players: 64,
+    },
+  ];
+
+  const publicLeagues = [
+    {
+      id: '3',
+      name: 'La Liga Frenzy',
+      fee: 199,
+    },
+    {
+      id: '4',
+      name: 'Weekend Clash',
+      fee: 0,
+    },
+  ];
+
   return (
-    <View>
-      <Text>Welcome to Home</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+        <Text style={styles.heading}>👋 Welcome back, Sam!</Text>
+
+        {/* My Leagues */}
+        <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
+        {myLeagues.map((league) => (
+          <View key={league.id} style={styles.leagueCard}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.leagueName}>{league.name}</Text>
+              <Text style={styles.leagueMeta}>
+                {league.status} • {league.players} players
+              </Text>
+            </View>
+            <Ionicons
+              name={league.status === 'Ongoing' ? 'flash' : 'time'}
+              size={22}
+              color={league.status === 'Ongoing' ? '#10b981' : '#f59e0b'}
+            />
+          </View>
+        ))}
+
+        {/* Explore Public Leagues */}
+        <Text style={styles.sectionTitle}>🌍 Explore Public Leagues</Text>
+        {publicLeagues.map((league) => (
+          <View key={league.id} style={styles.publicCard}>
+            <View>
+              <Text style={styles.publicName}>{league.name}</Text>
+              <Text style={styles.publicFee}>
+                Joining Fee: ₹{league.fee}
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.joinButton}>
+              <Text style={{ color: '#fff', fontWeight: '600' }}>Join</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        {/* Create League Button */}
+        <TouchableOpacity style={styles.createButton}>
+          <Text style={styles.createText}>+ Create New League</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#f9fafb',
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  heading: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginVertical: 12,
+  },
+  leagueCard: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 4,
+    elevation: 2,
+    alignItems: 'center',
+  },
+  leagueName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  leagueMeta: {
+    color: '#6b7280',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  publicCard: {
+    backgroundColor: '#fff',
+    padding: 14,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#3b82f6',
+  },
+  publicName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e3a8a',
+  },
+  publicFee: {
+    color: '#6b7280',
+    fontSize: 14,
+    marginTop: 2,
+  },
+  joinButton: {
+    backgroundColor: '#2563eb',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  createButton: {
+    marginTop: 20,
+    backgroundColor: '#10b981',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  createText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
