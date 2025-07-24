@@ -1,6 +1,14 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 function MyLeague() {
@@ -11,47 +19,61 @@ function MyLeague() {
     getmyleagues();
   }, [getmyleagues]);
 
-  const renderLeague = ({ item }) => (
-    <TouchableOpacity
-      onPress={() =>
-        router.push({
-          pathname: "/leaguedata",
-          params: { leagueid: item._id },
-        })
-      }
-    >
-      <View
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: 15,
-          padding: 16,
-          marginVertical: 8,
-          marginHorizontal: 16,
-          shadowColor: "#000",
-          shadowOffset: { width: 2, height: 2 },
-          shadowOpacity: 0.3,
-          shadowRadius: 10,
-          elevation: 1,
-        }}
+  const renderLeague = ({ item }) => {
+    const scaleValue = new Animated.Value(1);
+
+    const handlePressIn = () => {
+      Animated.spring(scaleValue, {
+        toValue: 0.96,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    return (
+      <Pressable
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={() =>
+          router.push({
+            pathname: "/leaguedata",
+            params: { leagueid: item._id },
+          })
+        }
       >
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 4 }}>
-          {item.name}
-        </Text>
-        <Text style={{ fontSize: 16, color: "#555" }}>
-          Type : {(item.type).toUpperCase()}
-        </Text>
-        <Text style={{ fontSize: 14, color: "#777", marginTop: 4 }}>
-          Start: {new Date(item.start).toDateString()}
-        </Text>
-        <Text style={{ fontSize: 14, color: "#777" }}>
-          End: {new Date(item.end).toDateString()}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+        <Animated.View
+          style={[
+            styles.card,
+            { transform: [{ scale: scaleValue }] },
+          ]}
+        >
+          <View style={styles.headerRow}>
+            <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
+            <Text style={styles.title}>{item.name}</Text>
+          </View>
+
+          <Text style={styles.fee}>🏷️ Join Fee: ₹{item.joinfee}</Text>
+
+          <Text style={styles.date}>
+            🕒 Start: {new Date(item.start).toDateString()}
+          </Text>
+          <Text style={styles.date}>
+            ⏳ End: {new Date(item.end).toDateString()}
+          </Text>
+        </Animated.View>
+      </Pressable>
+    );
+  };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f6f8fa" }}>
+    <View style={styles.container}>
       <FlatList
         data={myleagues}
         keyExtractor={(item) => item._id}
@@ -63,3 +85,43 @@ function MyLeague() {
 }
 
 export default MyLeague;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F9FAFB",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginLeft: 10,
+    color: "#333",
+  },
+  fee: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 6,
+  },
+  date: {
+    fontSize: 14,
+    color: "#777",
+    marginBottom: 2,
+  },
+});

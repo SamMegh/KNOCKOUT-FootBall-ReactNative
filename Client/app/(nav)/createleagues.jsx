@@ -1,69 +1,150 @@
-import { useRouter } from "expo-router";
+import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { ScrollView, Text, TouchableOpacity } from "react-native";
+import {
+  Animated,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-function createleague() {
+
+function CreateLeague() {
   const { getmecreatedleagues, myownleagues } = useLeagueStore();
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
-  if (!isAuthUser) return <Redirect href="/" />;
+
   useEffect(() => {
     getmecreatedleagues();
   }, [getmecreatedleagues]);
-  return (
-    <SafeAreaView className='flex-1'>
-      <TouchableOpacity
-        className="m-4 p-4 rounded-xl bg-[#A4BCFF] boxShadow"
-        onPress={() => router.push("/createnewleague")}
-      >
-        <Text>click here to create a league</Text>
-      </TouchableOpacity>
-      <ScrollView className="p-4"
-      >
-        {myownleagues.map((league, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => {
-              router.push({
-                pathname: "/leaguedata",
-                params: { leagueid: league._id },
-              });
-            }}
-            className="mb-4 p-4 rounded-xl bg-[#CCCCCC] boxShadow"
-          >
-            <Text className="text-xl font-semibold text-blue-700 mb-2">
-              {league.name}
-            </Text>
-            <Text className="text-sm text-gray-800">Id : {league._id}</Text>
-            <Text className="text-sm text-gray-800">
-              Start : {new Date(league.start).toDateString()}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              End : {new Date(league.end).toDateString()}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              Total Weeks : {league.totalWeeks}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              Join Fee : {league.joinfee}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              Type : {league.type}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              life line per user : {league.lifelinePerUser}
-            </Text>
-            <Text className="text-sm text-gray-800">
-              number of time team can repeat : {league.maxTimeTeamSelect}
-            </Text>
 
-          </TouchableOpacity>
-        ))}
+  if (!isAuthUser) return <Redirect href="/" />;
+
+  const renderLeagueCard = (league, index) => {
+    const scale = new Animated.Value(1);
+
+    const onPressIn = () =>
+      Animated.spring(scale, {
+        toValue: 0.96,
+        useNativeDriver: true,
+      }).start();
+
+    const onPressOut = () =>
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+
+    return (
+      <Pressable
+        key={index}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        onPress={() =>
+          router.push({
+            pathname: "/leaguedata",
+            params: { leagueid: league._id },
+          })
+        }
+      >
+        <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
+          <View style={styles.headerRow}>
+            <MaterialIcons name="sports-soccer" size={22} color="#4F46E5" />
+            <Text style={styles.title}>{league.name}</Text>
+          </View>
+          <Text style={styles.detail}>🆔 ID: {league._id}</Text>
+          <Text style={styles.detail}>
+            🕒 Start: {new Date(league.start).toDateString()}
+          </Text>
+          <Text style={styles.detail}>
+            ⏳ End: {new Date(league.end).toDateString()}
+          </Text>
+          <Text style={styles.detail}>📆 Total Weeks: {league.totalWeeks}</Text>
+          <Text style={styles.detail}>💰 Join Fee: ₹{league.joinfee}</Text>
+          <Text style={styles.detail}>🎮 Type: {league.type}</Text>
+          <Text style={styles.detail}>
+            ❤️ Life Lines / User: {league.lifelinePerUser}
+          </Text>
+          <Text style={styles.detail}>
+            🔁 Team Repeat Limit: {league.maxTimeTeamSelect}
+          </Text>
+        </Animated.View>
+      </Pressable>
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Pressable
+        onPress={() => router.push("/createnewleague")}
+        style={styles.createBtn}
+      >
+        <FontAwesome5 name="plus-circle" size={20} color="#fff" />
+        <Text style={styles.createText}>Create New League</Text>
+      </Pressable>
+
+      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+        {myownleagues.map(renderLeagueCard)}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-export default createleague;
+export default CreateLeague;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F3F4F6",
+    paddingHorizontal: 16,
+  },
+  createBtn: {
+    flexDirection: "row",
+    backgroundColor: "#4F46E5",
+    marginVertical: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    elevation: 2,
+  },
+  createText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginLeft: 10,
+    color: "#1F2937",
+  },
+  detail: {
+    fontSize: 14,
+    color: "#4B5563",
+    marginBottom: 4,
+  },
+});
