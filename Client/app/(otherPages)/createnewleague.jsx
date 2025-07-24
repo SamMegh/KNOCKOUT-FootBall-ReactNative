@@ -1,6 +1,7 @@
 import { Redirect, useRouter } from "expo-router";
 import { Formik } from "formik";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
@@ -13,6 +14,7 @@ await createmyownleague(values);
   }
   if (!isAuthUser) return <Redirect href="/" />;
   return (
+    <SafeAreaView>
     <View>
       <TouchableOpacity onPress={() => router.back()}>
               <Text className="text-base text-blue-600 mb-4">← Go Back</Text>
@@ -160,6 +162,7 @@ await createmyownleague(values);
   )}
       </Formik>
     </View>
+    </SafeAreaView>
   )
 }
 
