@@ -1,71 +1,117 @@
-import { Redirect, Tabs } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
-import { useAuthStore } from '../../src/store/useAuthStore';
+import { Ionicons } from "@expo/vector-icons";
+import { Redirect, Tabs } from "expo-router";
+import { Text, View } from "react-native";
+import { useAuthStore } from "../../src/store/useAuthStore";
 
 export default function TabsLayout() {
   const { isAuthUser } = useAuthStore();
 
   if (!isAuthUser) return <Redirect href="/" />;
 
+  const CustomHeader = ({ title }) => {
+    const formattedTitle =
+      title.charAt(0).toUpperCase() + title.slice(1).toLowerCase();
+
+    return (
+      <View
+        style={{
+          paddingTop: 35,
+          paddingBottom: 18,
+          paddingHorizontal: 20,
+          backgroundColor: "#dbeafe",
+          borderBottomLeftRadius: 16,
+          borderBottomRightRadius: 16,
+          elevation: 4,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "800",
+            color: "#1e40af",
+          }}
+        >
+          ⚽ {formattedTitle}
+        </Text>
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#475569",
+            marginTop: 4,
+          }}
+        >
+          Explore your {formattedTitle} section.
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        headerShown: true,
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#9ca3af',
+        header: () => <CustomHeader title={route.name} />,
+        tabBarActiveTintColor: "#2563eb",
+        tabBarInactiveTintColor: "#9ca3af",
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: "#ffffff",
           borderTopWidth: 0.3,
-          borderTopColor: '#e5e7eb',
-          height: 60,
-          elevation: 1,
+          borderTopColor: "#e5e7eb",
+          height: 55,
+          elevation: 2,
         },
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ color, focused }) => {
           switch (route.name) {
-            case 'home':
+            case "home":
               return (
                 <Ionicons
-                  name={focused ? 'home' : 'home-outline'}
+                  name={focused ? "home" : "home-outline"}
                   size={22}
                   color={color}
                 />
               );
-            case 'leagues':
+            case "league":
               return (
-                <MaterialCommunityIcons
-                  name="trophy" // Only solid trophy available
+                <Ionicons
+                  name={focused ? "trophy" : "trophy-outline"}
                   size={22}
                   color={color}
                 />
               );
-            case 'profile':
+            case "profile":
               return (
-                <FontAwesome5
-                  name="user-alt"
-                  size={20}
+                <Ionicons
+                  name={focused ? "person" : "person-outline"}
+                  size={22}
+                  color={color}
+                />
+              );
+            case "history":
+              return (
+                <Ionicons
+                  name={focused ? "time" : "time-outline"}
+                  size={22}
+                  color={color}
+                />
+              );
+            case "about":
+              return (
+                <Ionicons
+                  name={
+                    focused
+                      ? "information-circle"
+                      : "information-circle-outline"
+                  }
+                  size={22}
                   color={color}
                 />
               );
             default:
-              return (
-                <Ionicons
-                  name="ellipse-outline"
-                  size={22}
-                  color={color}
-                />
-              );
+              return null;
           }
-        },
-        headerStyle: {
-          backgroundColor: '#fff',
-          borderBottomWidth: 0.3,
-          borderBottomColor: '#e5e7eb',
-          elevation: 1,
-        },
-        headerTitleStyle: {
-          color: '#111827',
-          fontWeight: '600',
-          fontSize: 18,
         },
         tabBarLabelStyle: {
           fontSize: 11,
