@@ -4,16 +4,16 @@ import { useEffect } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Animated,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
-function JoinLeague() {
+const JoinLeague = () => {
   const { getleague, leagues, joinleague, removeLeague } = useLeagueStore();
   const router = useRouter();
 
@@ -21,22 +21,14 @@ function JoinLeague() {
     getleague();
   }, []);
 
-  const renderLeagueCard = (league) => {
-    const scale = new Animated.Value(1);
-
-    const onPressIn = () =>
-      Animated.spring(scale, {
-        toValue: 0.96,
-        useNativeDriver: true,
-      }).start();
-
-    const onPressOut = () =>
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-
-    const handleJoin = () => {
+  const confirmJoin = (league) => {
+    if (Platform.OS === "web") {
+      const ok = window.confirm(`Join "${league.name}"?`);
+      if (ok) {
+        joinleague(league._id);
+        removeLeague(league._id);
+      }
+    } else {
       Alert.alert(
         "Join League",
         `Are you sure you want to join "${league.name}"?`,
@@ -49,38 +41,16 @@ function JoinLeague() {
               removeLeague(league._id);
             },
           },
-        ]
+        ],
+        { cancelable: true }
       );
-    };
-
-    return (
-      <TouchableOpacity
-        key={league._id}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        onPress={handleJoin}
-        activeOpacity={0.9}
-      >
-        <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
-          <Text style={styles.leagueName}>{league.name}</Text>
-          <Text style={styles.detail}>🆔 ID: {league._id}</Text>
-          <Text style={styles.detail}>💰 Join fee: ₹{league.joinfee}</Text>
-          <Text style={styles.detail}>🕒 Start: {new Date(league.start).toDateString()}</Text>
-          <Text style={styles.detail}>⏳ End: {new Date(league.end).toDateString()}</Text>
-          <Text style={styles.detail}>🎮 Type: {league.type}</Text>
-          <Text style={styles.detail}>❤️ Life lines: {league.lifelinePerUser}</Text>
-          <Text style={styles.detail}>🔁 Repeat limit: {league.maxTimeTeamSelect}</Text>
-          <Text style={styles.detail}>👑 Owner: {league.ownerName}</Text>
-          <Text style={styles.detail}>📆 Weeks: {league.totalWeeks}</Text>
-        </Animated.View>
-      </TouchableOpacity>
-    );
+    }
   };
 
   if (!leagues) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#2563eb" />
         <Text style={styles.loadingText}>Loading leagues...</Text>
       </View>
     );
@@ -88,50 +58,80 @@ function JoinLeague() {
 
   if (leagues.length === 0) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.noDataText}>No leagues available.</Text>
+      <View style={styles.centered}>
+        <Text style={styles.noLeagueText}>No leagues available.</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {/* Sticky Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backRow}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back-circle" size={26} color="#2563eb" />
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>⚽ Join a League</Text>
-        <Text style={styles.headerSubtitle}>Select a league to participate in!</Text>
+        <Text style={styles.headerTitle}>🏆 Join a League</Text>
+        <Text style={styles.headerSubtitle}>
+          Browse and join leagues you want to participate in.
+        </Text>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {leagues.map(renderLeagueCard)}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {leagues.map((league) => (
+          <TouchableOpacity
+            key={league._id}
+            onPress={() => confirmJoin(league)}
+            style={styles.card}
+          >
+            <Text style={styles.leagueTitle}>{league.name}</Text>
+            <Text style={styles.detail}>🆔 ID: {league._id}</Text>
+            <Text style={styles.detail}>💰 Fee: ₹{league.joinfee}</Text>
+            <Text style={styles.detail}>
+              🕒 Start: {new Date(league.start).toDateString()}
+            </Text>
+            <Text style={styles.detail}>
+              ⏳ End: {new Date(league.end).toDateString()}
+            </Text>
+            <Text style={styles.detail}>🎮 Type: {league.type}</Text>
+            <Text style={styles.detail}>
+              ❤️ Lifelines/User: {league.lifelinePerUser}
+            </Text>
+            <Text style={styles.detail}>
+              🔁 Repeat Limit: {league.maxTimeTeamSelect}
+            </Text>
+            <Text style={styles.detail}>👑 Owner: {league.ownerName}</Text>
+            <Text style={styles.detail}>📆 Weeks: {league.totalWeeks}</Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </View>
   );
-}
+};
 
 export default JoinLeague;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#f0f9ff",
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: Platform.OS === "web" ? 20 : 40,
     paddingBottom: 20,
     backgroundColor: "#e0f2fe",
     borderBottomColor: "#bae6fd",
     borderBottomWidth: 1,
     borderRadius: 12,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
-  backRow: {
+  backBtn: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
@@ -152,29 +152,33 @@ const styles = StyleSheet.create({
     color: "#334155",
     marginTop: 4,
   },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 16,
-    marginBottom: 12,
-    elevation: 3,
+    marginBottom: 14,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  leagueName: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1D4ED8",
+  leagueTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1e40af",
     marginBottom: 8,
   },
   detail: {
     fontSize: 14,
-    color: "#374151",
-    marginBottom: 3,
+    color: "#334155",
+    marginBottom: 2,
   },
-  loadingContainer: {
+  centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -182,10 +186,10 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#4B5563",
+    color: "#334155",
   },
-  noDataText: {
-    fontSize: 16,
-    color: "#6B7280",
+  noLeagueText: {
+    fontSize: 18,
+    color: "#64748b",
   },
 });
