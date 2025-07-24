@@ -1,4 +1,4 @@
-import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -80,6 +81,20 @@ function CreateLeague() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Sticky Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back-circle" size={26} color="#2563eb" />
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.heading}>⚽ Create New League</Text>
+        <Text style={styles.subheading}>
+          Fill out the details below to start your own league.
+        </Text>
+      </View>
+
+      {/* Create New League Button */}
       <Pressable
         onPress={() => router.push("/createnewleague")}
         style={styles.createBtn}
@@ -88,6 +103,7 @@ function CreateLeague() {
         <Text style={styles.createText}>Create New League</Text>
       </Pressable>
 
+      {/* League List */}
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {myownleagues.map(renderLeagueCard)}
       </ScrollView>
@@ -101,11 +117,42 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F3F4F6",
-    paddingHorizontal: 16,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
+    backgroundColor: "#e0f2fe",
+    borderBottomColor: "#bae6fd",
+    borderBottomWidth: 1,
+    borderRadius: 12,
+    elevation: 2,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  backText: {
+    color: "#2563eb",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  heading: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#1e3a8a",
+  },
+  subheading: {
+    fontSize: 14,
+    color: "#334155",
+    marginTop: 4,
   },
   createBtn: {
     flexDirection: "row",
     backgroundColor: "#4F46E5",
+    marginHorizontal: 16,
     marginVertical: 16,
     paddingVertical: 12,
     paddingHorizontal: 18,
@@ -124,6 +171,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 16,
     padding: 18,
+    marginHorizontal: 16,
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },

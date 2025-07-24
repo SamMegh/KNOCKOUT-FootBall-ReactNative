@@ -48,25 +48,15 @@ function MyLeague() {
           })
         }
       >
-        <Animated.View
-          style={[
-            styles.card,
-            { transform: [{ scale: scaleValue }] },
-          ]}
-        >
+        <Animated.View style={[styles.card, { transform: [{ scale: scaleValue }] }]}>
           <View style={styles.headerRow}>
             <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
             <Text style={styles.title}>{item.name}</Text>
           </View>
 
           <Text style={styles.fee}>🏷️ Join Fee: ₹{item.joinfee}</Text>
-
-          <Text style={styles.date}>
-            🕒 Start: {new Date(item.start).toDateString()}
-          </Text>
-          <Text style={styles.date}>
-            ⏳ End: {new Date(item.end).toDateString()}
-          </Text>
+          <Text style={styles.date}>🕒 Start: {new Date(item.start).toDateString()}</Text>
+          <Text style={styles.date}>⏳ End: {new Date(item.end).toDateString()}</Text>
         </Animated.View>
       </Pressable>
     );
@@ -74,11 +64,29 @@ function MyLeague() {
 
   return (
     <View style={styles.container}>
+      {/* Top Action Buttons */}
+      <View style={styles.topButtons}>
+        <Pressable
+          style={styles.button}
+          onPress={() => router.push("/joinleague")}
+        >
+          <Text style={styles.buttonText}>Join League</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.button, styles.createButton]}
+          onPress={() => router.push("/createleague")}
+        >
+          <Text style={styles.buttonText}>Create League</Text>
+        </Pressable>
+      </View>
+
+      {/* League List */}
       <FlatList
         data={myleagues}
         keyExtractor={(item) => item._id}
         renderItem={renderLeague}
-        contentContainerStyle={{ paddingVertical: 16 }}
+        contentContainerStyle={{ paddingBottom: 16 }}
       />
     </View>
   );
@@ -89,39 +97,68 @@ export default MyLeague;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: "#f0f2f5",
+  },
+  topButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    marginBottom:8,
+    gap: 12,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: "#6C63FF",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  createButton: {
+    backgroundColor: "#10B981", // Emerald green
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
   card: {
     backgroundColor: "#ffffff",
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1f2937",
     marginLeft: 10,
-    color: "#333",
   },
   fee: {
     fontSize: 16,
-    color: "#555",
-    marginBottom: 6,
+    color: "#6B7280",
+    marginBottom: 8,
   },
   date: {
     fontSize: 14,
-    color: "#777",
+    color: "#9CA3AF",
     marginBottom: 2,
   },
 });
