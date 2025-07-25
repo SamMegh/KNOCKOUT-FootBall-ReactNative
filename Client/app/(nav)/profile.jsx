@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 
@@ -21,10 +21,9 @@ export default function Profile() {
 
   return (
     <SafeAreaView style={styles.container}>
-      
       {/* Header with Profile Emoji */}
-      <View style={styles.headerCurve}>
-        <Text >👨‍💻</Text>
+      <View style={styles.topHadder}>
+        <Text style={styles.profileEmoji}>👨‍💻</Text>
       </View>
 
       {/* Form */}
@@ -32,10 +31,19 @@ export default function Profile() {
         <FormRow label="🧑 First name" value={`${isAuthUser.firstName}`} />
         <FormRow label="👤 Last name" value={`${isAuthUser.lastName}`} />
         <FormRow label="🔐 Username" value={`${isAuthUser.userName}`} valid />
-        <FormRow label="📛 Display name" value={isAuthUser.name?`${isAuthUser.name}`:" "} />
-        <FormRow label="📱 Mobile number" value={isAuthUser.mobile?`${isAuthUser.mobile}`:"None"} />
+        <FormRow
+          label="📛 Display name"
+          value={isAuthUser.name ? `${isAuthUser.name}` : " "}
+        />
+        <FormRow
+          label="📱 Mobile number"
+          value={isAuthUser.mobile ? `${isAuthUser.mobile}` : "None"}
+        />
         <FormRow label="📧 Email" value={isAuthUser.email} />
-        <FormRow label="🎂 Date of Birth" value={isAuthUser.dob?`${isAuthUser.dob}`:"None"} />
+        <FormRow
+          label="🎂 Date of Birth"
+          value={isAuthUser.dob ? `${isAuthUser.dob}` : "None"}
+        />
 
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>🚪 Logout</Text>
@@ -72,12 +80,15 @@ const styles = StyleSheet.create({
     color: "#f8fafc",
     fontSize: 18,
   },
-  headerCurve: {
-    backgroundColor: "#0f172a",
+  topHadder: {
     alignItems: "center",
-    paddingVertical: 32,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    paddingVertical: 15,
+    alignContent: "center",
+  },
+  profileEmoji: {
+    fontSize: 72,
+    backgroundColor: "#000",
+    borderRadius: "50%",
   },
   formContainer: {
     padding: 20,

@@ -1,17 +1,25 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useLeagueStore } from '../../src/store/useLeagueStore';
 
 export default function Home() {
+  const router = useRouter();
+
   const myLeagues = [
     { id: '1', name: 'Champions League', status: 'Ongoing', players: 128 },
     { id: '2', name: 'IPL Fantasy', status: 'Upcoming', players: 64 },
-  ];
-
-  const publicLeagues = [
-    { id: '3', name: 'La Liga Frenzy', fee: 199 },
-    { id: '4', name: 'Weekend Clash', fee: 0 },
-    { id: '5', name: 'Premier League Showdown', fee: 299 },
   ];
 
   const tips = [
@@ -19,6 +27,38 @@ export default function Home() {
     'Check player stats regularly',
     'Join public leagues to win rewards',
   ];
+
+  const { leagues, getleague, joinleague, loading } = useLeagueStore();
+
+  useEffect(() => {
+    getleague();
+  }, [getleague]);
+
+    const confirmJoin = (league) => {
+      if (Platform.OS === "web") {
+        const ok = window.confirm(`Join "${league.name}"?`);
+        if (ok) {
+          joinleague(league._id);
+          removeLeague(league._id);
+        }
+      } else {
+        Alert.alert(
+          "Join League",
+          `Are you sure you want to join "${league.name}"?`,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Join",
+              onPress: () => {
+                joinleague(league._id);
+                removeLeague(league._id);
+              },
+            },
+          ],
+          { cancelable: true }
+        );
+      }
+    };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -56,29 +96,36 @@ export default function Home() {
 
         {/* Explore Public Leagues */}
         <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
-        {publicLeagues.map((league) => (
-          <View key={league.id} style={styles.publicCard}>
-            <View>
-              <Text style={styles.publicName}>{league.name}</Text>
-              <Text style={styles.publicFee}>Joining Fee: ₹{league.fee}</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color="#2563eb" />
+        ) : leagues?.length > 0 ? (
+          leagues.map((league) => (
+            <View key={league._id} style={styles.publicCard}>
+              <View>
+                <Text style={styles.publicName}>{league.name}</Text>
+                <Text style={styles.leagueData}>Leqgue Id: {league._id}</Text>
+                <Text style={styles.leagueData}>Joining Fee: ₹{league.joinfee}</Text>
+                <Text style={styles.leagueData}>Owner: {league.ownerName}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.joinButton}
+                onPress={() => confirmJoin(league)}
+              >
+                <Text style={{ color: '#fff', fontWeight: '600' }}>Join</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.joinButton}>
-              <Text style={{ color: '#fff', fontWeight: '600' }}>Join</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-
-        {/* Highlighted Banner */}
-        <View style={styles.bannerBox}>
-          <Image
-            source={{ uri: 'https://img.freepik.com/free-vector/soccer-match-banner-with-realistic-ball_1284-39336.jpg' }}
-            style={styles.bannerImage}
-          />
-          <Text style={styles.bannerText}>🔥 Participate in Weekly Mega Leagues & Win Exciting Prizes!</Text>
-        </View>
+          ))
+        ) : (
+          <Text style={{ fontStyle: 'italic', color: '#6b7280' }}>
+            No public leagues available yet.
+          </Text>
+        )}
 
         {/* Create League Button */}
-        <TouchableOpacity style={styles.createButton}>
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => router.push('/createnewleague')}
+        >
           <Text style={styles.createText}>+ Create New League</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -144,7 +191,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1e3a8a',
   },
-  publicFee: {
+  leagueData: {
     color: '#6b7280',
     fontSize: 14,
     marginTop: 2,
@@ -185,23 +232,5 @@ const styles = StyleSheet.create({
   tipItem: {
     fontSize: 13,
     color: '#92400e',
-  },
-  bannerBox: {
-    marginTop: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#e0f2fe',
-    elevation: 3,
-  },
-  bannerImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
-  },
-  bannerText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1e3a8a',
-    padding: 12,
   },
 });

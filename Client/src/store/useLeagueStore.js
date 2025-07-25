@@ -45,6 +45,7 @@ export const useLeagueStore = create((set, get) => ({
         name: data.name,
         end: data.end,
         start: data.start,
+        type:data.type,
         maxTimeTeamSelect: data.maxTimeTeamSelect,
         lifelinePerUser: data.lifelinePerUser
       })
