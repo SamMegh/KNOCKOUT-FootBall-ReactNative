@@ -1,4 +1,11 @@
-import { Platform, Text, TouchableOpacity, View } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 
 export default function Profile() {
@@ -6,88 +13,110 @@ export default function Profile() {
 
   if (!isAuthUser) {
     return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#0f172a",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ color: "#f8fafc", fontSize: 18 }}>
-          Unable to get user details.
-        </Text>
+      <View style={styles.center}>
+        <Text style={styles.errorText}>Unable to get user details.</Text>
       </View>
     );
   }
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#fff",
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 24,
-      }}
-    >
-      <View
-        style={{
-          backgroundColor: "#1e293b",
-          borderRadius: 16,
-          padding: 24,
-          width: Platform.OS === "web" ? "40vw" : "90%",
-          maxWidth: 400,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-          elevation: 3,
-        }}
-      >
-        <Text
-          style={{
-            color: "#f8fafc",
-            fontSize: 24,
-            fontWeight: "700",
-            marginBottom: 16,
-            textAlign: "center",
-          }}
-        >
-          👤 Profile
-        </Text>
+    <SafeAreaView style={styles.container}>
+      
+      {/* Header with Profile Emoji */}
+      <View style={styles.headerCurve}>
+        <Text >👨‍💻</Text>
+      </View>
 
-        <Text style={styles.row}>🆔 ID: {isAuthUser._id}</Text>
-        <Text style={styles.row}>🧑 Name: {isAuthUser.name}</Text>
-        <Text style={styles.row}>📧 Email: {isAuthUser.email}</Text>
+      {/* Form */}
+      <ScrollView contentContainerStyle={styles.formContainer}>
+        <FormRow label="🧑 First name" value={`${isAuthUser.firstName}`} />
+        <FormRow label="👤 Last name" value={`${isAuthUser.lastName}`} />
+        <FormRow label="🔐 Username" value={`${isAuthUser.userName}`} valid />
+        <FormRow label="📛 Display name" value={isAuthUser.name?`${isAuthUser.name}`:" "} />
+        <FormRow label="📱 Mobile number" value={isAuthUser.mobile?`${isAuthUser.mobile}`:"None"} />
+        <FormRow label="📧 Email" value={isAuthUser.email} />
+        <FormRow label="🎂 Date of Birth" value={isAuthUser.dob?`${isAuthUser.dob}`:"None"} />
 
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>🚪 Logout</Text>
         </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function FormRow({ label, value, valid = false }) {
+  return (
+    <View style={styles.inputGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.inputRow}>
+        <Text style={styles.input}>{value}</Text>
+        {valid && <Text style={styles.validIcon}>✅</Text>}
       </View>
     </View>
   );
 }
 
-const styles = {
-  row: {
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  center: {
+    flex: 1,
+    backgroundColor: "#0f172a",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: "#f8fafc",
+    fontSize: 18,
+  },
+  headerCurve: {
+    backgroundColor: "#0f172a",
+    alignItems: "center",
+    paddingVertical: 32,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+  },
+  formContainer: {
+    padding: 20,
+    paddingBottom: 60,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    color: "#64748b",
+    marginBottom: 6,
+    fontSize: 14,
+  },
+  inputRow: {
+    backgroundColor: "#f1f5f9",
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  input: {
     fontSize: 16,
-    color: "#e2e8f0",
-    marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#334155",
-    paddingBottom: 6,
+    color: "#0f172a",
+  },
+  validIcon: {
+    fontSize: 18,
+    color: "green",
   },
   logoutBtn: {
-    marginTop: 24,
     backgroundColor: "#ef4444",
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 8,
+    marginTop: 24,
   },
   logoutText: {
     color: "#fff",
+    fontSize: 16,
     fontWeight: "600",
     textAlign: "center",
-    fontSize: 16,
   },
-};
+});
