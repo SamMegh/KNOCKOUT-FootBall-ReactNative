@@ -234,6 +234,7 @@ const _createTeam = async (userId, userName, leagueId, leagueName) => {
             userName,
             leagueId,
             leagueName,
+            checkPoint:new Date(),
             teams: uniqueDates.map(date => ({
                 day: new Date(date),
                 teamName: "Not Selected"

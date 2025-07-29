@@ -44,13 +44,17 @@ const leagueDataSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  result:{
+    type:String,
+    enum:['win','loss','pending'],
+    default:"pending"
+  },
+  checkPoint:{
+    type:Date
+  },
   lifeline: {
     type: Number,
     default: 1
-  },
-  noSelected: {
-    type: Number,
-    default: 0
   },
   teams: [teamEntrySchema]
 }, {

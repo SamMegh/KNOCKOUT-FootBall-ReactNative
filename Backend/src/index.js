@@ -6,7 +6,7 @@ import { app, server } from "./lib/socket.config.js";
 
 import { connect } from './lib/connect.db.js';
 import authRoutes from "./routes/auth.routes.js";
-import matchRoutes from "./routes/match.route.js";
+import matchRoutes from "./routes/data.route.js";
 import playRoutes from "./routes/play.routes.js";
 
 dotenv.config();
