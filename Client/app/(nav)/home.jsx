@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
+import CustomHeader from "../../src/components/customHeader";
 
 export default function Home() {
   const router = useRouter();
@@ -106,7 +107,8 @@ export default function Home() {
     </View>
   );
 
-  return (
+  return (<>
+      <CustomHeader title="home" subtitle="Explore your Home section." />
     <SafeAreaView style={styles.container}>
       <FlatList
         ListHeaderComponent={
@@ -164,6 +166,7 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
+  </>
   );
 }
 
@@ -173,6 +176,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 20,
+    borderTopEndRadius: 30,
+    borderTopStartRadius: 30,
   },
   heading: {
     fontSize: 24,
