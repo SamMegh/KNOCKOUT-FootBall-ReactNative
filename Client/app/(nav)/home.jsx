@@ -88,7 +88,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#000',
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 20,
@@ -96,13 +96,13 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#111827',
+    color: '#fff',
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1f2937',
+    color: '#fff',
     marginVertical: 12,
   },
   leagueCard: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
+    shadowColor: '#fff',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
@@ -121,10 +121,10 @@ const styles = StyleSheet.create({
   leagueName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
+    color: '#000',
   },
   leagueMeta: {
-    color: '#6b7280',
+    color: '#000',
     fontSize: 14,
     marginTop: 2,
   },
@@ -142,34 +142,34 @@ const styles = StyleSheet.create({
   publicName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1e3a8a',
+    color: '#000',
   },
   publicFee: {
-    color: '#6b7280',
+    color: '#000',
     fontSize: 14,
     marginTop: 2,
   },
   joinButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#000',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
   },
   createButton: {
     marginTop: 20,
-    backgroundColor: '#10b981',
+    backgroundColor: '#fff',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
   },
   createText: {
     fontSize: 16,
-    color: '#fff',
+    color: '#000',
     fontWeight: '700',
   },
   tipsBox: {
     flexDirection: 'row',
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#fff',
     padding: 14,
     borderRadius: 12,
     marginBottom: 20,
@@ -179,18 +179,18 @@ const styles = StyleSheet.create({
   tipsTitle: {
     fontWeight: '700',
     fontSize: 15,
-    color: '#92400e',
+    color: '#000',
     marginBottom: 4,
   },
   tipItem: {
     fontSize: 13,
-    color: '#92400e',
+    color: '#000',
   },
   bannerBox: {
     marginTop: 20,
     borderRadius: 16,
     overflow: 'hidden',
-    backgroundColor: '#e0f2fe',
+    backgroundColor: '#fff',
     elevation: 3,
   },
   bannerImage: {
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   bannerText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1e3a8a',
+    color: '#000',
     padding: 12,
   },
 });

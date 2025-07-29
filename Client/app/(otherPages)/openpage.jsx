@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Dimensions,
-  ScrollView,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -36,7 +36,7 @@ export default function OpenPage() {
   }));
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <SafeAreaView  contentContainerStyle={styles.scrollContainer}>
       <View style={styles.mainBox}>
         <View style={styles.contentBox}>
           {
@@ -65,12 +65,13 @@ export default function OpenPage() {
           </View>
         </View>
       </View>
-    </ScrollView>
+    </SafeAreaView >
   );
 }
 
 const styles = StyleSheet.create({
   scrollContainer: {
+    display: 'block',
     flex: 1,
     backgroundColor: '#000', // black background
     justifyContent: 'center',
@@ -81,6 +82,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20, 
   },
+
   contentBox: {
     width: screenWidth * 0.9, // 90% of screen width
     minHeight: 700, // Minimum height for the content box

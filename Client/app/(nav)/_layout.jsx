@@ -53,8 +53,8 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        header: () => <CustomHeader title={route.name} />,
-        tabBarActiveTintColor: "#2563eb",
+        headerShown: false,
+        tabBarActiveTintColor: "#000",
         tabBarInactiveTintColor: "#9ca3af",
         tabBarStyle: {
           backgroundColor: "#ffffff",

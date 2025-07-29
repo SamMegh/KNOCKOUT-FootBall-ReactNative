@@ -12,6 +12,8 @@ useEffect(()=>{
     router.replace("/home");
   }
 },[isAuthUser])
+
+
   return (
     <SafeAreaView className="bg-[#000] flex-1">
       <OpenPage/>
