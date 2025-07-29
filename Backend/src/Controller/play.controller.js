@@ -55,7 +55,6 @@ export const getmyleague = async (req, res) => {
     }
 }
 
-
 export const createleague = async (req, res) => {
     try {
         const ownerId = req.user._id

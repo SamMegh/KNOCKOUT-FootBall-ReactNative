@@ -13,13 +13,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function Home() {
   const router = useRouter();
   const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =
     useLeagueStore();
-
+  const {isAuthUser}= useAuthStore();
   const now = useMemo(() => new Date(), []);
 
   const tips = [
@@ -110,7 +111,7 @@ export default function Home() {
       <FlatList
         ListHeaderComponent={
           <>
-            <Text style={styles.heading}>👋 Welcome back, Sam!</Text>
+            <Text style={styles.heading}>👋 Welcome back, {isAuthUser?.name}!</Text>
 
             {/* Tips Section */}
             <View style={styles.tipsBox}>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getItem } from './asyncstorage';
 
 const Instance = axios.create({
-  baseURL: 'http://192.168.1.5:8080/',
+  baseURL: 'http://localhost:8080/',
   withCredentials: true,
 });
 Instance.interceptors.request.use(async (config) => {
