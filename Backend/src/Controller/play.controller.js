@@ -39,16 +39,18 @@ export const getleague = async (req, res) => {
 
 export const getmyleague = async (req, res) => {
     try {
-        const userId = req.user._id
+        const userId = req.user._id;
         const currentDate = new Date();
+
         const upcommingLeagues = await League.find({
             end: { $gte: currentDate },
             participantsId: { $in: [userId] }
-        });
+        }).sort({ start: 1 }); // 👈 Sort by `start` descending
+
         res.status(200).json(upcommingLeagues);
     } catch (error) {
         res.status(500).json({
-            message: "unable to get leagues" + error
+            message: "Unable to get leagues: " + error.message
         });
     }
 }

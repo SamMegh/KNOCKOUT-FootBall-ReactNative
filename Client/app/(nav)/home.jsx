@@ -1,87 +1,168 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useEffect, useMemo } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { useAuthStore } from "../../src/store/useAuthStore";
+import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function Home() {
-  const myLeagues = [
-    { id: '1', name: 'Champions League', status: 'Ongoing', players: 128 },
-    { id: '2', name: 'IPL Fantasy', status: 'Upcoming', players: 64 },
-  ];
-
-  const publicLeagues = [
-    { id: '3', name: 'La Liga Frenzy', fee: 199 },
-    { id: '4', name: 'Weekend Clash', fee: 0 },
-    { id: '5', name: 'Premier League Showdown', fee: 299 },
-  ];
+  const router = useRouter();
+  const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =
+    useLeagueStore();
+  const {isAuthUser}= useAuthStore();
+  const now = useMemo(() => new Date(), []);
 
   const tips = [
-    'Build your dream team wisely',
-    'Check player stats regularly',
-    'Join public leagues to win rewards',
+    "Build your dream team wisely",
+    "Check player stats regularly",
+    "Join public leagues to win rewards",
   ];
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await getleague();
+        await getmyleagues();
+      } catch (error) {
+        Alert.alert("Error", "Failed to fetch leagues.");
+      }
+    })();
+  }, []);
+
+  const confirmJoin = (league) => {
+    const handleJoin = () => {
+      joinleague(league._id);
+      // Optional: removeLeague(league._id);
+    };
+
+    if (Platform.OS === "web") {
+      const ok = window.confirm(`Join "${league.name}"?`);
+      if (ok) handleJoin();
+    } else {
+      Alert.alert(
+        "Join League",
+        `Are you sure you want to join "${league.name}"?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Join", onPress: handleJoin },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
+
+  const renderMyLeague = ({ item: league }) => (
+    <TouchableOpacity key={league._id} style={styles.leagueCard} onPress={() =>
+          router.push({
+            pathname: "/leaguedata",
+            params: { leagueid: league._id },
+          })}>
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
+          <Text style={styles.leagueName}>{league.name}</Text>
+        </View>
+        <Text style={styles.leagueMeta}>
+          {now < new Date(league.end) ? "Upcoming" : "Ongoing"} •{" "}
+          {league.type.charAt(0).toUpperCase() + league.type.slice(1)}
+        </Text>
+        
+        <Text style={styles.leagueMeta}>Time : {(league.start).split("T")[0]}{" To "}{(league.end).split("T")[0]}</Text>
+      </View>
+      <Ionicons
+        name={now < new Date(league.start) ? "time" : "flash"}
+        size={22}
+        color={now < new Date(league.start) ? "#f59e0b" : "#10b981"}
+      />
+    </TouchableOpacity>
+  );
+
+  const renderPublicLeague = ({ item: league }) => (
+    <View key={league._id} style={styles.publicCard}>
+      <View>
+        <Text style={styles.publicName}>{league.name}</Text>
+        <Text style={styles.leagueData}>League Id: {league._id}</Text>
+        <Text style={styles.leagueData}>Time : {(league.start).split("T")[0]}{" To "}{(league.end).split("T")[0]}</Text>
+        <Text style={styles.leagueData}>Joining Fee: ₹{league.joinfee}</Text>
+        <Text style={styles.leagueData}>Owner: {league.ownerName}</Text>
+      </View>
+      <TouchableOpacity
+        style={styles.joinButton}
+        onPress={() => confirmJoin(league)}
+      >
+        <Text style={{ color: "#fff", fontWeight: "600" }}>Join</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-        <Text style={styles.heading}>👋 Welcome back, Sam!</Text>
+      <FlatList
+        ListHeaderComponent={
+          <>
+            <Text style={styles.heading}>👋 Welcome back, {isAuthUser?.name}!</Text>
 
-        {/* Tips Section */}
-        <View style={styles.tipsBox}>
-          <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
-          <View style={{ marginLeft: 12 }}>
-            <Text style={styles.tipsTitle}>Quick Tips</Text>
-            {tips.map((tip, i) => (
-              <Text key={i} style={styles.tipItem}>• {tip}</Text>
-            ))}
-          </View>
-        </View>
+            {/* Tips Section */}
+            <View style={styles.tipsBox}>
+              <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
+              <View style={{ marginLeft: 12 }}>
+                <Text style={styles.tipsTitle}>Quick Tips</Text>
+                {tips.map((tip, i) => (
+                  <Text key={i} style={styles.tipItem}>
+                    • {tip}
+                  </Text>
+                ))}
+              </View>
+            </View>
 
-        {/* My Leagues */}
-        <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
-        {myLeagues.map((league) => (
-          <View key={league.id} style={styles.leagueCard}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.leagueName}>{league.name}</Text>
-              <Text style={styles.leagueMeta}>
-                {league.status} • {league.players} players
+            {/* My Leagues */}
+            <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
+          </>
+        }
+        data={myleagues}
+        renderItem={renderMyLeague}
+        keyExtractor={(item) => item._id}
+        ListFooterComponent={
+          <>
+            <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
+            {loading ? (
+              <ActivityIndicator size="large" color="#2563eb" />
+            ) : leagues?.length > 0 ? (
+              <FlatList
+                data={leagues}
+                renderItem={renderPublicLeague}
+                keyExtractor={(item) => item._id}
+                scrollEnabled={false}
+              />
+            ) : (
+              <Text style={{ fontStyle: "italic", color: "#6b7280" }}>
+                No public leagues available yet.
               </Text>
-            </View>
-            <Ionicons
-              name={league.status === 'Ongoing' ? 'flash' : 'time'}
-              size={22}
-              color={league.status === 'Ongoing' ? '#10b981' : '#f59e0b'}
-            />
-          </View>
-        ))}
+            )}
 
-        {/* Explore Public Leagues */}
-        <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
-        {publicLeagues.map((league) => (
-          <View key={league.id} style={styles.publicCard}>
-            <View>
-              <Text style={styles.publicName}>{league.name}</Text>
-              <Text style={styles.publicFee}>Joining Fee: ₹{league.fee}</Text>
-            </View>
-            <TouchableOpacity style={styles.joinButton}>
-              <Text style={{ color: '#fff', fontWeight: '600' }}>Join</Text>
+            {/* Create League Button */}
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={() => router.push("/createnewleague")}
+            >
+              <Text style={styles.createText}>+ Create New League</Text>
             </TouchableOpacity>
-          </View>
-        ))}
-
-        {/* Highlighted Banner */}
-        <View style={styles.bannerBox}>
-          <Image
-            source={{ uri: 'https://img.freepik.com/free-vector/soccer-match-banner-with-realistic-ball_1284-39336.jpg' }}
-            style={styles.bannerImage}
-          />
-          <Text style={styles.bannerText}>🔥 Participate in Weekly Mega Leagues & Win Exciting Prizes!</Text>
-        </View>
-
-        {/* Create League Button */}
-        <TouchableOpacity style={styles.createButton}>
-          <Text style={styles.createText}>+ Create New League</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          </>
+        }
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
+      />
     </SafeAreaView>
   );
 }
@@ -106,8 +187,8 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   leagueCard: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    flexDirection: "row",
+    backgroundColor: "#ffffff",
     padding: 14,
     borderRadius: 12,
     marginBottom: 10,
@@ -116,7 +197,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 2,
-    alignItems: 'center',
+    alignItems: "center",
   },
   leagueName: {
     fontSize: 16,
@@ -129,15 +210,15 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   publicCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 14,
     borderRadius: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
     borderLeftWidth: 4,
-    borderLeftColor: '#3b82f6',
+    borderLeftColor: "#3b82f6",
   },
   publicName: {
     fontSize: 16,
@@ -160,7 +241,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   createText: {
     fontSize: 16,
@@ -174,10 +255,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 20,
     elevation: 2,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   tipsTitle: {
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 15,
     color: '#000',
     marginBottom: 4,
