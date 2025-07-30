@@ -43,7 +43,6 @@ export const getmatch = async (req, res) => {
 // Fetches matches for a fixed date, determines winners, and updates league stats
 export const dataofdaywinner = async (req, res) => {
   try {
-    const {userRequestToUpdate}=req.body;
     const date = new Date().toISOString().split("T")[0];;
     const response = await fetch(
       `https://api.football-data.org/v4/matches?date=2025-07-27`,
@@ -82,7 +81,7 @@ export const dataofdaywinner = async (req, res) => {
     }
 
     // Pass winners list to helper function that updates league stats
-    const leagues = await getLeaguesByWinners(winner,((userRequestToUpdate)?true:false));
+    const leagues = await getLeaguesByWinners(winner);
     return res.status(200).json(leagues); // Return updated leagues
   } catch (error) {
     console.error("Error fetching matches:", error);
@@ -95,7 +94,7 @@ export const dataofdaywinner = async (req, res) => {
 // ===========================
 // Updates each league’s win/loss/draw stats based on match results
 
-const getLeaguesByWinners = async (winners,userRequestToUpdate) => {
+const getLeaguesByWinners = async (winners) => {
   const results = [];
 
   const allLeagues = await LeagueData.find({}); // Fetch all leagues
@@ -121,7 +120,7 @@ const getLeaguesByWinners = async (winners,userRequestToUpdate) => {
         w.losserteam.trim() === selectedTeam.trim()
       );
 
-      if (new Date(league.checkPoint).getTime() === new Date(match.startDate).getTime()||!userRequestToUpdate) {
+      if (new Date(league.checkPoint).getTime() === new Date(match.startDate).getTime()) {
         continue;
       }
       if (!match) {
@@ -154,26 +153,78 @@ const getLeaguesByWinners = async (winners,userRequestToUpdate) => {
 
   return results; // Return list of updated leagues
 };
+
 // ===========================
 // AutoUpdate: leagues data
 // ===========================
 // Updates each league’s win/loss/draw stats based on match results
-// import cron from "node-cron";
+import cron from "node-cron";
 
-// cron.schedule("* * * * * *", async () => {
-//   console.log("Running scheduled task: dataofdaywinner");
 
-//   // Mocking req and res for standalone usage
-//   const req = {}; // No request needed
-//   const res = {
-//     status: (code) => ({
-//       json: (data) => {
-//         console.log(`Status: ${code}`, data);
-//       }
-//     })
-//   };
+// CRON: Run daily at 12:01 AM UTC to fetch matches
+cron.schedule('* * * * *', async () => {
+  console.log('⚽ CRON getmatch triggered at 12:01 AM UTC');
 
-//   // await dataofdaywinner(req, res);
-// }, {
-//   timezone: "UTC" // or "Asia/Kolkata" depending on your location
-// });
+  const currentDate = "2025-07-29"; // e.g., ""
+
+  const req = {
+    query: {
+      date: currentDate
+    }
+  };
+
+  const res = {
+  status: (code) => ({
+    json: (data) => {
+      const timeArray = data.map(item => item.startTime.slice(11, 16));
+      console.log("🕒 Extracted Match Times (UTC):", timeArray);
+    }
+  })
+};
+
+  await getmatch(req, res);
+}, {
+  timezone: "UTC"
+});
+
+// Match start times in UTC
+const matchStartTimes = [
+  "07:00", "12:30", "13:00", "15:00", "16:00",
+  "17:30", "18:45", "19:00", "19:30", "19:45",
+  "20:00", "21:00", "22:00"
+];
+
+const delays = [90, 92, 95]; // in minutes
+
+const runJob = async () => {
+  console.log("⏱️ Running scheduled update job (UTC)...");
+  await dataofdaywinner({}, {
+    status: (code) => ({
+      json: (data) => console.log(`Status: ${code}`, data),
+    }),
+  });
+};
+
+const scheduleJobsInUTC = () => {
+  for (const time of matchStartTimes) {
+    const [hour, minute] = time.split(":").map(Number);
+
+    for (const delay of delays) {
+      const baseTime = new Date(Date.UTC(2025, 0, 1, hour, minute)); // dummy date
+      const runTime = new Date(baseTime.getTime() + delay * 60000);
+
+      const runHour = runTime.getUTCHours();
+      const runMinute = runTime.getUTCMinutes();
+
+      const cronExp = `${runMinute} ${runHour} * * *`;
+
+      cron.schedule(cronExp, runJob, {
+        timezone: "UTC",
+      });
+
+      console.log(`✅ Scheduled (UTC) at ${cronExp} for match ${time} + ${delay}min`);
+    }
+  }
+};
+
+scheduleJobsInUTC();
