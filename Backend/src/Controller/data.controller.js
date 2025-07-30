@@ -43,9 +43,10 @@ export const getmatch = async (req, res) => {
 // Fetches matches for a fixed date, determines winners, and updates league stats
 export const dataofdaywinner = async (req, res) => {
   try {
-    const date = new Date().split("T")[0];
+    const {userRequestToUpdate}=req.body;
+    const date = new Date().toISOString().split("T")[0];;
     const response = await fetch(
-      `https://api.football-data.org/v4/matches?date=${date}`,
+      `https://api.football-data.org/v4/matches?date=2025-07-27`,
       {
         headers: {
           'X-Auth-Token': process.env.FOOTBAL_API,
@@ -54,7 +55,6 @@ export const dataofdaywinner = async (req, res) => {
     );
 
     const data = await response.json();
-
     // Filter finished matches and extract winner/loser info
     const winner = (data.matches || []).map(match => {
       if (match.status !== "FINISHED") return null; // Skip unfinished matches
@@ -82,7 +82,7 @@ export const dataofdaywinner = async (req, res) => {
     }
 
     // Pass winners list to helper function that updates league stats
-    const leagues = await getLeaguesByWinners(winner);
+    const leagues = await getLeaguesByWinners(winner,((userRequestToUpdate)?true:false));
     return res.status(200).json(leagues); // Return updated leagues
   } catch (error) {
     console.error("Error fetching matches:", error);
@@ -94,7 +94,8 @@ export const dataofdaywinner = async (req, res) => {
 // Helper: getLeaguesByWinners
 // ===========================
 // Updates each league’s win/loss/draw stats based on match results
-const getLeaguesByWinners = async (winners) => {
+
+const getLeaguesByWinners = async (winners,userRequestToUpdate) => {
   const results = [];
 
   const allLeagues = await LeagueData.find({}); // Fetch all leagues
@@ -102,7 +103,6 @@ const getLeaguesByWinners = async (winners) => {
   // Iterate over each league
   for (const league of allLeagues) {
     let updated = false;
-
     // Iterate over each selected team in the league
     for (const team of league.teams) {
       const selectedTeam = team.teamName;
@@ -121,20 +121,14 @@ const getLeaguesByWinners = async (winners) => {
         w.losserteam.trim() === selectedTeam.trim()
       );
 
-      if (!match) {
-        // No match found for this team (wrong selection or skipped)
-        if (selectedTeam !== "Not Selected") {
-          league.loss += 1;
-          updated = true;
-        } else {
-          league.loss += 1;
-          updated = true;
-        }
+      if (new Date(league.checkPoint).getTime() === new Date(match.startDate).getTime()||!userRequestToUpdate) {
         continue;
       }
-
-      // Match found, evaluate result
-      if (selectedTeam === "Not Selected") {
+      if (!match) {
+        league.loss += 1;
+        updated = true;
+        continue;
+      } else if (selectedTeam === "Not Selected") {
         league.loss += 1;
         updated = true;
       } else if (match.win === "DRAW") {
@@ -147,11 +141,12 @@ const getLeaguesByWinners = async (winners) => {
         league.loss += 1;
         updated = true;
       }
+      league.checkPoint = new Date(match.startDate);
     }
 
     // Save league if any update was made
     if (updated) {
-      league.checkPoint = new Date();  // Update last checkpoint
+      // Update last checkpoint
       await league.save();             // Save changes
       results.push(league);            // Add to response list
     }
@@ -159,3 +154,26 @@ const getLeaguesByWinners = async (winners) => {
 
   return results; // Return list of updated leagues
 };
+// ===========================
+// AutoUpdate: leagues data
+// ===========================
+// Updates each league’s win/loss/draw stats based on match results
+// import cron from "node-cron";
+
+// cron.schedule("* * * * * *", async () => {
+//   console.log("Running scheduled task: dataofdaywinner");
+
+//   // Mocking req and res for standalone usage
+//   const req = {}; // No request needed
+//   const res = {
+//     status: (code) => ({
+//       json: (data) => {
+//         console.log(`Status: ${code}`, data);
+//       }
+//     })
+//   };
+
+//   // await dataofdaywinner(req, res);
+// }, {
+//   timezone: "UTC" // or "Asia/Kolkata" depending on your location
+// });
