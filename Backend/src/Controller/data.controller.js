@@ -43,9 +43,9 @@ export const getmatch = async (req, res) => {
 // Fetches matches for a fixed date, determines winners, and updates league stats
 export const dataofdaywinner = async (req, res) => {
   try {
-    // Hardcoded date for now (can be dynamic if needed)
+    const date = new Date().split("T")[0];
     const response = await fetch(
-      `https://api.football-data.org/v4/matches?date=2025-07-27`,
+      `https://api.football-data.org/v4/matches?date=${date}`,
       {
         headers: {
           'X-Auth-Token': process.env.FOOTBAL_API,
