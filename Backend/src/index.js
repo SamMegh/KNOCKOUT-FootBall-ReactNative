@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin)) {
+    if (process.env.originName.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
