@@ -162,10 +162,11 @@ import cron from "node-cron";
 
 
 // CRON: Run daily at 12:01 AM UTC to fetch matches
-cron.schedule('* * * * *', async () => {
-  console.log('⚽ CRON getmatch triggered at 12:01 AM UTC');
 
-  const currentDate = "2025-07-29"; // e.g., ""
+cron.schedule('1 0 * * *', async () => {
+  console.log('⚽ CRON getmatch triggered');
+
+  const currentDate = "2025-07-27";
 
   const req = {
     query: {
@@ -174,27 +175,28 @@ cron.schedule('* * * * *', async () => {
   };
 
   const res = {
-  status: (code) => ({
-    json: (data) => {
-      const timeArray = data.map(item => item.startTime.slice(11, 16));
-      console.log("🕒 Extracted Match Times (UTC):", timeArray);
-    }
-  })
-};
+    status: (code) => ({
+      json: (data) => {
+        // ✅ Fill global matchStartTimes AFTER async completes
+        matchStartTimes = (data || [])
+          .filter(item => typeof item.startTime === 'string')
+          .map(item => item.startTime.slice(11, 16));
+
+        // You can now call something like scheduleJobsFromTimes(matchStartTimes) here
+      }
+    })
+  };
 
   await getmatch(req, res);
 }, {
   timezone: "UTC"
 });
 
-// Match start times in UTC
-const matchStartTimes = [
-  "07:00", "12:30", "13:00", "15:00", "16:00",
-  "17:30", "18:45", "19:00", "19:30", "19:45",
-  "20:00", "21:00", "22:00"
-];
 
-const delays = [90, 92, 95]; // in minutes
+// Match start times in UTC
+let matchStartTimes = [];
+console.log(matchStartTimes);
+const delays = [85, 90, 92, 95]; // in minutes
 
 const runJob = async () => {
   console.log("⏱️ Running scheduled update job (UTC)...");
