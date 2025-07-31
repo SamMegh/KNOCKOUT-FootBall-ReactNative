@@ -1,5 +1,10 @@
+// ===========================
+// Import Dependencies & Models
+// ===========================
+
 // Import the LeagueData model from the DB model directory
 import LeagueData from "../DBmodel/league.data.model.js";
+import cron from "node-cron"; // For scheduled background tasks
 
 // ===========================
 // Controller: getmatch
@@ -14,25 +19,26 @@ export const getmatch = async (req, res) => {
       `https://api.football-data.org/v4/matches?date=${date}`,
       {
         headers: {
-          'X-Auth-Token': process.env.FOOTBAL_API, // API key from env
+          'X-Auth-Token': process.env.FOOTBAL_API, // API key from environment
         },
       }
     );
 
     const data = await response.json();
 
-    // Transform match data into simplified format
+    // Transform match data into simplified format for frontend consumption
     const matches = (data.matches || []).map(match => ({
-      home: match.homeTeam.name,       // Home team name
-      home_png: match.homeTeam.crest,  // Home team logo
-      away: match.awayTeam.name,       // Away team name
-      away_png: match.awayTeam.crest,  // Away team logo
-      startTime: match.utcDate         // Match start time
+      home: match.homeTeam.name,        // Home team name
+      home_png: match.homeTeam.crest,   // Home team logo
+      away: match.awayTeam.name,        // Away team name
+      away_png: match.awayTeam.crest,   // Away team logo
+      startTime: match.utcDate          // Match start time (UTC)
     }));
 
-    res.status(200).json(matches); // Return the formatted data
+    // Respond with simplified match list
+    res.status(200).json(matches);
   } catch (error) {
-    // Handle any errors that occur during fetch or transformation
+    // Handle API errors gracefully
     res.status(500).json({ message: 'Unable to fetch matches: ' + error });
   }
 };
@@ -43,46 +49,47 @@ export const getmatch = async (req, res) => {
 // Fetches matches for a fixed date, determines winners, and updates league stats
 export const dataofdaywinner = async (req, res) => {
   try {
-    const date = new Date().toISOString().split("T")[0];;
+    const date = new Date().toISOString().split("T")[0]; // Today's date
     const response = await fetch(
-      `https://api.football-data.org/v4/matches?date=2025-07-27`,
+      `https://api.football-data.org/v4/matches?date=2025-07-27`, // Hardcoded date for now
       {
         headers: {
-          'X-Auth-Token': process.env.FOOTBAL_API,
+          'X-Auth-Token': process.env.FOOTBAL_API, // Auth token
         },
       }
     );
 
     const data = await response.json();
-    // Filter finished matches and extract winner/loser info
-    const winner = (data.matches || []).map(match => {
-      if (match.status !== "FINISHED") return null; // Skip unfinished matches
 
-      const winType = match.score.winner; // "HOME_TEAM", "AWAY_TEAM", or "DRAW"
+    // Extract winner/loser info from finished matches
+    const winner = (data.matches || []).map(match => {
+      if (match.status !== "FINISHED") return null; // Skip ongoing/upcoming matches
+
+      const winType = match.score.winner; // Can be "HOME_TEAM", "AWAY_TEAM", or "DRAW"
+
       const winnerteam =
         match[winType === "HOME_TEAM" ? "homeTeam" : "awayTeam"]?.name;
       const losserteam =
         match[winType === "HOME_TEAM" ? "awayTeam" : "homeTeam"]?.name;
-      const startDate = match.utcDate;
 
       return {
         win: winType,
         winnerteam,
         losserteam,
-        startDate,
+        startDate: match.utcDate,
         homeTeam: match.homeTeam.name,
         awayTeam: match.awayTeam.name,
       };
-    }).filter(Boolean); // Remove nulls
+    }).filter(Boolean); // Remove null values
 
-    // If no finished matches, return early
+    // No finished matches case
     if (!winner || winner.length === 0) {
       return res.status(200).json({ message: "No finished matches today." });
     }
 
-    // Pass winners list to helper function that updates league stats
+    // Update leagues based on match results
     const leagues = await getLeaguesByWinners(winner);
-    return res.status(200).json(leagues); // Return updated leagues
+    return res.status(200).json(leagues);
   } catch (error) {
     console.error("Error fetching matches:", error);
     return res.status(500).json({ error: "Something went wrong" + error });
@@ -93,36 +100,37 @@ export const dataofdaywinner = async (req, res) => {
 // Helper: getLeaguesByWinners
 // ===========================
 // Updates each league’s win/loss/draw stats based on match results
-
 const getLeaguesByWinners = async (winners) => {
   const results = [];
 
-  const allLeagues = await LeagueData.find({}); // Fetch all leagues
+  const allLeagues = await LeagueData.find({}); // Get all saved leagues
 
-  // Iterate over each league
   for (const league of allLeagues) {
     let updated = false;
-    // Iterate over each selected team in the league
+
     for (const team of league.teams) {
       const selectedTeam = team.teamName;
-      const teamDate = new Date(team.day).toISOString().slice(0, 10); // Format to YYYY-MM-DD
+      const teamDate = new Date(team.day).toISOString().slice(0, 10); // Extract date string
 
-      // Filter matches that occurred on the same date
+      // Get matches that occurred on the team’s selected day
       const possibleMatches = winners.filter(
         w => new Date(w.startDate).toISOString().slice(0, 10) === teamDate
       );
 
       if (!possibleMatches.length) continue;
 
-      // Check if user's selected team was involved in any match that day
+      // Check if the team was involved in any match
       const match = possibleMatches.find(w =>
         w.winnerteam.trim() === selectedTeam.trim() ||
         w.losserteam.trim() === selectedTeam.trim()
       );
 
+      // Skip if already processed this date
       if (new Date(league.checkPoint).getTime() === new Date(match.startDate).getTime()) {
         continue;
       }
+
+      // Update stats based on match result
       if (!match) {
         league.loss += 1;
         updated = true;
@@ -140,33 +148,29 @@ const getLeaguesByWinners = async (winners) => {
         league.loss += 1;
         updated = true;
       }
+
+      // Save latest checkpoint to avoid repeat updates
       league.checkPoint = new Date(match.startDate);
     }
 
-    // Save league if any update was made
+    // Save only if changes were made
     if (updated) {
-      // Update last checkpoint
-      await league.save();             // Save changes
-      results.push(league);            // Add to response list
+      await league.save();
+      results.push(league);
     }
   }
 
-  return results; // Return list of updated leagues
+  return results; // Return all updated league records
 };
 
 // ===========================
-// AutoUpdate: leagues data
+// CRON Job: Daily Match Fetching
 // ===========================
-// Updates each league’s win/loss/draw stats based on match results
-import cron from "node-cron";
-
-
-// CRON: Run daily at 12:01 AM UTC to fetch matches
-
+// Automatically fetches match data at 12:01 AM UTC
 cron.schedule('1 0 * * *', async () => {
   console.log('⚽ CRON getmatch triggered');
 
-  const currentDate = "2025-07-27";
+  const currentDate = new Date().toISOString().split("T")[0];
 
   const req = {
     query: {
@@ -174,15 +178,16 @@ cron.schedule('1 0 * * *', async () => {
     }
   };
 
+  // Mock response object to extract match times
   const res = {
     status: (code) => ({
       json: (data) => {
-        // ✅ Fill global matchStartTimes AFTER async completes
+        // Extract match start times for future CRON jobs
         matchStartTimes = (data || [])
           .filter(item => typeof item.startTime === 'string')
-          .map(item => item.startTime.slice(11, 16));
+          .map(item => item.startTime.slice(11, 16)); // Get HH:MM
 
-        // You can now call something like scheduleJobsFromTimes(matchStartTimes) here
+        // At this point, you can dynamically schedule match-specific jobs
       }
     })
   };
@@ -192,12 +197,14 @@ cron.schedule('1 0 * * *', async () => {
   timezone: "UTC"
 });
 
+// ===========================
+// Match Specific Job Scheduler
+// ===========================
 
-// Match start times in UTC
-let matchStartTimes = [];
-console.log(matchStartTimes);
-const delays = [85, 90, 92, 95]; // in minutes
+let matchStartTimes = []; // Holds today's match start times in UTC (HH:MM format)
+const delays = [85, 90, 92, 95]; // Delays after start time to trigger updates
 
+// Function that runs league updates
 const runJob = async () => {
   console.log("⏱️ Running scheduled update job (UTC)...");
   await dataofdaywinner({}, {
@@ -207,12 +214,14 @@ const runJob = async () => {
   });
 };
 
+// Schedule update jobs based on match times
 const scheduleJobsInUTC = () => {
   for (const time of matchStartTimes) {
     const [hour, minute] = time.split(":").map(Number);
 
     for (const delay of delays) {
-      const baseTime = new Date(Date.UTC(2025, 0, 1, hour, minute)); // dummy date
+      // Create a dummy time and add delay
+      const baseTime = new Date(Date.UTC(2025, 0, 1, hour, minute)); // Dummy date (Jan 1, 2025)
       const runTime = new Date(baseTime.getTime() + delay * 60000);
 
       const runHour = runTime.getUTCHours();
@@ -220,6 +229,7 @@ const scheduleJobsInUTC = () => {
 
       const cronExp = `${runMinute} ${runHour} * * *`;
 
+      // Schedule job
       cron.schedule(cronExp, runJob, {
         timezone: "UTC",
       });
@@ -229,4 +239,5 @@ const scheduleJobsInUTC = () => {
   }
 };
 
+// Initial call to setup jobs
 scheduleJobsInUTC();
