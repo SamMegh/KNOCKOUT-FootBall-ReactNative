@@ -1,49 +1,62 @@
-// ===============================
-// 👀 Imports & Dependencies
-// ===============================
-import bcrypt from 'bcryptjs'; // For hashing and verifying passwords 🔐
-import User from '../DBmodel/user.db.model.js'; // MongoDB model for storing users 🧠
-import { generatorToken } from '../lib/tokenGenerator.jwt.js'; // JWT creator function 🎟️
+// ==========================================
+// 🚀 Imports & Dependencies
+// ==========================================
+import bcrypt from 'bcryptjs'; // 🔐 For hashing and comparing passwords
+import User from '../DBmodel/user.db.model.js'; // 👤 MongoDB User model
+import { generatorToken } from '../lib/tokenGenerator.jwt.js'; // 🪙 JWT generator
 
 
-// ===============================
-// 📝 Sign Up Controller
-// ===============================
+// ==========================================
+// 📝 User Sign Up Controller
+// ==========================================
 export const signup = async (req, res) => {
     const { name, userName, firstName, DOB, lastName, email, password } = req.body;
 
     try {
-        // ⚠️ Field validation — no blanks allowed!
+        // 🚫 Validate required fields
         if (!name || !email || !userName || !password) {
             return res.status(400).json({ message: '🚨 All fields are required!' });
         }
 
-        // 📏 Enforce strong(ish) password policy
+        // 📏 Validate password strength
         if (password.length < 6) {
             return res.status(400).json({ message: '🔐 Password must be at least 6 characters long!' });
         }
 
-        // 🔍 Check if this email is already in use
+        // 📏 Validate userName length
+        if (userName.length < 3) {
+            return res.status(400).json({ message: '📛 userName must be at least 3 characters long!' });
+        }
+
+        // 🔍 Check if email already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: '📧 Email already registered!' });
         }
 
-        // 🔧 Secure the password before saving
+        // 🔐 Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // 🆕 Create new user instance
-        const newUser = new User({ name, email, password: hashedPassword, userName, firstName, DOB, lastName });
+        // 👤 Create new user object
+        const newUser = new User({
+            name,
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            userName: userName.toLowerCase(),
+            firstName,
+            DOB,
+            lastName
+        });
 
         if (newUser) {
-            // 🪙 Generate JWT token & set cookies if needed
+            // 🪙 Generate JWT token
             const token = generatorToken(newUser._id, res);
 
-            // 💾 Save to DB
+            // 💾 Save user to DB
             await newUser.save();
 
-            // 🎉 Send success response
+            // ✅ Send response with user data (no password!)
             res.status(201).json({
                 user: {
                     id: newUser._id,
@@ -61,40 +74,40 @@ export const signup = async (req, res) => {
         }
 
     } catch (error) {
-        // 🧯 Catch unexpected fires
+        // 💥 Catch unexpected server errors
         res.status(500).json({ message: '🔥 Internal server error: ' + error });
     }
 };
 
 
-// ===============================
-// 🔑 Login Controller
-// ===============================
+// ==========================================
+// 🔐 User Login Controller
+// ==========================================
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 🚫 Don’t allow missing credentials
+        // 🔎 Check for missing credentials
         if (!email || !password) {
             return res.status(401).json({ message: '📝 All fields are required!' });
         }
 
-        // 🔍 Look up user by email
-        const user = await User.findOne({ email });
+        // 📧 Find user by email
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(400).json({ message: '❌ Invalid email or password' });
         }
 
-        // 🔐 Compare entered password with stored hash
+        // 🔑 Compare password with stored hash
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: '❌ Invalid email or password' });
         }
 
-        // 🎟️ Generate auth token on successful login
+        // 🪙 Generate auth token
         const token = generatorToken(user._id, res);
 
-        // 🎯 Return user details and token
+        // 🎯 Send back user info and token
         res.status(200).json({
             user: {
                 _id: user._id,
@@ -114,15 +127,48 @@ export const login = async (req, res) => {
 };
 
 
-// ===============================
-// ✅ Check Current User
-// ===============================
+// ==========================================
+// 👤 Authenticated User Checker
+// ==========================================
+// Used to confirm identity and fetch user data via middleware
 export const check = async (req, res) => {
     try {
-        // 🔐 req.user should be attached by auth middleware
-        const user = req.user;
+        const user = req.user; // Set by JWT middleware
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: "🔍 Unable to verify user: " + error });
+    }
+};
+
+
+// ==========================================
+// 🆔 Check If userName Exists
+// ==========================================
+export const checkusername = async (req, res) => {
+    try {
+        const { userName } = req.body;
+
+        // ⚠️ Validate input
+        if (!userName) {
+            return res.status(400).json({ message: '🚨 userName is required!' });
+        }
+        if (userName.length < 3) {
+            return res.status(400).json({ message: '📛 userName must be at least 3 characters long!' });
+        }
+
+        // 🔍 Check for existing usernames (case-insensitive, partial match)
+        const response = await User.find({
+            userName: { $regex: `^${userName.toLowerCase()}`, $options: "i" }
+        });
+
+        if (response.length > 0) {
+            return res.status(400).json({ message: "❌ userName already exists", response });
+        }
+
+        // ✅ Available
+        res.status(200).json({ message: "✅ Good to go" });
+
+    } catch (error) {
+        res.status(500).json({ message: "🔍 Unable to check the userName: " + error });
     }
 };
