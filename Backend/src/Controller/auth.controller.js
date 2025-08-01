@@ -46,6 +46,8 @@ export const signup = async (req, res) => {
             userName: userName.toLowerCase(),
             firstName,
             DOB,
+            SCoin:20,
+            GCoin,
             lastName
         });
 
@@ -65,7 +67,9 @@ export const signup = async (req, res) => {
                     userName: newUser.userName,
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
-                    DOB: newUser.DOB
+                    DOB: newUser.DOB,
+                    SCoin:newUser.SCoin,
+                    GCoin:newUser.GCoin
                 },
                 token
             });
@@ -116,7 +120,9 @@ export const login = async (req, res) => {
                 userName: user.userName,
                 firstName: user.firstName,
                 lastName: user.lastName,
-                DOB: user.DOB
+                DOB: user.DOB,
+                SCoin:user.SCoin,
+                    GCoin:user.GCoin
             },
             token
         });
