@@ -28,9 +28,9 @@ export default function Profile() {
 
       {/* Form */}
       <ScrollView contentContainerStyle={styles.formContainer}>
-        <FormRow label="🧑 First name" value={`${isAuthUser.firstName}`} />
-        <FormRow label="👤 Last name" value={`${isAuthUser.lastName}`} />
-        <FormRow label="🔐 Username" value={`${isAuthUser.userName}`} valid />
+        <FormRow label="🧑 First name" value={isAuthUser.firstName|| "N/A"} />
+        <FormRow label="👤 Last name" value={isAuthUser.lastName|| "N/A"} />
+        <FormRow label="🔐 Username" value={isAuthUser.userName|| "N/A"} valid />
         <FormRow
           label="📛 Display name"
           value={isAuthUser.name ? `${isAuthUser.name}` : " "}
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   profileEmoji: {
     fontSize: 72,
     backgroundColor: "#000",
-    borderRadius: "50%",
+    borderRadius: 50,
   },
   formContainer: {
     padding: 20,
