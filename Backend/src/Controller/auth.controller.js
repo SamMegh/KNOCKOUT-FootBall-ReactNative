@@ -10,11 +10,11 @@ import { generatorToken } from '../lib/tokenGenerator.jwt.js'; // JWT creator fu
 // 📝 Sign Up Controller
 // ===============================
 export const signup = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, userName, firstName, DOB, lastName, email, password } = req.body;
 
     try {
         // ⚠️ Field validation — no blanks allowed!
-        if (!name || !email || !password) {
+        if (!name || !email || !userName || !password) {
             return res.status(400).json({ message: '🚨 All fields are required!' });
         }
 
@@ -34,7 +34,7 @@ export const signup = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // 🆕 Create new user instance
-        const newUser = new User({ name, email, password: hashedPassword });
+        const newUser = new User({ name, email, password: hashedPassword, userName, firstName, DOB, lastName });
 
         if (newUser) {
             // 🪙 Generate JWT token & set cookies if needed
@@ -49,6 +49,10 @@ export const signup = async (req, res) => {
                     id: newUser._id,
                     name: newUser.name,
                     email: newUser.email,
+                    userName: newUser.userName,
+                    firstName: newUser.firstName,
+                    lastName: newUser.lastName,
+                    DOB: newUser.DOB
                 },
                 token
             });
@@ -96,6 +100,10 @@ export const login = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
+                userName: user.userName,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                DOB: user.DOB
             },
             token
         });

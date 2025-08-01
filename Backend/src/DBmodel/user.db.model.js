@@ -26,12 +26,12 @@ const userSchema = new mongoose.Schema({
     },
 
     // User's mobile number (max 12 digits, must be unique)
-    mobile: {
-        type: Number,
-        maxlength: 12,
-        required: true,
-        unique: true
-    },
+    // mobile: {
+    //     type: Number,
+    //     maxlength: 12,
+    //     required: true,
+    //     unique: true
+    // },
 
     // Optional date of birth
     DOB: {
