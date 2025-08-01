@@ -46,9 +46,15 @@ export const signup = async (req, res) => {
             userName: userName.toLowerCase(),
             firstName,
             DOB,
-            SCoin:20,
+            SCoin: 20,
             GCoin,
-            lastName
+            lastName,
+            coinTransactions: {
+                amount: 20,
+                type: "earn",
+                coinType: "SCoin",
+                description: "Sign-up Bonus"
+            }
         });
 
         if (newUser) {
@@ -68,8 +74,9 @@ export const signup = async (req, res) => {
                     firstName: newUser.firstName,
                     lastName: newUser.lastName,
                     DOB: newUser.DOB,
-                    SCoin:newUser.SCoin,
-                    GCoin:newUser.GCoin
+                    SCoin: newUser.SCoin,
+                    GCoin: newUser.GCoin,
+                    coinTransactions: newUser.coinTransactions
                 },
                 token
             });
@@ -121,8 +128,9 @@ export const login = async (req, res) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 DOB: user.DOB,
-                SCoin:user.SCoin,
-                    GCoin:user.GCoin
+                SCoin: user.SCoin,
+                GCoin: user.GCoin,
+                coinTransactions: user.coinTransactions
             },
             token
         });
