@@ -1,5 +1,5 @@
 import express from 'express';
-import { buyCoin, createleague, dailyCoin, getleague, getMyCreatedLeagues, getmyleague, joinleague, jointeam, leaguebyname, myteam, teams } from '../Controller/play.controller.js';
+import { buyCoin, createleague, dailyCoin, getleague, getMyCreatedLeagues, getmyleague, joinleague, jointeam, leaguebyname, myteam, teams, tranxtxtion } from '../Controller/play.controller.js';
 import { protection } from '../midlayer/protect.midlayer.js';
 
 const router = express.Router();
@@ -14,5 +14,6 @@ router.post("/myteam", protection, myteam);
 router.get("/leagueteams", protection, teams);
 router.post("/leaguebyname", protection, leaguebyname);
 router.get("/dailyreward", protection, dailyCoin)
+router.get("/transaction", protection, tranxtxtion)
 router.post("/buyCoin", protection, buyCoin)
 export default router;
