@@ -3,8 +3,8 @@
 // ===========================
 
 // Import the LeagueData model from the DB model directory
-import LeagueData from "../DBmodel/league.data.model.js";
 import cron from "node-cron"; // For scheduled background tasks
+import LeagueData from "../DBmodel/league.data.model.js";
 
 // ===========================
 // Controller: getmatch
@@ -51,7 +51,7 @@ export const dataofdaywinner = async (req, res) => {
   try {
     const date = new Date().toISOString().split("T")[0]; // Today's date
     const response = await fetch(
-      `https://api.football-data.org/v4/matches?date=2025-07-27`, // Hardcoded date for now
+      `https://api.football-data.org/v4/matches?date=${date}`, // Hardcoded date for now
       {
         headers: {
           'X-Auth-Token': process.env.FOOTBAL_API, // Auth token
@@ -60,7 +60,6 @@ export const dataofdaywinner = async (req, res) => {
     );
 
     const data = await response.json();
-
     // Extract winner/loser info from finished matches
     const winner = (data.matches || []).map(match => {
       if (match.status !== "FINISHED") return null; // Skip ongoing/upcoming matches
@@ -103,7 +102,7 @@ export const dataofdaywinner = async (req, res) => {
 const getLeaguesByWinners = async (winners) => {
   const results = [];
 
-  const allLeagues = await LeagueData.find({}); // Get all saved leagues
+  const allLeagues = await LeagueData.find({ result: "pending" }).sort({ createdAt: -1 });// Get all saved leagues
 
   for (const league of allLeagues) {
     let updated = false;
