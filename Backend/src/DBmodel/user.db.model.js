@@ -65,6 +65,9 @@ const userSchema = new mongoose.Schema({
         min: 0 // Cannot go below 0
     },
 
+    coinClams:{
+        type: Date
+    },
     // Gold Coin (can be used for premium features, paid games, etc.)
     GCoin: {
         type: Number,

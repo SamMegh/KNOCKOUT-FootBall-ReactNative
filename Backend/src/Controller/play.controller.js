@@ -331,3 +331,25 @@ export const leaguebyname = async (req, res) => {
         res.status(500).json({ message: "Unable to get the league: " + error });
     }
 };
+
+export const dailyCoin = async (req, res) => {
+    try {
+        const user = req.user;
+        const today = new Date();
+        const lastUpdate = user.coinClams;
+        const hasUpdatedToday =
+            lastUpdate &&
+            new Date(lastUpdate).toDateString() === today.toDateString();
+        if (hasUpdatedToday) {
+            return res.status(400).json({ message: "You can only claim coins once per day." });
+        }
+        const dbuser = await User.findByIdAndUpdate(user._id, {
+            $inc: { SCoin: 10 },
+            $set: { coinClams: today },
+        },
+            { new: true }).select('-password');
+        res.status(200).json(dbuser);
+    } catch (error) {
+        res.status(500).json({ message: "Unable to update daily coins: " + error });
+    }
+}
