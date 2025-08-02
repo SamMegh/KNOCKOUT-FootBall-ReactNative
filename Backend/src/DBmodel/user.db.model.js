@@ -75,11 +75,14 @@ const userSchema = new mongoose.Schema({
         min: 0 // Cannot go below 0
     },
     coinTransactions: [{
-        amount: Number,
+        GCoin: Number,
+        freeSCoin: Number,
+        payAmount: Number,  
         type: { type: String, enum: ["earn", "spend", "reward", "refund"] },
         coinType: { type: String, enum: ["SCoin", "GCoin"] },
         description: String,
-        timestamp: { type: Date, default: Date.now }
+        paymentId: String,
+        date: { type: Date, default: Date.now }
     }]
 }, {
     // Automatically manage createdAt and updatedAt timestamps

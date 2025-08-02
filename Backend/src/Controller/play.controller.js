@@ -332,6 +332,9 @@ export const leaguebyname = async (req, res) => {
     }
 };
 
+/** 
+ * Controller: Daily Coin Claim
+*/
 export const dailyCoin = async (req, res) => {
     try {
         const user = req.user;
@@ -353,3 +356,59 @@ export const dailyCoin = async (req, res) => {
         res.status(500).json({ message: "Unable to update daily coins: " + error });
     }
 }
+
+
+/** 
+ * Controller: Daily Coin Claim
+*/
+export const buyCoin = async (req, res) => {
+    try {
+        const user = req.user;
+        const { coinAmount, paymentStatus, paymentId, amount } = req.body;
+
+        // Basic validations
+        if (!coinAmount || coinAmount <= 0 || !amount) {
+            return res.status(400).json({ message: "Invalid coin purchase data." });
+        }
+
+        // Simulate success if no payment gateway is connected yet
+        if (paymentStatus && paymentStatus !== "success") {
+            return res.status(400).json({ message: "Payment failed or cancelled." });
+        }
+        const isMatchPaymentId = paymentId &&
+            user.coinTransactions.some(tx => tx.paymentId?.toString() === paymentId.toString());
+
+        if (isMatchPaymentId) {
+            return res.status(400).json({ message: "Payment failed or payment ID already exists." });
+        }
+        // Save coin transaction
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                $inc: { GCoin: coinAmount },
+                $inc: { SCoin: coinAmount },
+                $push: {
+                    coinTransactions: {
+                        payAmount: amount,
+                        GCoin: coinAmount,
+                        freeSCoin: coinAmount,
+                        type: "buy",
+                        coinType: "GCoin",
+                        description: `Bought ${coinAmount} coins`,
+                        paymentId: paymentId || "mock-payment",
+                        date: new Date()
+                    }
+                }
+            },
+            { new: true }
+        ).select('-password');
+
+        res.status(200).json({
+            message: `✅ Successfully added ${coinAmount} coins.`,
+            user: updatedUser
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Unable to buy coins", error: error.message });
+    }
+};
