@@ -16,7 +16,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 import CustomHeader from "../../src/components/customHeader";
-
+import PaymentComponent from "../../src/components/paymentComponent";
 export default function Home() {
   const router = useRouter();
   const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =
@@ -114,7 +114,7 @@ export default function Home() {
         ListHeaderComponent={
           <>
             <Text style={styles.heading}>👋 Welcome back, {isAuthUser?.name}!</Text>
-
+          <PaymentComponent/>
             {/* Tips Section */}
             <View style={styles.tipsBox}>
               <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
