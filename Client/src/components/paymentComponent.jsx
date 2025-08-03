@@ -1,75 +1,94 @@
-import { useState } from "react";
+import { load } from "@cashfreepayments/cashfree-js";
+import { useEffect, useState } from "react";
 import { Text, TouchableOpacity } from "react-native";
 import Instance from "../utils/axios.configuration";
-import { load } from "@cashfreepayments/cashfree-js";
 
 function PaymentComponent() {
-  let cashfree;
-  let insitialzeSDK = async () => {
-    cashfree = await load({
-      mode: "sandbox",
-    });
+  const [cashfree, setCashfree] = useState(null);
+  const [orderId, setOrderId] = useState("");
+const [loading, setLoading] = useState(true);
+  // Initialize SDK once when component mounts
+useEffect(() => {
+  const initSDK = async () => {
+    const loadedCashfree = await load({ mode: "sandbox" });
+    setCashfree(loadedCashfree);
+    setLoading(false); // ✅ SDK is ready
   };
-  insitialzeSDK();
-  const { orderId, setOrderId } = useState("");
+  initSDK();
+}, []);
 
-  // payment part was here
+  // Get session ID from backend
   const getSessionId = async () => {
     try {
       const res = await Instance.get("/payment/initiatesession");
       if (res.data && res.data.payment_session_id) {
         setOrderId(res.data.order_id);
+        console.log(res.data.order_id);
         return res.data.payment_session_id;
       }
     } catch (error) {
-      console.log(error);
+      console.log("Error getting session ID:", error);
     }
   };
 
-
-  const verifyPayment= async()=>{
+  // Verify payment after completion
+  const verifyPayment = async () => {
     try {
-        const res = Instance.post("/payment/verify",{
-            orderId
-        })
-        if(res && res.data){
+      
+      let res = await Instance.post("/payment/verify", {
+        orderId: orderId
+      })
+
+      if(res && res.data){
         alert("payment verified")
       }
-    } catch (error) {
-        console.log(error);
-    }
-  }
 
-  const handlePayment = async () => {
-    try {
-      let sessionId = await getSessionId();
-      let checkoutOptions = {
-        paymentspaymentSessionId: sessionId,
-        redirectTarget: "_modal",
-      };
-      cashfree.checkout(checkoutOptions).then((res) => {
-        console.log("payment initialized")
-
-        verifyPayment(orderId)
-      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   };
+
+  // Handle payment process
+  const handlePayment = async () => {
+    try {
+      if (!cashfree) {
+        alert("Cashfree SDK not loaded yet.");
+        return;
+      }
+
+      const sessionId = await getSessionId();
+      if (!sessionId) return;
+
+      let checkoutOptions = {
+        paymentSessionId: sessionId,
+        redirectTarget: "_modal", // or "_self", "_blank"
+      };
+
+      cashfree.checkout(checkoutOptions).then(() => {
+        console.log("✅ Payment initialized");
+        verifyPayment(); // Call without argument, orderId is already in state
+      });
+    } catch (error) {
+      console.log("Error during payment:", error);
+    }
+  };
+
   return (
-    <>
-      <TouchableOpacity
-        onPress={handlePayment}
-        style={{
-          backgroundColor: "white",
-          padding: 5,
-          margin: 10,
-          borderRadius: 20,
-        }}
-      >
-        <Text>Check Payment GetWay</Text>
-      </TouchableOpacity>
-    </>
+    <TouchableOpacity
+  onPress={handlePayment}
+  disabled={loading}
+  style={{
+    backgroundColor: loading ? "#ccc" : "white",
+    padding: 10,
+    margin: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  }}
+>
+  <Text style={{ fontWeight: "bold" }}>
+    {loading ? "Loading SDK..." : "Check Payment Gateway"}
+  </Text>
+</TouchableOpacity>
   );
 }
 

@@ -13,20 +13,22 @@ const generateOrderId = async () => {
     const orderId = hash.digest('hex');
     return orderId.slice(0, 12);
 }
+
 export const getsession = async (req, res) => {
     try {
-        let request = {
-            "order_amount": 1,
+
+    let request = {
+            "order_amount": 1.00,
             "order_currency": "INR",
             "order_id": await generateOrderId(),
             "customer_details": {
-                "customer_id": "123123123123",
-                "customer_phone": "0000000000",
-                "customer_email": "test0@gmail.com"
+                "customer_id": "webcodder01",
+                "customer_phone": "9999999999",
+                "customer_name": "Web Codder",
+                "customer_email": "webcodder@example.com"
             },
-        };
-
-       const response= await Cashfree.PGCreateOrder("2023-08-01", request);
+    };
+        const response = await Cashfree.PGCreateOrder("2023-08-01", request);
 
         res.status(200).json(response.data);
     } catch (error) {
@@ -34,12 +36,18 @@ export const getsession = async (req, res) => {
     }
 }
 
-
-
 export const verify = async (req, res) => {
-    try {
+  try {
+
+        let {
+            orderId
+        } = req.body;
+
+        const response=await Cashfree.PGFetchOrder("2023-08-01", orderId);
+        res(200).json(response.data);
+
 
     } catch (error) {
-        res.status(500).json({ message: "unable to verify the payment", error })
+        console.log(error);
     }
-}
+};
