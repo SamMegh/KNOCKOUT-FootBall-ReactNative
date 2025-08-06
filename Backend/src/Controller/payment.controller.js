@@ -42,12 +42,24 @@ export const verify = async (req, res) => {
         let {
             orderId
         } = req.body;
+if(!orderId)return res.status(400).json({message:"orderId is required"})
+        // const response=await Cashfree.PGFetchOrder("2023-08-01", orderId);
+        const response = await fetch(`https://sandbox.cashfree.com/pg/orders/${orderId}`, {
+  method: "GET",
+  headers: {
+    "Accept": "application/json",
+    "x-api-version": "2023-08-01",
+    "x-client-id": process.env.CASHFREE_CLIENT_ID,     // replace with your client ID
+    "x-client-secret": process.env.CASHFREE_SECRET_KEY // replace with your client secret
+  }
+});
 
-        const response=await Cashfree.PGFetchOrder("2023-08-01", orderId);
-        res(200).json(response.data);
+const data = await response.json();
+res.status(200).json(data);
 
 
     } catch (error) {
         console.log(error);
+        res.status(500).json(error);
     }
 };
