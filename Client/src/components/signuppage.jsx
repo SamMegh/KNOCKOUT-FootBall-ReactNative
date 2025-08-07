@@ -15,7 +15,7 @@ import signupvalidate from "../../src/utils/signupValidator.js";
 
 export default function Signup() {
   const [fontsLoaded] = useFonts({
-    'NedianMedium': require('../../assets/fonts/Nedian-Medium.otf'),
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
   });
 
   const router = useRouter();
@@ -38,12 +38,10 @@ export default function Signup() {
       <View style={styles.innerContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { fontFamily: 'NedianMedium' }]}>
+          <Text style={[styles.title, { fontFamily: "NedianMedium" }]}>
             KnockOut
           </Text>
-          <Text style={styles.subtitle}>
-            Let's Create Your Account
-          </Text>
+          <Text style={styles.subtitle}>Let's Create Your Account</Text>
         </View>
 
         {/* Form */}
@@ -62,6 +60,22 @@ export default function Signup() {
               touched,
             }) => (
               <View style={styles.form}>
+                {/* Name */}
+                <View>
+                  <Text style={styles.label}>Name</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={handleChange("name")}
+                    onBlur={handleBlur("name")}
+                    value={values.name}
+                    placeholder="Enter your name"
+                    placeholderTextColor="rgba(255,255,255,0.7)"
+                  />
+                  {touched.name && errors.name && (
+                    <Text style={styles.errorText}>{errors.name}</Text>
+                  )}
+                </View>
+
                 {/* Email */}
                 <View>
                   <Text style={styles.label}>Email</Text>
@@ -76,22 +90,6 @@ export default function Signup() {
                   />
                   {touched.email && errors.email && (
                     <Text style={styles.errorText}>{errors.email}</Text>
-                  )}
-                </View>
-
-                {/* Name */}
-                <View>
-                  <Text style={styles.label}>Name</Text>
-                  <TextInput
-                    style={styles.input}
-                    onChangeText={handleChange("name")}
-                    onBlur={handleBlur("name")}
-                    value={values.name}
-                    placeholder="Enter your name"
-                    placeholderTextColor="rgba(255,255,255,0.7)"
-                  />
-                  {touched.name && errors.name && (
-                    <Text style={styles.errorText}>{errors.name}</Text>
                   )}
                 </View>
 
@@ -124,8 +122,6 @@ export default function Signup() {
     </SafeAreaView>
   );
 }
-
-
 
 export const styles = StyleSheet.create({
   container: {
