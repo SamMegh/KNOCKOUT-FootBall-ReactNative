@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { Text, View } from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore";
-
+import Toast from "react-native-toast-message";
 export default function TabsLayout() {
   const { isAuthUser } = useAuthStore();
 
@@ -51,6 +51,7 @@ export default function TabsLayout() {
   };
 
   return (
+    <>
     <Tabs
       screenOptions={({ route }) => ({
         headerShown: false,
@@ -118,6 +119,9 @@ export default function TabsLayout() {
           marginBottom: 2,
         },
       })}
+      
     />
+    <Toast />
+    </>
   );
 }
