@@ -95,9 +95,13 @@ function MyLeague() {
 export default MyLeague;
 
 const styles = StyleSheet.create({
-  container: {
+   container: {
+    backgroundColor: '#000',
     flex: 1,
-    backgroundColor: "#f0f2f5",
+    paddingHorizontal: 1,
+    paddingTop: 1,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
   topButtons: {
     flexDirection: "row",

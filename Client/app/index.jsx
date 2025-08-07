@@ -15,7 +15,7 @@ useEffect(()=>{
 
 
   return (
-    <SafeAreaView className="bg-[#000] flex-1">
+    <SafeAreaView className="bg-[#fff] flex-1">
       <OpenPage/>
     </SafeAreaView>
   );

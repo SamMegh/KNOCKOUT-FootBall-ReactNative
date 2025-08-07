@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
+import CustomHeader from "../../src/components/customHeader";
 
 function CreateLeague() {
   const { getmecreatedleagues, myownleagues } = useLeagueStore();
@@ -82,32 +83,25 @@ function CreateLeague() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Sticky Header */}
+      <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back-circle" size={26} color="#2563eb" />
-          <Text style={styles.backText}>Back</Text>
-        </TouchableOpacity>
+        <Text style={styles.heading}>Welcome, Create and manage your leagues!</Text>
+        {/* Create New League Button */}
+        <Pressable
+          onPress={() => router.push("/createnewleague")}
+          style={styles.createBtn}
+        >
+          <FontAwesome5 name="plus-circle" size={20} color="#fff" />
+          <Text style={styles.createText}>Create New League</Text>
+        </Pressable>
 
-        <Text style={styles.heading}>⚽ Create New League</Text>
-        <Text style={styles.subheading}>
-          Fill out the details below to start your own league.
-        </Text>
+        {/* League List */}
+        <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+          {myownleagues.map(renderLeagueCard)}
+        </ScrollView>
       </View>
-
-      {/* Create New League Button */}
-      <Pressable
-        onPress={() => router.push("/createnewleague")}
-        style={styles.createBtn}
-      >
-        <FontAwesome5 name="plus-circle" size={20} color="#fff" />
-        <Text style={styles.createText}>Create New League</Text>
-      </Pressable>
-
-      {/* League List */}
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        {myownleagues.map(renderLeagueCard)}
-      </ScrollView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 
@@ -116,16 +110,16 @@ export default CreateLeague;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: "#fff",
   },
   header: {
     paddingHorizontal: 20,
     paddingTop: 40,
     paddingBottom: 20,
-    backgroundColor: "#e0f2fe",
-    borderBottomColor: "#bae6fd",
+    backgroundColor: "#000",
     borderBottomWidth: 1,
-    borderRadius: 12,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
     elevation: 2,
   },
   backButton: {
@@ -142,12 +136,8 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#1e3a8a",
-  },
-  subheading: {
-    fontSize: 14,
-    color: "#334155",
-    marginTop: 4,
+    color: "#fff",
+    textAlign: "center",
   },
   createBtn: {
     flexDirection: "row",

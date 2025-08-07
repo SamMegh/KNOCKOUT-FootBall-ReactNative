@@ -10,7 +10,7 @@ export default function TabsLayout() {
   if (!isAuthUser) return <Redirect href="/" />;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* ✅ This header will show on ALL screens */}
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
@@ -29,10 +29,6 @@ export default function TabsLayout() {
                 return <Ionicons name={focused ? "trophy" : "trophy-outline"} size={22} color={color} />;
               case "profile":
                 return <Ionicons name={focused ? "person" : "person-outline"} size={22} color={color} />;
-              case "history":
-                return <Ionicons name={focused ? "time" : "time-outline"} size={22} color={color} />;
-              case "about":
-                return <Ionicons name={focused ? "information-circle" : "information-circle-outline"} size={22} color={color} />;
               default:
                 return null;
             }
@@ -49,7 +45,7 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#fff",
     borderTopWidth: 0.3,
     borderTopColor: "#e5e7eb",
     height: 55,

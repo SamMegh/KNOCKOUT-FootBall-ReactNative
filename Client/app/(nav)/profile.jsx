@@ -66,13 +66,17 @@ function FormRow({ label, value, valid = false }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
+    backgroundColor: '#000',
     flex: 1,
-    backgroundColor: "#fff",
+    paddingHorizontal: 1,
+    paddingTop: 1,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
   center: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -103,12 +107,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: "#64748b",
+    color: "#fff",
     marginBottom: 6,
     fontSize: 14,
   },
   inputRow: {
-    backgroundColor: "#f1f5f9",
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     flexDirection: "row",
@@ -117,22 +121,22 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    color: "#0f172a",
+    color: "#000",
   },
   validIcon: {
     fontSize: 18,
     color: "green",
   },
   logoutBtn: {
-    backgroundColor: "#ef4444",
+    backgroundColor: "red",
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 24,
   },
   logoutText: {
-    color: "#fff",
+    color: "black",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "800",
     textAlign: "center",
   },
 });
