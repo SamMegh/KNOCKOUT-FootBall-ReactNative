@@ -3,8 +3,6 @@ import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 export default function About() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>ℹ️ About This App</Text>
-
       {/* Logo */}
       <View style={styles.logoContainer}>
         <Image
@@ -57,12 +55,12 @@ export default function About() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#000',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#1e3a8a',
+    color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
   },

@@ -15,13 +15,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import CustomHeader from "../../src/components/customHeader";
 
 export default function Home() {
   const router = useRouter();
   const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =
     useLeagueStore();
-  const {isAuthUser}= useAuthStore();
+  const { isAuthUser } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
   const tips = [
@@ -65,28 +64,28 @@ export default function Home() {
 
   const renderMyLeague = ({ item: league }) => (
     <TouchableOpacity key={league._id} style={styles.leagueCard} onPress={() =>
-          router.push({
-            pathname: "/leaguedata",
-            params: { leagueid: league._id },
-          })}>
+      router.push({
+        pathname: "/leaguedata",
+        params: { leagueid: league._id },
+      })}>
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
+          <MaterialIcons name="emoji-events" size={24} color="#f59e0b" />
           <Text style={styles.leagueName}>{league.name}</Text>
         </View>
         <Text style={styles.leagueMeta}>
           {now < new Date(league.end) ? "Upcoming" : "Ongoing"} •{" "}
           {league.type.charAt(0).toUpperCase() + league.type.slice(1)}
         </Text>
-        
+
         <Text style={styles.leagueMeta}>Time : {(league.start).split("T")[0]}{" To "}{(league.end).split("T")[0]}</Text>
       </View>
       <Ionicons
         name={now < new Date(league.start) ? "time" : "flash"}
         size={22}
-        color={now < new Date(league.start) ? "#f59e0b" : "#10b981"}
+        color={now < new Date(league.start) ? "#f59e0b" : "#f59e0b"}
       />
-    </TouchableOpacity>
+    </TouchableOpacity>  
   );
 
   const renderPublicLeague = ({ item: league }) => (
@@ -108,12 +107,11 @@ export default function Home() {
   );
 
   return (<>
-      <CustomHeader title="home" subtitle="Explore your Home section." />
     <SafeAreaView style={styles.container}>
       <FlatList
         ListHeaderComponent={
           <>
-            <Text style={styles.heading}>👋 Welcome back, {isAuthUser?.name}!</Text>
+            <Text style={styles.heading}>Welcome , {isAuthUser?.name}!</Text>
 
             {/* Tips Section */}
             <View style={styles.tipsBox}>
@@ -139,7 +137,7 @@ export default function Home() {
           <>
             <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
             {loading ? (
-              <ActivityIndicator size="large" color="#2563eb" />
+              <ActivityIndicator size="large" color="#f59e0b" />
             ) : leagues?.length > 0 ? (
               <FlatList
                 data={leagues}
@@ -148,7 +146,7 @@ export default function Home() {
                 scrollEnabled={false}
               />
             ) : (
-              <Text style={{ fontStyle: "italic", color: "#6b7280" }}>
+              <Text style={{ fontStyle: "italic", color: "#f59e0b" }}>
                 No public leagues available yet.
               </Text>
             )}
@@ -174,16 +172,18 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000',
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 20,
-    borderTopEndRadius: 30,
-    borderTopStartRadius: 30,
+    paddingHorizontal: 1,
+    paddingTop: 1,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
   heading: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: 600,
+    textAlign: 'center',
+    fontFamily: 'NedianMedium',
     color: '#fff',
-    marginBottom: 16,
+    marginBottom: 21,
   },
   sectionTitle: {
     fontSize: 18,

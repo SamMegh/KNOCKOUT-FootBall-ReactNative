@@ -85,11 +85,16 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     alignContent: "center",
   },
-  profileEmoji: {
-    fontSize: 72,
-    backgroundColor: "#000",
-    borderRadius: "50%",
-  },
+ profileEmoji: {
+  fontSize: 50,
+  backgroundColor: "#000",
+  color: "#fff",
+  width: 80,
+  height: 80,
+  borderRadius: 40,  // half of width/height
+  textAlign: "center",
+  textAlignVertical: "center", // ✅ for Android (centers emoji)
+},
   formContainer: {
     padding: 20,
     paddingBottom: 60,

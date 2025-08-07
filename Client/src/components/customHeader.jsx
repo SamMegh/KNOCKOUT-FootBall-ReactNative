@@ -19,13 +19,13 @@ export default function CustomHeader({ title = "Home", subtitle }) {
         backgroundColor: "#fff",
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
         alignItems: "center",
-        paddingBottom: 18,
+        paddingBottom: 1,
       }}
     >
       <View
         style={{
-          paddingVertical: 10,
-          paddingHorizontal: 12,
+          paddingVertical: 1,
+          paddingHorizontal: 1,
         }}
       >
           <Image

@@ -81,7 +81,7 @@ const JoinLeague = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {leagues.map((league) => (
           <TouchableOpacity
-            key={league._id}
+          key={league._id}
             onPress={() => confirmJoin(league)}
             style={styles.card}
           >
