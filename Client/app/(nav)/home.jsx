@@ -108,10 +108,10 @@ export default function Home() {
 
   return (<>
     <SafeAreaView style={styles.container}>
+      <Text style={styles.heading}>Welcome , {isAuthUser?.name}!</Text>
       <FlatList
         ListHeaderComponent={
           <>
-            <Text style={styles.heading}>Welcome , {isAuthUser?.name}!</Text>
 
             {/* Tips Section */}
             <View style={styles.tipsBox}>
@@ -184,6 +184,7 @@ const styles = StyleSheet.create({
     fontFamily: 'NedianMedium',
     color: '#fff',
     marginBottom: 21,
+    marginTop: 20,
   },
   sectionTitle: {
     fontSize: 18,
