@@ -8,35 +8,14 @@ const userSchema = new mongoose.Schema({
         required: true
     },
 
-    // Optional first name
-    firstName: {
-        type: String
-    },
-
-    // Optional last name
-    lastName: {
-        type: String
-    },
-
-    // Unique username for login/display
-    userName: {
-        type: String,
+    // User's mobile number (max 12 digits, must be unique)
+    mobile: {
+        type: Number,
+        maxlength: 12,
         required: true,
         unique: true
     },
 
-    // User's mobile number (max 12 digits, must be unique)
-    // mobile: {
-    //     type: Number,
-    //     maxlength: 12,
-    //     required: true,
-    //     unique: true
-    // },
-
-    // Optional date of birth
-    DOB: {
-        type: Date
-    },
 
     // User email (must be unique and required)
     email: {
@@ -46,7 +25,7 @@ const userSchema = new mongoose.Schema({
     },
 
     // Indicates whether email has been verified
-    isEmailverified: {
+    isMobileverified: {
         type: Boolean,
         default: false
     },
