@@ -28,23 +28,15 @@ export default function Profile() {
 
       {/* Form */}
       <ScrollView contentContainerStyle={styles.formContainer}>
-        <FormRow label="🧑 First name" value={`${isAuthUser.firstName}`} />
-        <FormRow label="👤 Last name" value={`${isAuthUser.lastName}`} />
-        <FormRow label="🔐 Username" value={`${isAuthUser.userName}`} valid />
         <FormRow
           label="📛 Display name"
           value={isAuthUser.name ? `${isAuthUser.name}` : " "}
         />
+        <FormRow label="📧 Email" value={isAuthUser.email} />
         <FormRow
           label="📱 Mobile number"
           value={isAuthUser.mobile ? `${isAuthUser.mobile}` : "None"}
         />
-        <FormRow label="📧 Email" value={isAuthUser.email} />
-        <FormRow
-          label="🎂 Date of Birth"
-          value={isAuthUser.dob ? `${isAuthUser.dob}` : "None"}
-        />
-
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>🚪 Logout</Text>
         </TouchableOpacity>
@@ -66,8 +58,8 @@ function FormRow({ label, value, valid = false }) {
 }
 
 const styles = StyleSheet.create({
-    container: {
-    backgroundColor: '#000',
+  container: {
+    backgroundColor: "#000",
     flex: 1,
     paddingHorizontal: 1,
     paddingTop: 1,
@@ -89,16 +81,16 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     alignContent: "center",
   },
- profileEmoji: {
-  fontSize: 50,
-  backgroundColor: "#000",
-  color: "#fff",
-  width: 80,
-  height: 80,
-  borderRadius: 40,  // half of width/height
-  textAlign: "center",
-  textAlignVertical: "center", // ✅ for Android (centers emoji)
-},
+  profileEmoji: {
+    fontSize: 50,
+    backgroundColor: "#000",
+    color: "#fff",
+    width: 80,
+    height: 80,
+    borderRadius: 40, // half of width/height
+    textAlign: "center",
+    textAlignVertical: "center", // ✅ for Android (centers emoji)
+  },
   formContainer: {
     padding: 20,
     paddingBottom: 60,
