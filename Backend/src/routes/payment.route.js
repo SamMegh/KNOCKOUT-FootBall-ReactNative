@@ -1,7 +1,6 @@
 import express from 'express';
-import { getsession, verify } from '../Controller/payment.controller.js';
+import { paymentSheet } from '../lib/paymentSetup.js';
 
 const router = express.Router();
-router.get("/initiatesession",getsession);
-router.post("/verify",verify);
+router.post("/payment-sheet",paymentSheet);
 export default router;
