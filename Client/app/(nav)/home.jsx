@@ -16,6 +16,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
+import CheckoutScreen from '../../src/components/checkOut';
+
 export default function Home() {
   const router = useRouter();
   const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =
@@ -43,7 +45,7 @@ export default function Home() {
   const confirmJoin = (league) => {
     const handleJoin = () => {
       joinleague(league._id);
-      // Optional: removeLeague(league._id);
+       removeLeague(league._id);
     };
 
     if (Platform.OS === "web") {
@@ -109,6 +111,7 @@ export default function Home() {
   return (<>
     <SafeAreaView style={styles.container}>
       <Text style={styles.heading}>Welcome , {isAuthUser?.name}!</Text>
+      <CheckoutScreen/>
       <FlatList
         ListHeaderComponent={
           <>
