@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../src/store/useAuthStore.js";
 import OpenPage from "./(otherPages)/openpage.jsx";
@@ -16,8 +16,8 @@ export default function App() {
   }, [isAuthUser, check]);
 
   return (
-    <SafeAreaView className="bg-[#000] flex-1">
-      <OpenPage />
+    <SafeAreaView className="bg-[#000] flex-1 items-center justify-center">
+      <OpenPage/>
     </SafeAreaView>
   );
 }

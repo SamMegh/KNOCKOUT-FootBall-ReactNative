@@ -10,9 +10,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useLeagueStore } from '../../src/store/useLeagueStore';
+import CustomHeader from '../../src/components/customHeader';
 
 function createnewleague() {
   const router = useRouter();
@@ -63,57 +63,12 @@ function createnewleague() {
   if (!isAuthUser) return <Redirect href="/" />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9f9f9' }}>
-      {/* Sticky Header */}
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingTop: 40,
-          paddingBottom: 20,
-          backgroundColor: '#e0f2fe',
-          borderBottomColor: '#bae6fd',
-          borderBottomWidth: 1,
-          borderRadius: 12,
-          elevation: 2,
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 12,
-          }}
-        >
-          <Ionicons name="arrow-back-circle" size={26} color="#2563eb" />
-          <Text
-            style={{
-              color: '#2563eb',
-              fontSize: 16,
-              fontWeight: '600',
-              marginLeft: 8,
-            }}
-          >
-            Back
-          </Text>
-        </TouchableOpacity>
-
-        <Text
-          style={{
-            fontSize: 26,
-            fontWeight: '700',
-            color: '#1e3a8a',
-          }}
-        >
-          ⚽ Create New League
-        </Text>
-        <Text style={{ fontSize: 14, color: '#334155', marginTop: 4 }}>
-          Fill out the details below to start your own league.
-        </Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+        <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+  
 
       {/* Scrollable Form */}
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, backgroundColor: '#000', borderTopEndRadius: 40, borderTopStartRadius: 40 }}>
         <Formik
           initialValues={{
             name: '',
@@ -261,7 +216,7 @@ function createnewleague() {
 const styles = {
   label: {
     fontSize: 16,
-    color: '#374151',
+    color: '#fff',
     marginBottom: 6,
   },
   input: {

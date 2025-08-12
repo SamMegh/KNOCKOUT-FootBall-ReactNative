@@ -28,23 +28,15 @@ export default function Profile() {
 
       {/* Form */}
       <ScrollView contentContainerStyle={styles.formContainer}>
-        <FormRow label="🧑 First name" value={isAuthUser.firstName|| "N/A"} />
-        <FormRow label="👤 Last name" value={isAuthUser.lastName|| "N/A"} />
-        <FormRow label="🔐 Username" value={isAuthUser.userName|| "N/A"} valid />
         <FormRow
           label="📛 Display name"
           value={isAuthUser.name ? `${isAuthUser.name}` : " "}
         />
+        <FormRow label="📧 Email" value={isAuthUser.email} />
         <FormRow
           label="📱 Mobile number"
           value={isAuthUser.mobile ? `${isAuthUser.mobile}` : "None"}
         />
-        <FormRow label="📧 Email" value={isAuthUser.email} />
-        <FormRow
-          label="🎂 Date of Birth"
-          value={isAuthUser.dob ? `${isAuthUser.dob}` : "None"}
-        />
-
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>🚪 Logout</Text>
         </TouchableOpacity>
@@ -67,12 +59,16 @@ function FormRow({ label, value, valid = false }) {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#000",
     flex: 1,
-    backgroundColor: "#fff",
+    paddingHorizontal: 1,
+    paddingTop: 1,
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
   center: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -86,9 +82,14 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   profileEmoji: {
-    fontSize: 72,
+    fontSize: 50,
     backgroundColor: "#000",
-    borderRadius: 50,
+    color: "#fff",
+    width: 80,
+    height: 80,
+    borderRadius: 40, // half of width/height
+    textAlign: "center",
+    textAlignVertical: "center", // ✅ for Android (centers emoji)
   },
   formContainer: {
     padding: 20,
@@ -98,12 +99,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: "#64748b",
+    color: "#fff",
     marginBottom: 6,
     fontSize: 14,
   },
   inputRow: {
-    backgroundColor: "#f1f5f9",
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     flexDirection: "row",
@@ -112,22 +113,22 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    color: "#0f172a",
+    color: "#000",
   },
   validIcon: {
     fontSize: 18,
     color: "green",
   },
   logoutBtn: {
-    backgroundColor: "#ef4444",
+    backgroundColor: "red",
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 24,
   },
   logoutText: {
-    color: "#fff",
+    color: "black",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "800",
     textAlign: "center",
   },
 });
