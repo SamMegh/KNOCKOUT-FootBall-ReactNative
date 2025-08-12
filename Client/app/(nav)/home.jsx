@@ -16,7 +16,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 import CustomHeader from "../../src/components/customHeader";
-import PaymentComponent from "../../src/components/paymentComponent";
+import PaymentComponent from "../../src/components/checkOut";
 export default function Home() {
   const router = useRouter();
   const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } =

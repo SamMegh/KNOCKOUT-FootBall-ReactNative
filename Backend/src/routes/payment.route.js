@@ -1,5 +1,5 @@
 import express from 'express';
-import { paymentSheet } from '../lib/paymentSetup.js';
+import { paymentSheet } from '../Controller/paymentSetup.js';
 
 const router = express.Router();
 router.post("/payment-sheet",paymentSheet);
