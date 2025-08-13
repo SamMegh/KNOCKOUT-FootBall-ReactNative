@@ -10,15 +10,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import CustomHeader from '../../src/components/customHeader';
+import WeekSelector from "../../src/components/weekComponent";
 import { useAuthStore } from '../../src/store/useAuthStore';
 import { useLeagueStore } from '../../src/store/useLeagueStore';
-import CustomHeader from '../../src/components/customHeader';
-
 function createnewleague() {
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
   const { createmyownleague } = useLeagueStore();
-
+  
  const handleSubmit = (values) => {
   if (Platform.OS === 'web') {
     // Web alert (confirm + success)
@@ -75,6 +75,7 @@ function createnewleague() {
             joinfee: '',
             end: '',
             start: '',
+            totalWeeks:'',
             maxTimeTeamSelect: '',
             lifelinePerUser: '',
             type: 'private',
@@ -145,6 +146,12 @@ function createnewleague() {
                   placeholderTextColor="#999"
                 />
               </View>
+
+              {/* End Date */}
+              <View>
+  <WeekSelector values={values} handleChange={handleChange} />
+</View>
+
 
               {/* End Date */}
               <View>
