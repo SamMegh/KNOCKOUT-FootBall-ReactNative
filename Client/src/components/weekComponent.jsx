@@ -34,36 +34,18 @@ const generateCalendar = (monthIndex) => {
 };
 
 const toggleWeekSelection = (weekIndex) => {
-  let updated = [];
-
-  if (selectedWeekIndices.includes(weekIndex)) {
-    // Deselect if already selected
-    updated = [];
-  } else {
-    // Select only the tapped week
-    updated = [weekIndex];
-  }
-
+  // Always replace with the newly selected week
+  const updated = [weekIndex];
   setSelectedWeekIndices(updated);
 
-  const selectedLabels = updated.map((i) => {
-    const start = weeks[i][0].format('MMM D');
-    const end = weeks[i][6].format('D');
-    return `${start} - ${end}`;
-  });
-
-  // 🗓️ Set start and end to that week's range
-  let overallStart = '';
-  let overallEnd = '';
-  if (updated.length === 1) {
-    overallStart = weeks[updated[0]][0].format('YYYY-MM-DD');
-    overallEnd = weeks[updated[0]][6].format('YYYY-MM-DD');
-  }
+  const start = weeks[weekIndex][0].format('YYYY-MM-DD');
+  const end = weeks[weekIndex][6].format('YYYY-MM-DD');
+  const label = `${weeks[weekIndex][0].format('MMM D')} - ${weeks[weekIndex][6].format('D')}`;
 
   // Update Formik fields
-  handleChange('totalWeeks')(selectedLabels.join(', '));
-  handleChange('start')(overallStart);
-  handleChange('end')(overallEnd);
+  handleChange('totalWeeks')(label);
+  handleChange('start')(start);
+  handleChange('end')(end);
 };
 
   const getColorForWeek = (index) => {
