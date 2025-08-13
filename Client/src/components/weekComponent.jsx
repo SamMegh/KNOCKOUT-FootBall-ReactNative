@@ -34,21 +34,14 @@ const generateCalendar = (monthIndex) => {
 };
 
 const toggleWeekSelection = (weekIndex) => {
-  let updated = [...selectedWeekIndices];
+  let updated = [];
 
-  if (updated.includes(weekIndex)) {
-    // If deselecting, remove only that week
-    updated = updated.filter((i) => i !== weekIndex);
+  if (selectedWeekIndices.includes(weekIndex)) {
+    // Deselect if already selected
+    updated = [];
   } else {
-    // If adding, include all weeks between min and max
-    updated.push(weekIndex);
-    updated.sort((a, b) => a - b);
-
-    if (updated.length >= 2) {
-      const min = updated[0];
-      const max = updated[updated.length - 1];
-      updated = Array.from({ length: max - min + 1 }, (_, i) => min + i);
-    }
+    // Select only the tapped week
+    updated = [weekIndex];
   }
 
   setSelectedWeekIndices(updated);
@@ -59,12 +52,12 @@ const toggleWeekSelection = (weekIndex) => {
     return `${start} - ${end}`;
   });
 
-  // 🗓️ Calculate overall range
+  // 🗓️ Set start and end to that week's range
   let overallStart = '';
   let overallEnd = '';
-  if (updated.length > 0) {
+  if (updated.length === 1) {
     overallStart = weeks[updated[0]][0].format('YYYY-MM-DD');
-    overallEnd = weeks[updated[updated.length - 1]][6].format('YYYY-MM-DD');
+    overallEnd = weeks[updated[0]][6].format('YYYY-MM-DD');
   }
 
   // Update Formik fields
