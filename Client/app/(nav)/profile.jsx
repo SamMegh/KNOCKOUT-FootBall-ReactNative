@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,10 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import GcoinData from "../../assets/GcoinData.json";
+import ScoinData from "../../assets/ScoinData.json";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 
 export default function Profile() {
   const { isAuthUser, logout } = useAuthStore();
+  const router = useRouter();
 
   if (!isAuthUser) {
     return (
@@ -18,39 +22,60 @@ export default function Profile() {
       </View>
     );
   }
-  function CoinBox({ label, value,  }) {
-  return (
-    <View style={styles.coinBox}>
-      <Text style={styles.coinLabel}>{label}</Text>
-      <Text style={styles.input}>{value}</Text>
-    </View>
-  );
-}
+
+  function CoinBox({ label, value }) {
+    return (
+      <View style={styles.coinBox}>
+        <Text style={styles.coinLabel}>{label}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+          <Text style={styles.input}>{value}</Text>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/coinBuy",
+                params: {
+                  coinData:
+                    label === "🪙 GCoin"
+                      ? JSON.stringify(GcoinData)
+                      : JSON.stringify(ScoinData),
+                },
+              })
+            }
+          >
+            <Text>➕</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  function FormRow({ label, value, valid = false }) {
+    return (
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>{label}</Text>
+        <View style={styles.inputRow}>
+          <Text style={styles.input}>{value}</Text>
+          {valid && <Text style={styles.validIcon}>✅</Text>}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with Profile Emoji */}
       <View style={styles.topHeader}>
         <Text style={styles.profileEmoji}>👨‍💻</Text>
       </View>
 
-      {/* Form */}
       <ScrollView contentContainerStyle={styles.formContainer}>
         <FormRow
           label="📛 Display name"
           value={isAuthUser.name ? `${isAuthUser.name}` : " "}
         />
 
-        {/* Coins in the same row */}
         <View style={styles.coinRow}>
-          <CoinBox
-            label="⚪ SCoin"
-            value={isAuthUser.SCoin}
-          />
-          <CoinBox
-            label="🪙 GCoin"
-            value={isAuthUser.GCoin}
-          />
+          <CoinBox label="⚪ SCoin" value={isAuthUser.SCoin} />
+          <CoinBox label="🪙 GCoin" value={isAuthUser.GCoin} />
         </View>
 
         <FormRow label="📧 Email" value={isAuthUser.email} />
@@ -64,27 +89,6 @@ export default function Profile() {
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
-  );
-}
-
-function FormRow({ label, value, valid = false }) {
-  return (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputRow}>
-        <Text style={styles.input}>{value}</Text>
-        {valid && <Text style={styles.validIcon}>✅</Text>}
-      </View>
-    </View>
-  );
-}
-
-function CoinBox({ label, value }) {
-  return (
-    <View style={styles.coinBox}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.input}>{value}</Text>
-    </View>
   );
 }
 
@@ -133,7 +137,7 @@ const styles = StyleSheet.create({
   },
   coinLabel: {
     fontSize: 14,
-    color: "#000", // black label for contrast
+    color: "#000",
     marginBottom: 4,
     textAlign: "center",
   },
@@ -166,6 +170,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginHorizontal: 5,
     alignItems: "center",
+    justifyContent: "center",
   },
   logoutBtn: {
     backgroundColor: "red",
