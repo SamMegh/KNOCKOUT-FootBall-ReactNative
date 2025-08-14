@@ -17,7 +17,8 @@ export default function CustomHeader({ title = "Home", subtitle }) {
     <SafeAreaView
       style={{
         backgroundColor: "#fff",
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight/4 : 0,
+        paddingBottom: Platform.OS === "android" ? StatusBar.currentHeight/4 : 0 ,
         alignItems: "center",
       }}
     >

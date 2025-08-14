@@ -6,13 +6,14 @@ const stripe = new Stripe(process.env.Secret_key);
 
 export const paymentSheet=async (req, res) => {
   // Use an existing Customer ID if this is a returning customer.
+  const {amount} = req.body;
   const customer = await stripe.customers.create();
   const ephemeralKey = await stripe.ephemeralKeys.create(
     {customer: customer.id},
     {apiVersion: '2025-07-30.basil'}
   );
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1099,
+    amount: amount,
     currency: 'USD',
     customer: customer.id,
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter

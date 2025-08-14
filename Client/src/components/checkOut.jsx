@@ -5,7 +5,7 @@ import { Alert, Button, View } from "react-native";
 export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
-  const amount= 10 ;
+  const amount= 1000 ;
 
   const fetchPaymentSheetParams = async () => {
     const response = await fetch(
