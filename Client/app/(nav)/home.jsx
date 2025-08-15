@@ -13,7 +13,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import CheckoutScreen from "../../src/components/checkOut";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
@@ -117,7 +116,6 @@ export default function Home() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
 
         <Text style={styles.heading}>Welcome, {isAuthUser?.name}!</Text>
-        <CheckoutScreen />
   {/* Tips Section */}
   <View style={styles.tipsBox}>
     <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
