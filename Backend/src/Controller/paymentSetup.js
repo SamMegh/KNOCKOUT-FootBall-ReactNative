@@ -1,4 +1,9 @@
+import { readFile } from 'fs/promises';
 import Stripe from 'stripe';
+
+const rawData = await readFile(new URL('../CoinData/coinData.json', import.meta.url));
+const coinData = JSON.parse(rawData);
+
 
 const stripe = new Stripe(process.env.Secret_key);
 
@@ -6,14 +11,15 @@ const stripe = new Stripe(process.env.Secret_key);
 
 export const paymentSheet=async (req, res) => {
   // Use an existing Customer ID if this is a returning customer.
-  const {amount} = req.body;
+  const {id} = req.body;
+  const plan = coinData.find((plan)=>plan.id==id);
   const customer = await stripe.customers.create();
   const ephemeralKey = await stripe.ephemeralKeys.create(
     {customer: customer.id},
     {apiVersion: '2025-07-30.basil'}
   );
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: amount,
+    amount: plan.usd*100,
     currency: 'USD',
     customer: customer.id,
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter
