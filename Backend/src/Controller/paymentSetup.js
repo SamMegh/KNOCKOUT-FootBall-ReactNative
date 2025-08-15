@@ -1,6 +1,6 @@
+import { readFile } from 'fs/promises';
 import Stripe from 'stripe';
 import User from '../DBmodel/user.db.model.js';
-import { readFile } from 'fs/promises';
 
 const stripe = new Stripe(process.env.Secret_key);
 const rawData = await readFile(new URL('../CoinData/coinData.json', import.meta.url));
@@ -44,6 +44,7 @@ export const paymentSheet = async (req, res) => {
 
 export const stripeWebhook = async (req, res) => {
   let event;
+  const user = req.user;
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
@@ -55,11 +56,9 @@ export const stripeWebhook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log(`📬 Stripe event received: ${event.type}`);
-
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
-    const { userId, planId } = paymentIntent.metadata;
+    const { planId } = paymentIntent.metadata;
 
     const plan = coinData.find(p => p.id == planId);
     if (!plan) {
@@ -67,10 +66,10 @@ export const stripeWebhook = async (req, res) => {
       return res.status(400).send('Invalid plan ID');
     }
 
-    await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(user._id, {
       $inc: {
         GCoin: plan.coins === 'Gcoin' ? plan.amount : 0,
-        SCoin: plan.coins === 'Scoin' ? plan.amount : plan.freeamount
+        SCoin: plan.coins === 'Gcoin' ? plan.freeamount : plan.amount 
       },
       $push: {
         coinHistory: {

@@ -7,7 +7,7 @@ import Instance from "../../src/utils/axios.configuration";
 
 export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
-  const { isAuthUser } = useAuthStore();
+  const { isAuthUser, check } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { coinData } = useLocalSearchParams();
@@ -51,6 +51,7 @@ export default function CheckoutScreen() {
       if (error) {
         console.error("initPaymentSheet error:", error);
         Alert.alert("Error", error.message);
+      check();
         router.back();
       } else {
         setLoading(true);
@@ -58,6 +59,7 @@ export default function CheckoutScreen() {
     } catch (err) {
       console.error("Init error:", err);
       Alert.alert("Error", err.message);
+      check();
       router.back();
     }
   };
@@ -67,9 +69,11 @@ export default function CheckoutScreen() {
     const { error } = await presentPaymentSheet();
     if (error) {
       Alert.alert(`Payment Failed: ${error.code}`, error.message);
+      check();
       router.back();
     } else {
       Alert.alert("Success", "Your order is confirmed!");
+      check();
       router.back();
     }
   };
