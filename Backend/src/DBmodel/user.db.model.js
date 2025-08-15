@@ -8,10 +8,9 @@ const userSchema = new mongoose.Schema({
         required: true
     },
 
-    // User's mobile number (max 12 digits, must be unique)
+    // User's mobile number (must be unique)
     mobile: {
         type: Number,
-        maxlength: 12,
         required: true,
         unique: true
     },

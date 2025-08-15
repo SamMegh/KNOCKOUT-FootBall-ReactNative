@@ -14,6 +14,9 @@ export const paymentSheet=async (req, res) => {
   const user= req.user;
   const {id} = req.body;
   const plan = coinData.find((plan)=>plan.id==id);
+   if (!plan) {
+    return res.status(400).json({ error: "Invalid plan" });
+  }
   const customer = await stripe.customers.create();
   const ephemeralKey = await stripe.ephemeralKeys.create(
     {customer: customer.id},
@@ -25,9 +28,15 @@ export const paymentSheet=async (req, res) => {
     customer: customer.id,
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter
     // is optional because Stripe enables its functionality by default.
-    automatic_payment_methods: {
-      enabled: true,
-    },
+    metadata: {
+      userId: (user._id).toString(),
+      userName: user.name,
+      userEmail: user.email,
+      userMobile: (user.mobile).toString(),
+      planId: plan.id,
+      planCoinType: plan.coin,
+      planCoinAmount: plan.amount,
+    }
   });
   
 
