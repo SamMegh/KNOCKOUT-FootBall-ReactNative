@@ -2,7 +2,7 @@ import Toast from "react-native-toast-message";
 import { create } from 'zustand';
 import { removeItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set,get) => ({
     isAuthUser: null,
     login: async (data) => {
         try {
@@ -17,6 +17,7 @@ export const useAuthStore = create((set) => ({
                 text1: `Welcome Back!`,
                 text2: res.data.user.name
             });
+            await get().dailyreward();
 
         } catch (error) {
             console.log(error);
@@ -41,6 +42,7 @@ export const useAuthStore = create((set) => ({
                 text1: 'Signup Successful',
                 text2: `Welcome, ${res.data.user.name}`
             });
+            await get().dailyreward();
         } catch (error) {
             console.log(error);
             Toast.show({
@@ -60,10 +62,19 @@ export const useAuthStore = create((set) => ({
         });
     },
 
+    dailyreward: async () => {
+        try {
+            await Instance.get("/play/dailyreward");
+        } catch (error) {
+            console.log(error)
+        }
+    },
+
     check: async () => {
         try {
             const res = await Instance.get("/auth/check");
             set({ isAuthUser: res.data });
+            await get().dailyreward();
         } catch (error) {
             set({ isAuthUser: null });
             removeItem();

@@ -65,7 +65,6 @@ export const stripeWebhook = async (req, res) => {
       console.warn(`⚠️ Plan ID ${planId} not found`);
       return res.status(400).send('Invalid plan ID');
     }
-
     await User.findByIdAndUpdate(userId, {
       $inc: {
         GCoin: plan.coin === 'Gcoin' ? plan.amount : 0,

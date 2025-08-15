@@ -600,74 +600,74 @@ export const dailyCoin = async (req, res) => {
 
 
 
-/**
- * Controller: Buy Coin 💰
- * This function allows users to purchase in-app coins with optional payment verification.
- */
+// /**
+//  * Controller: Buy Coin 💰
+//  * This function allows users to purchase in-app coins with optional payment verification.
+//  */
 
-export const buyCoin = async (req, res) => {
-    try {
-        // 🔐 Extract the authenticated user from the request
-        const user = req.user;
+// export const buyCoin = async (req, res) => {
+//     try {
+//         // 🔐 Extract the authenticated user from the request
+//         const user = req.user;
 
-        // 📥 Destructure coin purchase details from request body
-        const { coinAmount, paymentStatus, paymentId, amount } = req.body;
+//         // 📥 Destructure coin purchase details from request body
+//         const { coinAmount, paymentStatus, paymentId, amount } = req.body;
 
-        // ⚠️ Validate request: coin amount must be positive and amount must exist
-        if (!coinAmount || coinAmount <= 0 || !amount) {
-            return res.status(400).json({ message: "Invalid coin purchase data." });
-        }
+//         // ⚠️ Validate request: coin amount must be positive and amount must exist
+//         if (!coinAmount || coinAmount <= 0 || !amount) {
+//             return res.status(400).json({ message: "Invalid coin purchase data." });
+//         }
 
-        // 💳 If payment gateway is integrated, check if payment was successful
-        if (paymentStatus && paymentStatus !== "success") {
-            return res.status(400).json({ message: "Payment failed or cancelled." });
-        }
+//         // 💳 If payment gateway is integrated, check if payment was successful
+//         if (paymentStatus && paymentStatus !== "success") {
+//             return res.status(400).json({ message: "Payment failed or cancelled." });
+//         }
 
-        // 🔄 Check for duplicate payment ID in user's transaction history
-        const isMatchPaymentId = paymentId &&
-            user.coinTransactions.some(tx => tx.paymentId?.toString() === paymentId.toString());
+//         // 🔄 Check for duplicate payment ID in user's transaction history
+//         const isMatchPaymentId = paymentId &&
+//             user.coinTransactions.some(tx => tx.paymentId?.toString() === paymentId.toString());
 
-        // 🚫 Prevent duplicate or reused payment IDs
-        if (isMatchPaymentId) {
-            return res.status(400).json({ message: "Payment failed or payment ID already exists." });
-        }
+//         // 🚫 Prevent duplicate or reused payment IDs
+//         if (isMatchPaymentId) {
+//             return res.status(400).json({ message: "Payment failed or payment ID already exists." });
+//         }
 
-        // 💾 Update user's coin balances and store the new transaction
-        const updatedUser = await User.findByIdAndUpdate(
-            user._id,
-            {
-                // ➕ Add purchased coins to GCoin and SCoin
-                $inc: { GCoin: coinAmount },
-                $inc: { SCoin: coinAmount },
+//         // 💾 Update user's coin balances and store the new transaction
+//         const updatedUser = await User.findByIdAndUpdate(
+//             user._id,
+//             {
+//                 // ➕ Add purchased coins to GCoin and SCoin
+//                 $inc: { GCoin: coinAmount },
+//                 $inc: { SCoin: coinAmount },
 
-                // 📚 Log the transaction in coinTransactions array
-                $push: {
-                    coinTransactions: {
-                        payAmount: amount,                    // 💵 Actual money paid
-                        GCoin: coinAmount,                   // 🪙 Coins added to GCoin
-                        freeSCoin: coinAmount,               // 🎁 Free bonus coins (if any)
-                        type: "buy",                         // 📌 Transaction type
-                        coinType: "GCoin",                   // 🪙 Coin type for this purchase
-                        description: `Bought ${coinAmount} coins`, // 📝 Summary
-                        paymentId: paymentId || "mock-payment",   // 💳 Payment ID (or mock)
-                        date: new Date()                     // 📅 Timestamp
-                    }
-                }
-            },
-            { new: true } // 📤 Return updated user document
-        ).select('-password'); // 🔒 Exclude sensitive fields like password
+//                 // 📚 Log the transaction in coinTransactions array
+//                 $push: {
+//                     coinTransactions: {
+//                         payAmount: amount,                    // 💵 Actual money paid
+//                         GCoin: coinAmount,                   // 🪙 Coins added to GCoin
+//                         freeSCoin: coinAmount,               // 🎁 Free bonus coins (if any)
+//                         type: "buy",                         // 📌 Transaction type
+//                         coinType: "GCoin",                   // 🪙 Coin type for this purchase
+//                         description: `Bought ${coinAmount} coins`, // 📝 Summary
+//                         paymentId: paymentId || "mock-payment",   // 💳 Payment ID (or mock)
+//                         date: new Date()                     // 📅 Timestamp
+//                     }
+//                 }
+//             },
+//             { new: true } // 📤 Return updated user document
+//         ).select('-password'); // 🔒 Exclude sensitive fields like password
 
-        // ✅ Return success response with updated user data
-        res.status(200).json({
-            message: `✅ Successfully added ${coinAmount} coins.`,
-            user: updatedUser
-        });
+//         // ✅ Return success response with updated user data
+//         res.status(200).json({
+//             message: `✅ Successfully added ${coinAmount} coins.`,
+//             user: updatedUser
+//         });
 
-    } catch (error) {
-        // ❌ Catch and return any unexpected server errors
-        res.status(500).json({ message: "Unable to buy coins", error: error.message });
-    }
-};
+//     } catch (error) {
+//         // ❌ Catch and return any unexpected server errors
+//         res.status(500).json({ message: "Unable to buy coins", error: error.message });
+//     }
+// };
 
 
 /**
