@@ -1,12 +1,12 @@
 [
-  { "id": "SCOIN_BASIC_025_A1", "coin": "Scoin", "usd": 2.99, "amount": 25 },
-  { "id": "SCOIN_BASIC_040_B2", "coin": "Scoin", "usd": 3.99, "amount": 40 },
-  { "id": "SCOIN_PLUS_055_C3", "coin": "Scoin", "usd": 4.99, "amount": 55 },
-  { "id": "SCOIN_PLUS_070_D4", "coin": "Scoin", "usd": 5.99, "amount": 70 },
-  { "id": "SCOIN_PLUS_085_E5", "coin": "Scoin", "usd": 6.99, "amount": 85 },
-  { "id": "SCOIN_ELITE_100_F6", "coin": "Scoin", "usd": 7.99, "amount": 100 },
-  { "id": "SCOIN_ELITE_115_G7", "coin": "Scoin", "usd": 8.99, "amount": 115 },
-  { "id": "SCOIN_ELITE_130_H8", "coin": "Scoin", "usd": 9.99, "amount": 130 },
-  { "id": "SCOIN_ULTRA_145_I9", "coin": "Scoin", "usd": 10.99, "amount": 145 },
-  { "id": "SCOIN_ULTRA_160_J0", "coin": "Scoin", "usd": 11.99, "amount": 160 }
+  { "id": "SCOIN_BASIC_025_A1", "coin": "Scoin", "usd": 1.99, "amount": 25 },
+  { "id": "SCOIN_BASIC_040_B2", "coin": "Scoin", "usd": 2.99, "amount": 40 },
+  { "id": "SCOIN_PLUS_055_C3", "coin": "Scoin", "usd": 3.99, "amount": 55 },
+  { "id": "SCOIN_PLUS_070_D4", "coin": "Scoin", "usd": 4.99, "amount": 70 },
+  { "id": "SCOIN_PLUS_085_E5", "coin": "Scoin", "usd": 5.99, "amount": 85 },
+  { "id": "SCOIN_ELITE_100_F6", "coin": "Scoin", "usd": 6.99, "amount": 100 },
+  { "id": "SCOIN_ELITE_115_G7", "coin": "Scoin", "usd": 7.99, "amount": 115 },
+  { "id": "SCOIN_ELITE_130_H8", "coin": "Scoin", "usd": 8.99, "amount": 130 },
+  { "id": "SCOIN_ULTRA_145_I9", "coin": "Scoin", "usd": 9.39, "amount": 145 },
+  { "id": "SCOIN_ULTRA_160_J0", "coin": "Scoin", "usd": 10.2, "amount": 160 }
 ]
