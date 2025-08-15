@@ -67,7 +67,18 @@ const userSchema = new mongoose.Schema({
             required: true
         },
         description: { type: String, trim: true },
-        paymentId: { type: String, trim: true },
+        paymentId: {
+            type: String,
+            trim: true,
+            required: true,   // Ensures every coin transaction has a payment ID
+            unique: true      // Optional: prevents duplicate Stripe PaymentIntent IDs
+        },
+        transactionId: {
+            type: String,
+            required: true,     // ensures every transaction has an ID
+            unique: true,       // prevents duplicate transaction IDs
+            trim: true
+        },
         date: { type: Date, default: Date.now }
     }]
 },

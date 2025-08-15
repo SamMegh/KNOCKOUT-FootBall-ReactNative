@@ -30,7 +30,8 @@ export const paymentSheet = async (req, res) => {
       userMobile: user.mobile.toString(),
       planId: plan.id,
       planCoinType: plan.coin,
-      planCoinAmount: plan.amount
+      planCoinAmount: plan.amount,
+      transactionId: transactionId
     }
   });
 
@@ -57,7 +58,7 @@ export const stripeWebhook = async (req, res) => {
 
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
-    const {  planId, userId  } = paymentIntent.metadata;
+    const { planId, userId } = paymentIntent.metadata;
 
     const plan = coinData.find(p => p.id == planId);
     if (!plan) {
@@ -68,7 +69,7 @@ export const stripeWebhook = async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       $inc: {
         GCoin: plan.coin === 'Gcoin' ? plan.amount : 0,
-        SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount 
+        SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount
       },
       $push: {
         coinTransactions: {
@@ -77,7 +78,8 @@ export const stripeWebhook = async (req, res) => {
           amount: plan.amount,
           freeSCoin: plan.coin === 'Gcoin' ? plan.freeamount : 0,
           description: `Purchased ${plan.amount} ${plan.coin}`,
-          paymentId: paymentIntent.id,
+          paymentId: paymentIntent.id,        // Stripe ID
+          transactionId: paymentIntent.metadata.transactionId, // Your ID
           date: new Date()
         }
       }
