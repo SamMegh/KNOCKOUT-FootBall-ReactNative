@@ -71,7 +71,7 @@ export const stripeWebhook = async (req, res) => {
         SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount 
       },
       $push: {
-        coinHistory: {
+        coinTransactions: {
           type: 'credit',
           coinType: plan.coin,
           amount: plan.amount,
