@@ -7,12 +7,17 @@ export default function CoinBuy() {
   const router = useRouter();
   const { coinData } = useLocalSearchParams();
   const coinPackages = JSON.parse(coinData || "[]");
-
+const goToCoinBuy = (data) => {
+  router.push({
+    pathname: "/checkOut",
+    params: { coinData: JSON.stringify(data) },
+  });
+};
   const renderItem = ({ item }) => {
     const isGcoin = item.coin === "Gcoin";
 
     return (
-      <TouchableOpacity activeOpacity={0.8} style={styles.card}>
+      <TouchableOpacity activeOpacity={0.8} style={styles.card} onPress={()=>goToCoinBuy(item)}>
         <LinearGradient
           colors={
             isGcoin

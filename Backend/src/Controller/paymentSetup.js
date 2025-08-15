@@ -11,6 +11,7 @@ const stripe = new Stripe(process.env.Secret_key);
 
 export const paymentSheet=async (req, res) => {
   // Use an existing Customer ID if this is a returning customer.
+  const user= req.user;
   const {id} = req.body;
   const plan = coinData.find((plan)=>plan.id==id);
   const customer = await stripe.customers.create();
@@ -28,6 +29,7 @@ export const paymentSheet=async (req, res) => {
       enabled: true,
     },
   });
+  
 
   res.json({
     paymentIntent: paymentIntent.client_secret,
