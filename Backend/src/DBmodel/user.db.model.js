@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
         min: 0 // Cannot go below 0
     },
 
-    coinClams:{
+    coinClams: {
         type: Date
     },
     // Gold Coin (can be used for premium features, paid games, etc.)
@@ -53,19 +53,28 @@ const userSchema = new mongoose.Schema({
         min: 0 // Cannot go below 0
     },
     coinTransactions: [{
-        GCoin: Number,
-        freeSCoin: Number,
-        payAmount: Number,  
-        type: { type: String, enum: ["earn", "spend", "reward", "refund"] },
-        coinType: { type: String, enum: ["SCoin", "GCoin"] },
-        description: String,
-        paymentId: String,
+        amount: { type: Number, required: true, min: 1 }, // lowercase for consistency
+        freeSCoin: { type: Number, default: 0 },
+        payAmount: { type: Number, default: 0 },
+        type: {
+            type: String,
+            enum: ["credit", "spend", "reward", "refund"],
+            required: true
+        },
+        coinType: {
+            type: String,
+            enum: ["SCoin", "GCoin"],
+            required: true
+        },
+        description: { type: String, trim: true },
+        paymentId: { type: String, trim: true },
         date: { type: Date, default: Date.now }
     }]
-}, {
-    // Automatically manage createdAt and updatedAt timestamps
-    timestamps: true
-});
+},
+    {
+        // Automatically manage createdAt and updatedAt timestamps
+        timestamps: true
+    });
 
 // Create and export the User model
 const User = mongoose.model('User', userSchema);
