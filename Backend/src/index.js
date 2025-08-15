@@ -12,7 +12,16 @@ import playRoutes from "./routes/play.routes.js";
 
 dotenv.config();
 const Port= process.env.Port;
-app.use(express.json());
+// ✅ Skip JSON parsing for Stripe webhook
+app.use((req, res, next) => {
+  if (req.originalUrl === '/payment/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
+
+
 app.use(cookie()); 
 app.use(express.urlencoded({ extended: true }));
 
