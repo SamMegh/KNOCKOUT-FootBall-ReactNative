@@ -68,16 +68,16 @@ export const stripeWebhook = async (req, res) => {
 
     await User.findByIdAndUpdate(user._id, {
       $inc: {
-        GCoin: plan.coins === 'Gcoin' ? plan.amount : 0,
-        SCoin: plan.coins === 'Gcoin' ? plan.freeamount : plan.amount 
+        GCoin: plan.coin === 'Gcoin' ? plan.amount : 0,
+        SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount 
       },
       $push: {
         coinHistory: {
           type: 'credit',
-          coinType: plan.coins,
+          coinType: plan.coin,
           amount: plan.amount,
-          freeSCoin: plan.coins === 'Gcoin' ? plan.freeamount : 0,
-          description: `Purchased ${plan.amount} ${plan.coins}`,
+          freeSCoin: plan.coin === 'Gcoin' ? plan.freeamount : 0,
+          description: `Purchased ${plan.amount} ${plan.coin}`,
           paymentId: paymentIntent.id,
           date: new Date()
         }
