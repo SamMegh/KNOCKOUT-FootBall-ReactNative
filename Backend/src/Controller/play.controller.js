@@ -583,7 +583,7 @@ export const dailyCoin = async (req, res) => {
         const dbuser = await User.findByIdAndUpdate(
             user._id,
             {
-                $inc: { SCoin: 10 },         // ➕ Add 10 SCoin to user balance
+                $inc: { SCoin: 5 },         // ➕ Add 5 SCoin to user balance
                 $set: { coinClams: today },  // 📅 Set today's date as last claim
             },
             { new: true }                   // 🆕 Return the updated user document
