@@ -44,7 +44,6 @@ export const paymentSheet = async (req, res) => {
 
 export const stripeWebhook = async (req, res) => {
   let event;
-  const user = req.user;
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
@@ -58,7 +57,7 @@ export const stripeWebhook = async (req, res) => {
 
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object;
-    const { planId } = paymentIntent.metadata;
+    const {  planId, userId  } = paymentIntent.metadata;
 
     const plan = coinData.find(p => p.id == planId);
     if (!plan) {
@@ -66,7 +65,7 @@ export const stripeWebhook = async (req, res) => {
       return res.status(400).send('Invalid plan ID');
     }
 
-    await User.findByIdAndUpdate(user._id, {
+    await User.findByIdAndUpdate(userId, {
       $inc: {
         GCoin: plan.coin === 'Gcoin' ? plan.amount : 0,
         SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount 
