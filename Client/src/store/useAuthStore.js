@@ -120,7 +120,6 @@ coinUpdates: () => {
    
 
     socket.on("coinsUpdated", (data) => {
-      console.log("✅ Coins updated:", data);
       // Update store with new user data
       set({ isAuthUser: data });
     });

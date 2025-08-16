@@ -118,7 +118,7 @@ export const stripeWebhook = async (req, res) => {
         { new: true }
       );
 
-      console.log(`✅ Coins credited to user ${newData_User}`);
+      console.log(`✅ Coins credited to user `);
 
       const receiver = await getReceiverSocketId(userId);
       if (receiver) {
