@@ -10,35 +10,62 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import * as Yup from "yup";
+
 import CustomHeader from "../../src/components/customHeader";
 import WeekSelector from "../../src/components/weekComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import leagueValidator from "../../src/utils/leagueValidator";
-function createnewleague() {
+
+// ✅ Updated validation schema
+const leagueValidator = Yup.object().shape({
+  name: Yup.string().required("League name is required"),
+  type: Yup.string().required("League type is required"),
+  totalWeeks: Yup.number()
+    .required("Total weeks required")
+    .min(1, "At least 1 week required"),
+  maxTimeTeamSelect: Yup.number()
+    .required("Max time required")
+    .min(1, "Must be at least 1"),
+  lifelinePerUser: Yup.number()
+    .required("Lifeline required")
+    .min(1, "Must be at least 1"),
+  joinfee: Yup.object().shape({
+    amount: Yup.number()
+      .required("Joining Fee is required")
+      .min(20, "Joining Fee must be at least 20"),
+    type: Yup.string().required(),
+  }),
+});
+
+function CreateNewLeague() {
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
   const { createmyownleague } = useLeagueStore();
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
+    const payload = {
+      ...values,
+      joinfee: {
+        ...values.joinfee,
+        amount: Number(values.joinfee.amount), // ensure number
+      },
+    };
+
     if (Platform.OS === "web") {
-      // Web alert (confirm + success)
       const confirm = window.confirm(
         `Are you sure you want to create the league "${values.name}"?`
       );
+      if (!confirm) return;
 
-      if (confirm) {
-        createmyownleague(values)
-          .then(() => {
-            window.alert("League created successfully!");
-            router.replace("/");
-          })
-          .catch(() => {
-            window.alert("Failed to create league. Please try again.");
-          });
+      try {
+        await createmyownleague(payload);
+        window.alert("League created successfully!");
+        router.replace("/");
+      } catch (err) {
+        window.alert("Failed to create league. Please try again.");
       }
     } else {
-      // Mobile alert (React Native Alert)
       Alert.alert(
         "Create League",
         `Are you sure you want to create the league "${values.name}"?`,
@@ -48,11 +75,11 @@ function createnewleague() {
             text: "Create",
             onPress: async () => {
               try {
-                await createmyownleague(values);
+                await createmyownleague(payload);
                 Alert.alert("Success", "League created successfully!", [
                   { text: "OK", onPress: () => router.replace("/") },
                 ]);
-              } catch (error) {
+              } catch (err) {
                 Alert.alert(
                   "Error",
                   "Failed to create league. Please try again."
@@ -64,13 +91,12 @@ function createnewleague() {
       );
     }
   };
+
   if (!isAuthUser) return <Redirect href="/" />;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-
-      {/* Scrollable Form */}
       <ScrollView
         contentContainerStyle={{
           padding: 20,
@@ -82,10 +108,7 @@ function createnewleague() {
         <Formik
           initialValues={{
             name: "",
-            joinfee: {
-              amount: "59",
-              type: "SCoin",
-            },
+            joinfee: { amount: 59, type: "SCoin" },
             end: "",
             start: "",
             totalWeeks: "",
@@ -93,8 +116,9 @@ function createnewleague() {
             lifelinePerUser: "1",
             type: "private",
           }}
-          onSubmit={handleSubmit}
           validationSchema={leagueValidator}
+          onSubmit={handleSubmit}
+          validateOnMount={true}
         >
           {({
             handleChange,
@@ -103,6 +127,7 @@ function createnewleague() {
             values,
             errors,
             touched,
+            setFieldValue,
           }) => (
             <View style={{ gap: 20 }}>
               {/* League Name */}
@@ -153,13 +178,10 @@ function createnewleague() {
               </View>
 
               {/* Date Selection */}
-              <View>
-                <WeekSelector values={values} handleChange={handleChange} />
-
-                {touched.totalWeeks && errors.totalWeeks && (
-                  <Text style={styles.errorText}>{errors.totalWeeks}</Text>
-                )}
-              </View>
+              <WeekSelector values={values} handleChange={handleChange} />
+              {touched.totalWeeks && errors.totalWeeks && (
+                <Text style={styles.errorText}>{errors.totalWeeks}</Text>
+              )}
 
               {/* Max Time Team Select */}
               <View>
@@ -191,39 +213,65 @@ function createnewleague() {
                 />
               </View>
 
-              {/* Join Fee */}
-              <View>
-                <Text style={styles.label}>💸 Joining Fee</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={(text) => {
-                    setFieldValue("joinfee.amount", text);
-                  }}
-                  onBlur={handleBlur("joinfee.amount")}
-                  value={values.joinfee?.amount || ""}
-                  placeholder="e.g. 399"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                />
-                {touched.joinfee?.amount && (
-                  <>
-                    {Number(values.joinfee?.amount) < 20 ? (
-                      <Text style={styles.errorText}>
-                        Joining Fee must be at least 20
-                      </Text>
-                    ) : (
-                      errors.joinfee?.amount && (
-                        <Text style={styles.errorText}>
-                          {errors.joinfee.amount}
-                        </Text>
+              {/* Coin Type + Join Fee in the same row */}
+              <View
+                style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
+              >
+                {/* Coin Type Picker */}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>💰 Coin Type</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={values.joinfee.type}
+                      onValueChange={(val) =>
+                        setFieldValue("joinfee.type", val)
+                      }
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="SCoin" value="SCoin" />
+                      <Picker.Item label="GCoin" value="GCoin" />
+                    </Picker>
+                  </View>
+                </View>
+
+                {/* Join Fee Amount */}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>💸 Join Fee</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={(text) =>
+                      setFieldValue(
+                        "joinfee.amount",
+                        text.replace(/[^0-9]/g, "")
                       )
-                    )}
-                  </>
-                )}
+                    }
+                    onBlur={handleBlur("joinfee.amount")}
+                    value={String(values.joinfee.amount)}
+                    placeholder="e.g. 59"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                  />
+                  {touched.joinfee?.amount && errors.joinfee?.amount && (
+                    <Text style={styles.errorText}>
+                      {errors.joinfee.amount}
+                    </Text>
+                  )}
+                </View>
               </View>
 
               {/* Submit Button */}
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={
+                  !values.name ||
+                  !values.joinfee.amount ||
+                  !values.joinfee.type ||
+                  !values.totalWeeks ||
+                  !values.maxTimeTeamSelect ||
+                  !values.lifelinePerUser
+                }
+                style={[styles.button, (!values.name || !values.joinfee.amount) && { opacity: 0.5 }]}
+              >
                 <Text style={styles.buttonText}>🚀 Create League</Text>
               </TouchableOpacity>
             </View>
@@ -235,11 +283,7 @@ function createnewleague() {
 }
 
 const styles = {
-  label: {
-    fontSize: 16,
-    color: "#fff",
-    marginBottom: 6,
-  },
+  label: { fontSize: 16, color: "#fff", marginBottom: 6 },
   input: {
     height: 48,
     borderWidth: 1,
@@ -257,16 +301,8 @@ const styles = {
     overflow: "hidden",
     backgroundColor: "#fff",
   },
-  picker: {
-    height: 50,
-    color: "#111827",
-  },
-  errorText: {
-    color: "#f87171",
-    fontFamily: "Prismfont_CLv2",
-    fontSize: 14,
-    marginBottom: 8,
-  },
+  picker: { height: 50, color: "#111827" },
+  errorText: { color: "#f87171", fontSize: 14, marginBottom: 8 },
   button: {
     backgroundColor: "#2563eb",
     borderRadius: 10,
@@ -274,11 +310,7 @@ const styles = {
     alignItems: "center",
     marginTop: 10,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 };
 
-export default createnewleague;
+export default CreateNewLeague;

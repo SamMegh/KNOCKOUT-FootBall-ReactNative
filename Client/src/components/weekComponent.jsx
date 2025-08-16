@@ -43,7 +43,7 @@ const toggleWeekSelection = (weekIndex) => {
   const label = `${weeks[weekIndex][0].format('MMM D')} - ${weeks[weekIndex][6].format('D')}`;
 
   // Update Formik fields
-  handleChange('totalWeeks')(label);
+  handleChange('totalWeeks')("1");
   handleChange('start')(start);
   handleChange('end')(end);
 };

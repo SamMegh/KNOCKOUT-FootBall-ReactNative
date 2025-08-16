@@ -166,7 +166,7 @@ export default function CoinTransaction() {
                 </Text>
               ) : null}
               <Text style={styles.modalItem}>
-                Amount Paid: ₹{selectedTransaction.payAmount}
+                Amount Paid: USD{selectedTransaction.payAmount}
               </Text>
 
               {/* Identifiers */}

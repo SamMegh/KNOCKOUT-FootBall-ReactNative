@@ -66,7 +66,7 @@ function CreateLeague() {
             ⏳ End: {new Date(league.end).toDateString()}
           </Text>
           <Text style={styles.detail}>📆 Total Weeks: {league.totalWeeks}</Text>
-          <Text style={styles.detail}>💰 Join Fee: ₹{league.joinfee}</Text>
+          <Text style={styles.detail}>💰 Join Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
           <Text style={styles.detail}>🎮 Type: {league.type}</Text>
           <Text style={styles.detail}>
             ❤️ Life Lines / User: {league.lifelinePerUser}

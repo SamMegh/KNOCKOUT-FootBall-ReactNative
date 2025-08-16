@@ -82,7 +82,7 @@ const JoinLeague = () => {
             >
               <Text style={styles.leagueTitle}>{league.name}</Text>
               <Text style={styles.detail}>🆔 ID: {league._id}</Text>
-              <Text style={styles.detail}>💰 Fee: ₹{league.joinfee}</Text>
+              <Text style={styles.detail}>💰 Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
               <Text style={styles.detail}>
                 🕒 Start: {new Date(league.start).toDateString()}
               </Text>
