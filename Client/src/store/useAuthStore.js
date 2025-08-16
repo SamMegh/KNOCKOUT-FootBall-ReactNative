@@ -1,9 +1,14 @@
 import Toast from "react-native-toast-message";
+import { io } from 'socket.io-client';
 import { create } from 'zustand';
 import { removeItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
+
+const MAINURL='http://localhost:8080/'
 export const useAuthStore = create((set,get) => ({
     isAuthUser: null,
+    socket:null,
+
     login: async (data) => {
         try {
             const res = await Instance.post("/auth/login", {
@@ -18,6 +23,7 @@ export const useAuthStore = create((set,get) => ({
                 text2: res.data.user.name
             });
             await get().dailyreward();
+             get().connectSocket();
 
         } catch (error) {
             console.log(error);
@@ -26,6 +32,7 @@ export const useAuthStore = create((set,get) => ({
                 text1: 'Login Failed',
                 text2: error?.response?.data?.message || 'Something went wrong'
             });
+            get().disconnectSocket();
         }
     },
 
@@ -43,6 +50,7 @@ export const useAuthStore = create((set,get) => ({
                 text2: `Welcome, ${res.data.user.name}`
             });
             await get().dailyreward();
+             get().connectSocket();
         } catch (error) {
             console.log(error);
             Toast.show({
@@ -50,6 +58,7 @@ export const useAuthStore = create((set,get) => ({
                 text1: 'Signup Failed',
                 text2: error?.response?.data?.message || 'Something went wrong'
             });
+            get().disconnectSocket();
         }
     },
 
@@ -60,6 +69,7 @@ export const useAuthStore = create((set,get) => ({
             type: 'info',
             text1: 'Logged out successfully'
         });
+        get().disconnectSocket();
     },
 
     dailyreward: async () => {
@@ -67,6 +77,7 @@ export const useAuthStore = create((set,get) => ({
             await Instance.get("/play/dailyreward");
         } catch (error) {
             console.log(error)
+            get().disconnectSocket();
         }
     },
 
@@ -75,6 +86,7 @@ export const useAuthStore = create((set,get) => ({
             const res = await Instance.get("/auth/check");
             set({ isAuthUser: res.data });
             await get().dailyreward();
+             get().connectSocket();
         } catch (error) {
             set({ isAuthUser: null });
             removeItem();
@@ -82,6 +94,41 @@ export const useAuthStore = create((set,get) => ({
                 type: 'error',
                 text1: 'Session expired'
             });
+            get().disconnectSocket();
         }
-    }
+    },
+
+    connectSocket:()=>{
+        const {isAuthUser} = get();
+        if (!isAuthUser || get().socket?.connected) return;
+        const socket = io(MAINURL,{
+            query:{
+                userId:isAuthUser._id
+            }
+        });
+        set({socket});
+    },
+
+    disconnectSocket: () => {
+    if(get().socket?.connected) get().socket.disconnect();
+  },
+
+coinUpdates: () => {
+  try {
+    const { socket } = get();
+
+    // Clear old listener to avoid duplicates
+    socket.off("coinsUpdated");
+
+    socket.on("coinsUpdated", (data) => {
+      console.log("✅ Coins updated:", data);
+      // Update store with new user data
+      set({ isAuthUser: data });
+    });
+  } catch (error) {
+    console.error("❌ coinUpdates listener error:", error);
+  }
+}
+
+
 }))

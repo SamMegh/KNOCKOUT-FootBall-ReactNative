@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import Stripe from 'stripe';
 import User from '../DBmodel/user.db.model.js';
+import { getReceiverSocketId, io } from '../lib/socket.config.js';
 
 const stripe = new Stripe(process.env.Secret_key);
 const rawData = await readFile(new URL('../CoinData/coinData.json', import.meta.url));
@@ -73,7 +74,7 @@ export const stripeWebhook = async (req, res) => {
     // ✅ Extract common identifiers (null if not available)
     const stripePaymentId = paymentIntent.id;     // Stripe PaymentIntent ID
     const stripeChargeId = charge?.id || null;    // Stripe Charge ID
-    const utr = charge?.payment_method_details?.upi?.utr || null; 
+    const utr = charge?.payment_method_details?.upi?.utr || null;
     const vpa = charge?.payment_method_details?.upi?.vpa || null;
     const cardLast4 = charge?.payment_method_details?.card?.last4 || null;
 
@@ -107,12 +108,22 @@ export const stripeWebhook = async (req, res) => {
     }
 
     // ✅ Update user balance + push transaction
-    await User.findByIdAndUpdate(userId, {
-      $inc: update,
-      $push: { coinTransactions: transactionObj },
-    });
+    try {
+      const newData_User = await User.findByIdAndUpdate(
+        userId,
+        { $inc: update, $push: { coinTransactions: transactionObj } },
+        { new: true }
+      );
 
-    console.log(`✅ Coins credited to user ${userId}`);
+      console.log(`✅ Coins credited to user ${userId}`);
+
+      const receiver = await getReceiverSocketId(userId);
+      if (receiver) {
+        io.to(receiver).emit("coinsUpdated", newData_User);
+      }
+    } catch (err) {
+      console.error("❌ DB update failed:", err);
+    }
   }
 
   res.status(200).json({ received: true });

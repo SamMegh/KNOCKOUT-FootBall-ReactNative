@@ -66,7 +66,6 @@ export default function CoinTransaction() {
       <TouchableOpacity
         key={item._id}
         onPress={() => {
-          console.log(item);
           setSelectedTransaction(item);
           setModalVisible(true);
         }}

@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -12,7 +13,7 @@ import ScoinData from "../../assets/ScoinData.json";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 
 export default function Profile() {
-  const { isAuthUser, logout } = useAuthStore();
+  const { isAuthUser, logout, coinUpdates } = useAuthStore();
   const router = useRouter();
 
   if (!isAuthUser) {
@@ -60,7 +61,9 @@ export default function Profile() {
       </View>
     );
   }
-
+useEffect(()=>{
+  coinUpdates();
+},[coinUpdates])
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.topHeader}>
