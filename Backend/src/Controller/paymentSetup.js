@@ -111,15 +111,18 @@ export const stripeWebhook = async (req, res) => {
     try {
       const newData_User = await User.findByIdAndUpdate(
         userId,
-        { $inc: update, $push: { coinTransactions: transactionObj } },
+        { $inc: {
+          GCoin:plan.coin === "Gcoin"?plan.amount:0,
+          SCoin:plan.coin === "Gcoin"?plan.freeamount:plan.amount
+        }, $push: { coinTransactions: transactionObj } },
         { new: true }
       );
 
-      console.log(`✅ Coins credited to user ${userId}`);
+      console.log(`✅ Coins credited to user ${newData_User}`);
 
       const receiver = await getReceiverSocketId(userId);
       if (receiver) {
-        io.to(receiver).emit("coinsUpdated", newData_User);
+        io.to(receiver).emit("coinsUpdated", {newData_User});
       }
     } catch (err) {
       console.error("❌ DB update failed:", err);

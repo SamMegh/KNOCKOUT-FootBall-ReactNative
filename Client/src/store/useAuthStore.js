@@ -117,14 +117,15 @@ coinUpdates: () => {
   try {
     const { socket } = get();
 
-    // Clear old listener to avoid duplicates
-    socket.off("coinsUpdated");
+   
 
     socket.on("coinsUpdated", (data) => {
       console.log("✅ Coins updated:", data);
       // Update store with new user data
       set({ isAuthUser: data });
     });
+     // Clear old listener to avoid duplicates
+    socket.off("coinsUpdated");
   } catch (error) {
     console.error("❌ coinUpdates listener error:", error);
   }
