@@ -58,8 +58,10 @@ export const stripeWebhook = async (req, res) => {
   if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object;
 
-    // Always get charge details (works for card, UPI, wallets, etc.)
-    const charge = paymentIntent.charges.data[0];
+    // ✅ Always check if charges exist
+    const charge = paymentIntent.charges?.data?.length
+      ? paymentIntent.charges.data[0]
+      : null;
 
     const { planId, userId, transactionId } = paymentIntent.metadata;
     const plan = coinData.find((p) => p.id == planId);
@@ -68,12 +70,12 @@ export const stripeWebhook = async (req, res) => {
       return res.status(400).send("Invalid plan ID");
     }
 
-    // ✅ Extract common identifiers
+    // ✅ Extract common identifiers (null if not available)
     const stripePaymentId = paymentIntent.id;     // Stripe PaymentIntent ID
-    const stripeChargeId = charge?.id;            // Stripe Charge ID
-    const utr = charge?.payment_method_details?.upi?.utr || null; // Only for UPI
-    const vpa = charge?.payment_method_details?.upi?.vpa || null; // Only for UPI
-    const cardLast4 = charge?.payment_method_details?.card?.last4 || null; // Only for card
+    const stripeChargeId = charge?.id || null;    // Stripe Charge ID
+    const utr = charge?.payment_method_details?.upi?.utr || null; 
+    const vpa = charge?.payment_method_details?.upi?.vpa || null;
+    const cardLast4 = charge?.payment_method_details?.card?.last4 || null;
 
     // ✅ Decide coin increment logic
     const update = {};
@@ -84,25 +86,30 @@ export const stripeWebhook = async (req, res) => {
       update.SCoin = plan.amount;
     }
 
+    // ✅ Transaction object (refundId optional)
+    const transactionObj = {
+      type: "credit",
+      coinType: plan.coin,
+      amount: plan.amount,
+      freeSCoin: plan.coin === "Gcoin" ? plan.freeamount : 0,
+      description: `Purchased ${plan.amount} ${plan.coin}`,
+      paymentId: stripePaymentId,
+      chargeId: stripeChargeId,
+      utr: utr,
+      vpa: vpa,
+      cardLast4: cardLast4,
+      transactionId: transactionId,
+      date: new Date(),
+    };
+
+    if (charge?.refunds?.data?.length) {
+      transactionObj.refundId = charge.refunds.data[0].id; // ✅ Only add if exists
+    }
+
     // ✅ Update user balance + push transaction
     await User.findByIdAndUpdate(userId, {
       $inc: update,
-      $push: {
-        coinTransactions: {
-          type: "credit",
-          coinType: plan.coin,
-          amount: plan.amount,
-          freeSCoin: plan.coin === "Gcoin" ? plan.freeamount : 0,
-          description: `Purchased ${plan.amount} ${plan.coin}`,
-          paymentId: stripePaymentId,   // Stripe PaymentIntent ID
-          chargeId: stripeChargeId,     // Stripe Charge ID
-          utr: utr,                     // UTR (only for UPI, null otherwise)
-          vpa: vpa,                     // UPI VPA if available
-          cardLast4: cardLast4,         // Last 4 digits if card used
-          transactionId: transactionId, // Your own unique ID
-          date: new Date(),
-        },
-      },
+      $push: { coinTransactions: transactionObj },
     });
 
     console.log(`✅ Coins credited to user ${userId}`);
@@ -110,3 +117,4 @@ export const stripeWebhook = async (req, res) => {
 
   res.status(200).json({ received: true });
 };
+
