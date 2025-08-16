@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -84,6 +83,24 @@ export default function Profile() {
           label="📱 Mobile number"
           value={isAuthUser.mobile ? `${isAuthUser.mobile}` : "None"}
         />
+
+        <TouchableOpacity
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignContent:"center",
+            color: "#000",
+            marginTop: 6,
+            marginBottom: 6,
+            backgroundColor: "#fff",
+            borderRadius: 8,
+          }}
+          onPress={()=>router.push("/transection")}
+        >
+          <Text style={styles.transection}>Transection</Text>
+          <Text style={styles.transectionArrow}> →</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>🚪 Logout</Text>
@@ -178,6 +195,16 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 24,
+  },
+  transectionArrow: {
+    marginTop:-8,
+    marginRight:8,
+    fontSize: 30,
+    fontWeight:800
+  },
+  transection: {
+    padding:6,
+    fontSize: 20
   },
   logoutText: {
     color: "black",
