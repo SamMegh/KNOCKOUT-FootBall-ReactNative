@@ -21,7 +21,7 @@ export const paymentSheet = async (req, res) => {
   );
 
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: plan.usd * 100,
+    amount:parseInt((plan.usd * 100).toFixed(0), 10),
     currency: 'USD',
     customer: customer.id,
     metadata: {
