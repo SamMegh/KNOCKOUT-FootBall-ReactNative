@@ -63,8 +63,9 @@ export const stripeWebhook = async (req, res) => {
     const charge = paymentIntent.charges?.data?.length
       ? paymentIntent.charges.data[0]
       : null;
-console.log("paymentIntent.charges: ",paymentIntent.charges);
-console.log("console.log(charge.payment_method_details): ",charge.payment_method_details);
+console.log("charge",charge);
+console.log("paymentIntent.charges.data[0]",paymentIntent.charges.data[0]);
+console.log("paymentIntent.charges.data",paymentIntent.charges.data);
     const { planId, userId, transactionId } = paymentIntent.metadata;
     const plan = coinData.find((p) => p.id == planId);
     if (!plan) {
