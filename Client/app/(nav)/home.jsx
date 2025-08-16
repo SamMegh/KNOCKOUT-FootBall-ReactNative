@@ -18,7 +18,7 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function Home() {
   const router = useRouter();
-  const { leagues, getleague, joinleague, loading, myleagues, getmyleagues } = useLeagueStore();
+  const { leagues, removeLeague, getleague, joinleague, loading, myleagues, getmyleagues } = useLeagueStore();
   const { isAuthUser } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
@@ -100,7 +100,7 @@ export default function Home() {
         <Text style={styles.leagueData}>
           Time: {league.start.split("T")[0]} to {league.end.split("T")[0]}
         </Text>
-        <Text style={styles.leagueData}>Joining Fee: ₹{league.joinfee.amount}</Text>
+        <Text style={styles.leagueData}>Joining Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
         <Text style={styles.leagueData}>Owner: {league.ownerName}</Text>
       </View>
       <TouchableOpacity style={styles.joinButton} onPress={() => confirmJoin(league)}>

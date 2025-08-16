@@ -54,7 +54,7 @@ function MyLeague() {
             <Text style={styles.title}>{item.name}</Text>
           </View>
 
-          <Text style={styles.fee}>🏷️ Join Fee: ₹{item.joinfee}</Text>
+          <Text style={styles.fee}>🏷️ Join Fee: {item.joinfee.type} {item.joinfee.amount}</Text>
           <Text style={styles.date}>🕒 Start: {new Date(item.start).toDateString()}</Text>
           <Text style={styles.date}>⏳ End: {new Date(item.end).toDateString()}</Text>
         </Animated.View>
