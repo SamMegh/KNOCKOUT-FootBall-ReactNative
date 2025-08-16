@@ -687,8 +687,8 @@ export const tranxtxtion = async (req, res) => {
 
         // ❌ Handle case when user is not found (possibly logged out or deleted)
         if (!dbuser) {
-            return res.status(400).json({ 
-                message: "Unable to get user. Please re-login to solve this problem." 
+            return res.status(400).json({
+                message: "Unable to get user. Please re-login to solve this problem."
             });
         }
 
@@ -697,15 +697,18 @@ export const tranxtxtion = async (req, res) => {
 
         // 🧾 Format each transaction for cleaner frontend display
         const tranxtxtion = rowtx.map(tx => ({
-            payAmount: tx.payAmount,                      // 💵 Actual amount paid
-            GCoin: tx.GCoin,                              // 🪙 GCoin earned
-            freeSCoin: tx.coinAmount,                     // 🎁 Bonus/free SCoin (if stored)
-            type: tx.type,                                // 🔄 Transaction type (e.g., buy, earn)
-            coinType: tx.coinType,                        // 🪙 Type of coin involved
-            description: tx.description,                  // 📝 Short note for the transaction
-            paymentId: tx.paymentId || "mock-payment",    // 💳 Payment ID or fallback value
-            date: tx.date                                 // 📅 Date of the transaction
+            payAmount: tx.payAmount,                   // 💵 Actual amount paid
+            amount:tx.amount, // 🪙 Coin earned (if SCoin transaction)
+            freeSCoin: tx.freeSCoin,                   // 🎁 Bonus/free SCoin
+            type: tx.type,                             // 🔄 Transaction type (credit, spend, reward, refund)
+            coinType: tx.coinType,                     // 🪙 Type of coin involved
+            description: tx.description,               // 📝 Transaction description
+            paymentId: tx.paymentId || "mock-payment", // 💳 Payment ID or fallback
+            transactionId: tx.transactionId,           // 🆔 Unique transaction ID
+            date: tx.date,                             // 📅 Transaction date
+            _id:tx._id
         }));
+
 
         // ✅ Return the formatted transaction list
         res.status(200).json(tranxtxtion);

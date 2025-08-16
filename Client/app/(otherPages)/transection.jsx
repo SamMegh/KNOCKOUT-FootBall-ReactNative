@@ -1,14 +1,19 @@
 import { useRouter } from "expo-router";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+    ActivityIndicator,
+    Modal,
+    Pressable,
     ScrollView,
     StyleSheet,
     Text,
-    View,Modal, Pressable
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import CustomHeader from "../../src/components/customHeader";
+import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 const typeStyles = {
   credit: {
@@ -38,70 +43,77 @@ const typeStyles = {
 };
 
 export default function CoinTransaction() {
-  const transactions = [
-    {
-      _id: "689f231e4a19cfa6d30f53d9",
-      amount: 25,
-      freeSCoin: 25,
-      payAmount: 0,
-      type: "credit",
-      coinType: "GCoin",
-      description: "Purchased 25 Gcoin",
-      paymentId: "pi_3RwMQ8LkiNc5CrL60Luovi4I",
-      date: "2025-08-15T12:07:58.080+00:00",
-    },
-    {
-      _id: "689f277dedc2b397d223502c",
-      amount: 25,
-      freeSCoin: 25,
-      payAmount: 0,
-      type: "reward",
-      coinType: "SCoin",
-      description: "Daily reward",
-      paymentId: "pi_3RwJucLkiNc5CrL60PqUeI77",
-      date: "2025-08-15T12:26:37.064+00:00",
-    },
-  ];
+  const { gettransaction, transactions, istransactionsloading } =
+    useLeagueStore();
   const router = useRouter();
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const sortedTransactions = useMemo(() => {
     return [...transactions].sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     );
-  }, []);
+  }, [transactions]);
 
-  const renderTransaction = ({ item }) => {
+  useEffect(() => {
+    gettransaction();
+  }, [gettransaction]);
+  
+
+  const renderTransaction = (item) => {
     const style = typeStyles[item.type] || typeStyles.credit;
 
     return (
-      <View
+      <TouchableOpacity
         key={item._id}
-        style={[
-          styles.transactionCard,
-          { borderLeftColor: style.color },
-        ]}
+        onPress={() => {
+          console.log(item);
+          setSelectedTransaction(item);
+          setModalVisible(true);
+        }}
       >
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Ionicons name={style.icon} size={24} color={style.color} />
-            <Text style={styles.transactionType}>{style.label}</Text>
+        <View
+          style={[styles.transactionCard, { borderLeftColor: style.color }]}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Ionicons name={style.icon} size={24} color={style.color} />
+              <Text style={styles.transactionType}>{style.label}</Text>
+            </View>
+            <Text style={styles.transactionDesc}>{item.description}</Text>
+            <Text style={styles.transactionTime}>
+              {new Date(item.date).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}{" "}
+              •{" "}
+              {new Date(item.date).toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}{" "}
+              • {item.amount}{" "}
+              {item.coinType?.charAt(0).toUpperCase() +
+                item.coinType?.slice(1).toLowerCase()}
+            </Text>
           </View>
-          <Text style={styles.transactionDesc}>{item.description}</Text>
-          <Text style={styles.transactionTime}>
-            {new Date(item.date).toLocaleDateString("en-IN", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })} • {new Date(item.date).toLocaleTimeString("en-IN", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })} • {item.amount} {item.coinType}
-          </Text>
+          <Ionicons name={style.trend} size={22} color={style.color} />
         </View>
-        <Ionicons name={style.trend} size={22} color={style.color} />
-      </View>
+      </TouchableOpacity>
     );
   };
+
+  if (istransactionsloading) {
+    return (
+      <SafeAreaView style={[styles.container, styles.loaderContainer]}>
+        <CustomHeader title="Knockout" subtitle="Track your coin activity" />
+        <View style={styles.loaderWrapper}>
+          <ActivityIndicator size="large" color="#3b82f6" />
+          <Text style={styles.loaderText}>Loading transactions...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,17 +123,86 @@ export default function CoinTransaction() {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View style={styles.headerRow}>
-          <Ionicons name="arrow-back" size={24} color="#000" style={styles.backIcon} onPress={()=>router.back()}/>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#000"
+            style={styles.backIcon}
+            onPress={() => router.back()}
+          />
           <Text style={styles.heading}>🪙 Coin Transactions</Text>
         </View>
 
-        {sortedTransactions.map((item) => renderTransaction({ item }))}
+        {sortedTransactions.map((item) => renderTransaction(item))}
       </ScrollView>
+      {selectedTransaction && (
+        <Modal
+          key={selectedTransaction.paymentId}
+          visible={modalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>🧾 Transaction Details</Text>
+              <Text style={styles.modalItem}>
+                Type: {selectedTransaction.type}
+              </Text>
+              <Text style={styles.modalItem}>
+                Coin:{" "}
+                {selectedTransaction.coinType?.charAt(0).toUpperCase() +
+                  selectedTransaction.coinType?.slice(1).toLowerCase()}
+              </Text>
+              <Text style={styles.modalItem}>
+                No. of Coin: {selectedTransaction.amount}
+              </Text>
+              {selectedTransaction.freeSCoin && (
+                <Text style={styles.modalItem}>
+                  No. of free Coin: {selectedTransaction.freeSCoin}
+                </Text>
+              )}
+              <Text style={styles.modalItem}>
+                Description: {selectedTransaction.description}
+              </Text>
+              <Text style={styles.modalItem}>
+                Payment ID: {selectedTransaction.paymentId}
+              </Text>
+              <Text style={styles.modalItem}>
+                Date:{" "}
+                {new Date(selectedTransaction.date).toLocaleString("en-IN")}
+              </Text>
+
+              <Pressable
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>Close</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+  },
+  loaderWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loaderText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "500",
+  },
+
   container: {
     backgroundColor: "#fff",
     flex: 1,
@@ -172,5 +253,36 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     marginRight: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    width: "85%",
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 12,
+    color: "#000",
+  },
+  modalItem: {
+    fontSize: 15,
+    marginBottom: 6,
+    color: "#333",
+  },
+  closeButton: {
+    marginTop: 16,
+    backgroundColor: "#000",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
   },
 });
