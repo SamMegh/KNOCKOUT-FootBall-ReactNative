@@ -1,14 +1,14 @@
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    Modal,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -58,7 +58,6 @@ export default function CoinTransaction() {
   useEffect(() => {
     gettransaction();
   }, [gettransaction]);
-  
 
   const renderTransaction = (item) => {
     const style = typeStyles[item.type] || typeStyles.credit;
@@ -146,8 +145,13 @@ export default function CoinTransaction() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>🧾 Transaction Details</Text>
+
+              {/* Core Info */}
               <Text style={styles.modalItem}>
                 Type: {selectedTransaction.type}
+              </Text>
+              <Text style={styles.modalItem}>
+                Status: {selectedTransaction.status || "Success"}
               </Text>
               <Text style={styles.modalItem}>
                 Coin:{" "}
@@ -155,24 +159,57 @@ export default function CoinTransaction() {
                   selectedTransaction.coinType?.slice(1).toLowerCase()}
               </Text>
               <Text style={styles.modalItem}>
-                No. of Coin: {selectedTransaction.amount}
+                Coins Received: {selectedTransaction.amount}
               </Text>
-              {selectedTransaction.freeSCoin && (
+              {selectedTransaction.freeSCoin ? (
                 <Text style={styles.modalItem}>
-                  No. of free Coin: {selectedTransaction.freeSCoin}
+                  Free Coins: {selectedTransaction.freeSCoin}
                 </Text>
-              )}
+              ) : null}
               <Text style={styles.modalItem}>
-                Description: {selectedTransaction.description}
+                Amount Paid: ₹{selectedTransaction.payAmount}
+              </Text>
+
+              {/* Identifiers */}
+              <Text style={styles.modalItem}>
+                Transaction ID: {selectedTransaction.transactionId}
               </Text>
               <Text style={styles.modalItem}>
                 Payment ID: {selectedTransaction.paymentId}
               </Text>
+              {selectedTransaction.utr && (
+                <Text style={styles.modalItem}>
+                  UTR: {selectedTransaction.utr}
+                </Text>
+              )}
+              {selectedTransaction.vpa && (
+                <Text style={styles.modalItem}>
+                  VPA: {selectedTransaction.vpa}
+                </Text>
+              )}
+              {selectedTransaction.cardLast4 && (
+                <Text style={styles.modalItem}>
+                  Card Last 4: **** {selectedTransaction.cardLast4}
+                </Text>
+              )}
+              {selectedTransaction.refundId && (
+                <Text style={styles.modalItem}>
+                  Refund ID: {selectedTransaction.refundId}
+                </Text>
+              )}
+              {selectedTransaction.platform && (
+                <Text style={styles.modalItem}>
+                  Platform: {selectedTransaction.platform}
+                </Text>
+              )}
+
+              {/* Date */}
               <Text style={styles.modalItem}>
                 Date:{" "}
                 {new Date(selectedTransaction.date).toLocaleString("en-IN")}
               </Text>
 
+              {/* Close */}
               <Pressable
                 style={styles.closeButton}
                 onPress={() => setModalVisible(false)}

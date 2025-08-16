@@ -560,40 +560,50 @@ export const leaguebyname = async (req, res) => {
 
 export const dailyCoin = async (req, res) => {
     try {
-        // 🔐 Get the authenticated user from the request object
+        // 🔐 Get the authenticated user
         const user = req.user;
 
-        // 🕒 Get the current date
+        // 🕒 Get today's date
         const today = new Date();
 
-        // 📆 Fetch the last claim date stored in the user object
+        // 📆 Check last daily claim
         const lastUpdate = user.coinClams;
-
-        // ✅ Check if the user has already claimed coins today
         const hasUpdatedToday =
             lastUpdate &&
             new Date(lastUpdate).toDateString() === today.toDateString();
 
-        // 🚫 If already claimed today, return a 400 error
+        // 🚫 Already claimed today
         if (hasUpdatedToday) {
             return res.status(400).json({ message: "You can only claim coins once per day." });
         }
 
-        // 💾 Update the user's SCoin balance and save today's claim date
+        // 💾 Update SCoin balance & last claim date + log transaction
         const dbuser = await User.findByIdAndUpdate(
             user._id,
             {
-                $inc: { SCoin: 5 },         // ➕ Add 5 SCoin to user balance
-                $set: { coinClams: today },  // 📅 Set today's date as last claim
+                $inc: { SCoin: 5 },         // ➕ Add 5 SCoin
+                $set: { coinClams: today }, // 📅 Save claim date
+                $push: {
+                    coinTransactions: {
+                        amount: 5,
+                        type: "reward",          // 🎁 reward type
+                        coinType: "SCoin",       // 🪙 SCoin only
+                        description: "Daily reward",
+                        date: today
+                    }
+                }
             },
-            { new: true }                   // 🆕 Return the updated user document
-        ).select('-password');              // 🔒 Exclude sensitive fields
+            { new: true } // 🆕 Return updated user
+        ).select('-password');
 
-        // ✅ Send success response with updated user data
-        res.status(200).json(dbuser);
+        // ✅ Send success response
+        res.status(200).json({
+            message: "Daily reward claimed successfully 🎉",
+            user: dbuser
+        });
 
     } catch (error) {
-        // ❌ Handle unexpected server errors
+        // ❌ Server error
         res.status(500).json({ message: "Unable to update daily coins: " + error });
     }
 };
@@ -683,7 +693,7 @@ export const tranxtxtion = async (req, res) => {
         const user = req.user;
 
         // 🧠 Fetch full user details from the database, excluding the password
-        const dbuser = await User.findById(user._id).select('-password');
+        const dbuser = await User.findById(user._id).select("-password");
 
         // ❌ Handle case when user is not found (possibly logged out or deleted)
         if (!dbuser) {
@@ -698,23 +708,34 @@ export const tranxtxtion = async (req, res) => {
         // 🧾 Format each transaction for cleaner frontend display
         const tranxtxtion = rowtx.map(tx => ({
             payAmount: tx.payAmount,                   // 💵 Actual amount paid
-            amount:tx.amount, // 🪙 Coin earned (if SCoin transaction)
+            amount: tx.amount,                         // 🪙 Coins credited/spent
             freeSCoin: tx.freeSCoin,                   // 🎁 Bonus/free SCoin
-            type: tx.type,                             // 🔄 Transaction type (credit, spend, reward, refund)
-            coinType: tx.coinType,                     // 🪙 Type of coin involved
+            type: tx.type,                             // 🔄 Transaction type
+            coinType: tx.coinType,                     // 🪙 SCoin or GCoin
             description: tx.description,               // 📝 Transaction description
-            paymentId: tx.paymentId || "mock-payment", // 💳 Payment ID or fallback
-            transactionId: tx.transactionId,           // 🆔 Unique transaction ID
-            date: tx.date,                             // 📅 Transaction date
-            _id:tx._id
-        }));
 
+            // 🔑 Identifiers
+            paymentId: tx.paymentId || "mock-payment", // Stripe PaymentIntent ID (or fallback)
+            chargeId: tx.chargeId || null,             // Stripe Charge ID (if available)
+            transactionId: tx.transactionId,           // Your internal ID
+
+            // 🏦 UPI-specific fields
+            utr: tx.utr || null,                       // UTR (only for UPI)
+            vpa: tx.vpa || null,                       // UPI VPA if available
+
+            // 💳 Card-specific fields
+            cardLast4: tx.cardLast4 || null,           // Last 4 digits of card if card payment
+
+            date: tx.date,                             // 📅 Transaction date
+            _id: tx._id                                // MongoDB ObjectId for reference
+        }));
 
         // ✅ Return the formatted transaction list
         res.status(200).json(tranxtxtion);
 
     } catch (error) {
-        // ❌ Catch unexpected errors and return a server error response
+        console.error("❌ Error fetching transactions:", error);
         res.status(500).json({ message: "Unable to get the Transaction" });
     }
 };
+

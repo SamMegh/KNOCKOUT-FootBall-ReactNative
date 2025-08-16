@@ -30,8 +30,7 @@ export const paymentSheet = async (req, res) => {
       userMobile: user.mobile.toString(),
       planId: plan.id,
       planCoinType: plan.coin,
-      planCoinAmount: plan.amount,
-      transactionId: transactionId
+      planCoinAmount: plan.amount
     }
   });
 
@@ -48,40 +47,62 @@ export const stripeWebhook = async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(
       req.body,
-      req.headers['stripe-signature'],
+      req.headers["stripe-signature"],
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err.message);
+    console.error("❌ Webhook signature verification failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === 'payment_intent.succeeded') {
+  if (event.type === "payment_intent.succeeded") {
     const paymentIntent = event.data.object;
-    const { planId, userId } = paymentIntent.metadata;
 
-    const plan = coinData.find(p => p.id == planId);
+    // Always get charge details (works for card, UPI, wallets, etc.)
+    const charge = paymentIntent.charges.data[0];
+
+    const { planId, userId, transactionId } = paymentIntent.metadata;
+    const plan = coinData.find((p) => p.id == planId);
     if (!plan) {
       console.warn(`⚠️ Plan ID ${planId} not found`);
-      return res.status(400).send('Invalid plan ID');
+      return res.status(400).send("Invalid plan ID");
     }
+
+    // ✅ Extract common identifiers
+    const stripePaymentId = paymentIntent.id;     // Stripe PaymentIntent ID
+    const stripeChargeId = charge?.id;            // Stripe Charge ID
+    const utr = charge?.payment_method_details?.upi?.utr || null; // Only for UPI
+    const vpa = charge?.payment_method_details?.upi?.vpa || null; // Only for UPI
+    const cardLast4 = charge?.payment_method_details?.card?.last4 || null; // Only for card
+
+    // ✅ Decide coin increment logic
+    const update = {};
+    if (plan.coin === "Gcoin") {
+      update.GCoin = plan.amount;
+      update.SCoin = plan.freeamount;
+    } else if (plan.coin === "SCoin") {
+      update.SCoin = plan.amount;
+    }
+
+    // ✅ Update user balance + push transaction
     await User.findByIdAndUpdate(userId, {
-      $inc: {
-        GCoin: plan.coin === 'Gcoin' ? plan.amount : 0,
-        SCoin: plan.coin === 'Gcoin' ? plan.freeamount : plan.amount
-      },
+      $inc: update,
       $push: {
         coinTransactions: {
-          type: 'credit',
+          type: "credit",
           coinType: plan.coin,
           amount: plan.amount,
-          freeSCoin: plan.coin === 'Gcoin' ? plan.freeamount : 0,
+          freeSCoin: plan.coin === "Gcoin" ? plan.freeamount : 0,
           description: `Purchased ${plan.amount} ${plan.coin}`,
-          paymentId: paymentIntent.id,        // Stripe ID
-          transactionId: paymentIntent.metadata.transactionId, // Your ID
-          date: new Date()
-        }
-      }
+          paymentId: stripePaymentId,   // Stripe PaymentIntent ID
+          chargeId: stripeChargeId,     // Stripe Charge ID
+          utr: utr,                     // UTR (only for UPI, null otherwise)
+          vpa: vpa,                     // UPI VPA if available
+          cardLast4: cardLast4,         // Last 4 digits if card used
+          transactionId: transactionId, // Your own unique ID
+          date: new Date(),
+        },
+      },
     });
 
     console.log(`✅ Coins credited to user ${userId}`);

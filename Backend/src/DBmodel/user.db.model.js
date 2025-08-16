@@ -53,34 +53,41 @@ const userSchema = new mongoose.Schema({
         min: 0 // Cannot go below 0
     },
     coinTransactions: [{
-        amount: { type: Number, required: true, min: 1 }, // lowercase for consistency
+        amount: { type: Number, required: true, min: 1 },
         freeSCoin: { type: Number, default: 0 },
         payAmount: { type: Number, default: 0 },
+
         type: {
             type: String,
             enum: ["credit", "spend", "reward", "refund"],
             required: true
         },
+
         coinType: {
             type: String,
             enum: ["SCoin", "GCoin"],
             required: true
         },
+
         description: { type: String, trim: true },
-        paymentId: {
-            type: String,
-            trim: true,
-            required: true,   // Ensures every coin transaction has a payment ID
-            unique: true      // Optional: prevents duplicate Stripe PaymentIntent IDs
-        },
-        transactionId: {
-            type: String,
-            required: true,     // ensures every transaction has an ID
-            unique: true,       // prevents duplicate transaction IDs
-            trim: true
-        },
+
+        // Stripe identifiers
+        paymentId: { type: String, required: true, trim: true },   // Stripe PaymentIntent ID
+        chargeId: { type: String, trim: true },                    // Stripe Charge ID
+
+        // For UPI transactions
+        utr: { type: String, trim: true, default: null },          // UPI UTR number
+        vpa: { type: String, trim: true, default: null },          // UPI ID of payer
+
+        // For card payments
+        cardLast4: { type: String, trim: true, default: null },    // Last 4 digits of card used
+
+        // Your internal reference
+        transactionId: { type: String, required: true, trim: true },
+
         date: { type: Date, default: Date.now }
     }]
+
 },
     {
         // Automatically manage createdAt and updatedAt timestamps
