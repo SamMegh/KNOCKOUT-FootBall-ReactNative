@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getItem } from './asyncstorage';
 
 const Instance = axios.create({
-  baseURL: 'http://10.94.82.118:8080/',
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   withCredentials: true,
 });
 Instance.interceptors.request.use(async (config) => {

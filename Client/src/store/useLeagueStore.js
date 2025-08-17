@@ -7,7 +7,9 @@ export const useLeagueStore = create((set, get) => ({
   leagueTeams: [],
   matchOfTheDay: [],
   myownleagues: [],
-
+  transactions:[],
+  istransactionsloading:false,
+  
 
   joinleague: async (leagueId) => {
     try {
@@ -115,4 +117,15 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
+  gettransaction: async()=>{
+    try {
+      set({istransactionsloading:true});
+      const res = await Instance.get("/play/transaction");
+      set({transactions:res.data});
+    } catch (error) {
+      console.log(error);
+    }finally{
+      set({istransactionsloading:false});
+    }
+  }
 }));

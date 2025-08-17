@@ -1,3 +1,5 @@
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,10 +8,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import GcoinData from "../../assets/GcoinData.json";
+import ScoinData from "../../assets/ScoinData.json";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 
 export default function Profile() {
-  const { isAuthUser, logout } = useAuthStore();
+  const { isAuthUser, logout, coinUpdates } = useAuthStore();
+  const router = useRouter();
 
   if (!isAuthUser) {
     return (
@@ -19,31 +24,86 @@ export default function Profile() {
     );
   }
 
+  function CoinBox({ label, value }) {
+    return (
+      <View style={styles.coinBox}>
+        <Text style={styles.coinLabel}>{label}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+          <Text style={styles.input}>{value}</Text>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: "/coinBuy",
+                params: {
+                  coinData:
+                    label === "🪙 GCoin"
+                      ? JSON.stringify(GcoinData)
+                      : JSON.stringify(ScoinData),
+                },
+              })
+            }
+          >
+            <Text>➕</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  function FormRow({ label, value, valid = false }) {
+    return (
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>{label}</Text>
+        <View style={styles.inputRow}>
+          <Text style={styles.input}>{value}</Text>
+          {valid && <Text style={styles.validIcon}>✅</Text>}
+        </View>
+      </View>
+    );
+  }
+useEffect(()=>{
+  coinUpdates();
+},[coinUpdates])
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header with Profile Emoji */}
-      <View style={styles.topHadder}>
+      <View style={styles.topHeader}>
         <Text style={styles.profileEmoji}>👨‍💻</Text>
       </View>
 
-      {/* Form */}
       <ScrollView contentContainerStyle={styles.formContainer}>
-        <FormRow label="🧑 First name" value={`${isAuthUser.firstName}`} />
-        <FormRow label="👤 Last name" value={`${isAuthUser.lastName}`} />
-        <FormRow label="🔐 Username" value={`${isAuthUser.userName}`} valid />
         <FormRow
           label="📛 Display name"
           value={isAuthUser.name ? `${isAuthUser.name}` : " "}
         />
+
+        <View style={styles.coinRow}>
+          <CoinBox label="⚪ SCoin" value={isAuthUser.SCoin} />
+          <CoinBox label="🪙 GCoin" value={isAuthUser.GCoin} />
+        </View>
+
+        <FormRow label="📧 Email" value={isAuthUser.email} />
         <FormRow
           label="📱 Mobile number"
           value={isAuthUser.mobile ? `${isAuthUser.mobile}` : "None"}
         />
-        <FormRow label="📧 Email" value={isAuthUser.email} />
-        <FormRow
-          label="🎂 Date of Birth"
-          value={isAuthUser.dob ? `${isAuthUser.dob}` : "None"}
-        />
+
+        <TouchableOpacity
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignContent:"center",
+            color: "#000",
+            marginTop: 6,
+            marginBottom: 6,
+            backgroundColor: "#fff",
+            borderRadius: 8,
+          }}
+          onPress={()=>router.push("/transection")}
+        >
+          <Text style={styles.transection}>Transection</Text>
+          <Text style={styles.transectionArrow}> →</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={logout} style={styles.logoutBtn}>
           <Text style={styles.logoutText}>🚪 Logout</Text>
@@ -53,26 +113,16 @@ export default function Profile() {
   );
 }
 
-function FormRow({ label, value, valid = false }) {
-  return (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.inputRow}>
-        <Text style={styles.input}>{value}</Text>
-        {valid && <Text style={styles.validIcon}>✅</Text>}
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#000",
     flex: 1,
-    backgroundColor: "#fff",
+    borderTopEndRadius: 40,
+    borderTopStartRadius: 40,
   },
   center: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -80,21 +130,20 @@ const styles = StyleSheet.create({
     color: "#f8fafc",
     fontSize: 18,
   },
-  topHadder: {
+  topHeader: {
     alignItems: "center",
     paddingVertical: 15,
-    alignContent: "center",
   },
- profileEmoji: {
-  fontSize: 50,
-  backgroundColor: "#000",
-  color: "#fff",
-  width: 80,
-  height: 80,
-  borderRadius: 40,  // half of width/height
-  textAlign: "center",
-  textAlignVertical: "center", // ✅ for Android (centers emoji)
-},
+  profileEmoji: {
+    fontSize: 50,
+    backgroundColor: "#000",
+    color: "#fff",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
   formContainer: {
     padding: 20,
     paddingBottom: 60,
@@ -103,12 +152,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: "#64748b",
+    color: "#fff",
     marginBottom: 6,
     fontSize: 14,
   },
+  coinLabel: {
+    fontSize: 14,
+    color: "#000",
+    marginBottom: 4,
+    textAlign: "center",
+  },
   inputRow: {
-    backgroundColor: "#f1f5f9",
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     flexDirection: "row",
@@ -117,22 +172,47 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 16,
-    color: "#0f172a",
+    color: "#000",
   },
   validIcon: {
     fontSize: 18,
     color: "green",
   },
+  coinRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  coinBox: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   logoutBtn: {
-    backgroundColor: "#ef4444",
+    backgroundColor: "red",
     paddingVertical: 14,
     borderRadius: 8,
     marginTop: 24,
   },
+  transectionArrow: {
+    marginTop:-8,
+    marginRight:8,
+    fontSize: 30,
+    fontWeight:800
+  },
+  transection: {
+    padding:6,
+    fontSize: 20
+  },
   logoutText: {
-    color: "#fff",
+    color: "black",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "800",
     textAlign: "center",
   },
 });

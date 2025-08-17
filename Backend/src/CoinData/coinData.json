@@ -1,0 +1,24 @@
+[
+  { "id": "GCOIN_BASIC_025_A1", "coin": "Gcoin", "usd": 4.99, "amount": 25, "freeamount": 25 },
+  { "id": "GCOIN_BASIC_040_B2", "coin": "Gcoin", "usd": 6.99, "amount": 40, "freeamount": 40 },
+  { "id": "GCOIN_PLUS_055_C3", "coin": "Gcoin", "usd": 8.99, "amount": 55, "freeamount": 55 },
+  { "id": "GCOIN_PLUS_070_D4", "coin": "Gcoin", "usd": 10.99, "amount": 70, "freeamount": 70 },
+  { "id": "GCOIN_PLUS_085_E5", "coin": "Gcoin", "usd": 12.99, "amount": 85, "freeamount": 85 },
+  { "id": "GCOIN_ELITE_100_F6", "coin": "Gcoin", "usd": 14.99, "amount": 100, "freeamount": 100 },
+  { "id": "GCOIN_ELITE_115_G7", "coin": "Gcoin", "usd": 16.99, "amount": 115, "freeamount": 115 },
+  { "id": "GCOIN_ELITE_130_H8", "coin": "Gcoin", "usd": 18.99, "amount": 130, "freeamount": 130 },
+  { "id": "GCOIN_ULTRA_145_I9", "coin": "Gcoin", "usd": 20.99, "amount": 145, "freeamount": 145 },
+  { "id": "GCOIN_ULTRA_160_J0", "coin": "Gcoin", "usd": 22.99, "amount": 160, "freeamount": 160 },
+
+  
+  { "id": "SCOIN_BASIC_025_A1", "coin": "Scoin", "usd": 1.99, "amount": 25 },
+  { "id": "SCOIN_BASIC_040_B2", "coin": "Scoin", "usd": 2.99, "amount": 40 },
+  { "id": "SCOIN_PLUS_055_C3", "coin": "Scoin", "usd": 3.99, "amount": 55 },
+  { "id": "SCOIN_PLUS_070_D4", "coin": "Scoin", "usd": 4.99, "amount": 70 },
+  { "id": "SCOIN_PLUS_085_E5", "coin": "Scoin", "usd": 5.99, "amount": 85 },
+  { "id": "SCOIN_ELITE_100_F6", "coin": "Scoin", "usd": 6.99, "amount": 100 },
+  { "id": "SCOIN_ELITE_115_G7", "coin": "Scoin", "usd": 7.99, "amount": 115 },
+  { "id": "SCOIN_ELITE_130_H8", "coin": "Scoin", "usd": 8.99, "amount": 130 },
+  { "id": "SCOIN_ULTRA_145_I9", "coin": "Scoin", "usd": 9.39, "amount": 145 },
+  { "id": "SCOIN_ULTRA_160_J0", "coin": "Scoin", "usd": 10.2, "amount": 160 }
+]

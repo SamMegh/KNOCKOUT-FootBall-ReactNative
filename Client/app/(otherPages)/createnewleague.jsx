@@ -1,6 +1,6 @@
-import { Picker } from '@react-native-picker/picker';
-import { Redirect, useRouter } from 'expo-router';
-import { Formik } from 'formik';
+import { Picker } from "@react-native-picker/picker";
+import { Redirect, useRouter } from "expo-router";
+import { Formik } from "formik";
 import {
   Alert,
   Platform,
@@ -9,77 +9,121 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { useAuthStore } from '../../src/store/useAuthStore';
-import { useLeagueStore } from '../../src/store/useLeagueStore';
-import CustomHeader from '../../src/components/customHeader';
+} from "react-native";
+import * as Yup from "yup";
 
-function createnewleague() {
+import CustomHeader from "../../src/components/customHeader";
+import WeekSelector from "../../src/components/weekComponent";
+import { useAuthStore } from "../../src/store/useAuthStore";
+import { useLeagueStore } from "../../src/store/useLeagueStore";
+
+// ✅ Updated validation schema
+const leagueValidator = Yup.object().shape({
+  name: Yup.string().required("League name is required"),
+  type: Yup.string().required("League type is required"),
+  totalWeeks: Yup.number()
+    .required("Total weeks required")
+    .min(1, "At least 1 week required"),
+  maxTimeTeamSelect: Yup.number()
+    .required("Max time required")
+    .min(1, "Must be at least 1"),
+  lifelinePerUser: Yup.number()
+    .required("Lifeline required")
+    .min(1, "Must be at least 1"),
+  joinfee: Yup.object().shape({
+    amount: Yup.number()
+      .required("Joining Fee is required")
+      .min(20, "Joining Fee must be at least 20"),
+    type: Yup.string().required(),
+  }),
+});
+
+function CreateNewLeague() {
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
   const { createmyownleague } = useLeagueStore();
 
- const handleSubmit = (values) => {
-  if (Platform.OS === 'web') {
-    // Web alert (confirm + success)
-    const confirm = window.confirm(
-      `Are you sure you want to create the league "${values.name}"?`
-    );
+  const handleSubmit = async (values) => {
+    const payload = {
+      ...values,
+      joinfee: {
+        ...values.joinfee,
+        amount: Number(values.joinfee.amount), // ensure number
+      },
+    };
 
-    if (confirm) {
-      createmyownleague(values)
-        .then(() => {
-          window.alert('League created successfully!');
-          router.replace('/');
-        })
-        .catch(() => {
-          window.alert('Failed to create league. Please try again.');
-        });
-    }
-  } else {
-    // Mobile alert (React Native Alert)
-    Alert.alert(
-      'Create League',
-      `Are you sure you want to create the league "${values.name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Create',
-          onPress: async () => {
-            try {
-              await createmyownleague(values);
-              Alert.alert('Success', 'League created successfully!', [
-                { text: 'OK', onPress: () => router.replace('/') },
-              ]);
-            } catch (error) {
-              Alert.alert('Error', 'Failed to create league. Please try again.');
-            }
+    if (Platform.OS === "web") {
+      const confirm = window.confirm(
+        `Are you sure you want to create the league "${values.name}"?`
+      );
+      if (!confirm) return;
+
+      try {
+        await createmyownleague(payload);
+        window.alert("League created successfully!");
+        router.replace("/");
+      } catch (err) {
+        window.alert("Failed to create league. Please try again.");
+      }
+    } else {
+      Alert.alert(
+        "Create League",
+        `Are you sure you want to create the league "${values.name}"?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Create",
+            onPress: async () => {
+              try {
+                await createmyownleague(payload);
+                Alert.alert("Success", "League created successfully!", [
+                  { text: "OK", onPress: () => router.replace("/") },
+                ]);
+              } catch (err) {
+                Alert.alert(
+                  "Error",
+                  "Failed to create league. Please try again."
+                );
+              }
+            },
           },
-        },
-      ]
-    );
-  }
-};
+        ]
+      );
+    }
+  };
+
   if (!isAuthUser) return <Redirect href="/" />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-        <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-  
-
-      {/* Scrollable Form */}
-      <ScrollView contentContainerStyle={{ padding: 20, backgroundColor: '#000', borderTopEndRadius: 40, borderTopStartRadius: 40 }}>
+    <View style={{ flex: 1, backgroundColor: "#fff" }}>
+      <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+         {/* Back Button */}
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                   <Text style={styles.backButtonText}>⋞⋞</Text>
+                 </TouchableOpacity>
+      <ScrollView
+        contentContainerStyle={{
+          marginTop: 10,
+          padding: 20,
+          backgroundColor: "#000",
+          borderTopEndRadius: 40,
+          borderTopStartRadius: 40,
+        }}
+      >
         <Formik
           initialValues={{
-            name: '',
-            joinfee: '',
-            end: '',
-            start: '',
-            maxTimeTeamSelect: '',
-            lifelinePerUser: '',
-            type: 'private',
+            name: "",
+            joinfee: { amount: 59, type: "SCoin" },
+            end: "",
+            start: "",
+            totalWeeks: "",
+            maxTimeTeamSelect: "1",
+            lifelinePerUser: "1",
+            type: "private",
           }}
+          validationSchema={leagueValidator}
           onSubmit={handleSubmit}
+          validateOnMount={true}
         >
           {({
             handleChange,
@@ -88,6 +132,7 @@ function createnewleague() {
             values,
             errors,
             touched,
+            setFieldValue,
           }) => (
             <View style={{ gap: 20 }}>
               {/* League Name */}
@@ -95,12 +140,15 @@ function createnewleague() {
                 <Text style={styles.label}>🏷️ League Name</Text>
                 <TextInput
                   style={styles.input}
-                  onChangeText={handleChange('name')}
-                  onBlur={handleBlur('name')}
+                  onChangeText={handleChange("name")}
+                  onBlur={handleBlur("name")}
                   value={values.name}
                   placeholder="Enter the league name"
                   placeholderTextColor="#999"
                 />
+                {touched.name && errors.name && (
+                  <Text style={styles.errorText}>{errors.name}</Text>
+                )}
               </View>
 
               {/* League Type */}
@@ -109,7 +157,7 @@ function createnewleague() {
                 <View style={styles.pickerContainer}>
                   <Picker
                     selectedValue={values.type}
-                    onValueChange={handleChange('type')}
+                    onValueChange={handleChange("type")}
                     style={styles.picker}
                   >
                     <Picker.Item label="Private" value="private" />
@@ -117,55 +165,38 @@ function createnewleague() {
                   </Picker>
                 </View>
 
-                {values.type === 'public' && (
+                {values.type === "public" && (
                   <View
                     style={{
-                      backgroundColor: '#dcfce7',
+                      backgroundColor: "#dcfce7",
                       padding: 10,
                       borderRadius: 8,
                       marginTop: 6,
                     }}
                   >
-                    <Text style={{ color: '#15803d', fontSize: 14 }}>
-                      ✅ This league is public. Anyone can join without admin approval.
+                    <Text style={{ color: "#15803d", fontSize: 14 }}>
+                      ✅ This league is public. Anyone can join without admin
+                      approval.
                     </Text>
                   </View>
                 )}
               </View>
 
-              {/* Start Date */}
-              <View>
-                <Text style={styles.label}>📅 Start Date</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={handleChange('start')}
-                  onBlur={handleBlur('start')}
-                  value={values.start}
-                  placeholder="Start date (YYYY-MM-DD)"
-                  placeholderTextColor="#999"
-                />
-              </View>
-
-              {/* End Date */}
-              <View>
-                <Text style={styles.label}>📅 End Date</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={handleChange('end')}
-                  onBlur={handleBlur('end')}
-                  value={values.end}
-                  placeholder="End date (YYYY-MM-DD)"
-                  placeholderTextColor="#999"
-                />
-              </View>
+              {/* Date Selection */}
+              <WeekSelector values={values} handleChange={handleChange} />
+              {touched.totalWeeks && errors.totalWeeks && (
+                <Text style={styles.errorText}>{errors.totalWeeks}</Text>
+              )}
 
               {/* Max Time Team Select */}
               <View>
-                <Text style={styles.label}>⏱️ Max Time Team Can Be Selected</Text>
+                <Text style={styles.label}>
+                  ⏱️ Max Time Team Can Be Selected
+                </Text>
                 <TextInput
                   style={styles.input}
-                  onChangeText={handleChange('maxTimeTeamSelect')}
-                  onBlur={handleBlur('maxTimeTeamSelect')}
+                  onChangeText={handleChange("maxTimeTeamSelect")}
+                  onBlur={handleBlur("maxTimeTeamSelect")}
                   value={values.maxTimeTeamSelect}
                   placeholder="e.g. 1"
                   placeholderTextColor="#999"
@@ -178,8 +209,8 @@ function createnewleague() {
                 <Text style={styles.label}>🛡️ Lifeline Per User</Text>
                 <TextInput
                   style={styles.input}
-                  onChangeText={handleChange('lifelinePerUser')}
-                  onBlur={handleBlur('lifelinePerUser')}
+                  onChangeText={handleChange("lifelinePerUser")}
+                  onBlur={handleBlur("lifelinePerUser")}
                   value={values.lifelinePerUser}
                   placeholder="e.g. 3"
                   placeholderTextColor="#999"
@@ -187,22 +218,65 @@ function createnewleague() {
                 />
               </View>
 
-              {/* Join Fee */}
-              <View>
-                <Text style={styles.label}>💸 Joining Fee</Text>
-                <TextInput
-                  style={styles.input}
-                  onChangeText={handleChange('joinfee')}
-                  onBlur={handleBlur('joinfee')}
-                  value={values.joinfee}
-                  placeholder="e.g. 399"
-                  placeholderTextColor="#999"
-                  keyboardType="numeric"
-                />
+              {/* Coin Type + Join Fee in the same row */}
+              <View
+                style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
+              >
+                {/* Coin Type Picker */}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>💰 Coin Type</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={values.joinfee.type}
+                      onValueChange={(val) =>
+                        setFieldValue("joinfee.type", val)
+                      }
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="SCoin" value="SCoin" />
+                      <Picker.Item label="GCoin" value="GCoin" />
+                    </Picker>
+                  </View>
+                </View>
+
+                {/* Join Fee Amount */}
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.label}>💸 Join Fee</Text>
+                  <TextInput
+                    style={styles.input}
+                    onChangeText={(text) =>
+                      setFieldValue(
+                        "joinfee.amount",
+                        text.replace(/[^0-9]/g, "")
+                      )
+                    }
+                    onBlur={handleBlur("joinfee.amount")}
+                    value={String(values.joinfee.amount)}
+                    placeholder="e.g. 59"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                  />
+                  {touched.joinfee?.amount && errors.joinfee?.amount && (
+                    <Text style={styles.errorText}>
+                      {errors.joinfee.amount}
+                    </Text>
+                  )}
+                </View>
               </View>
 
               {/* Submit Button */}
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              <TouchableOpacity
+                onPress={handleSubmit}
+                disabled={
+                  !values.name ||
+                  !values.joinfee.amount ||
+                  !values.joinfee.type ||
+                  !values.totalWeeks ||
+                  !values.maxTimeTeamSelect ||
+                  !values.lifelinePerUser
+                }
+                style={[styles.button, (!values.name || !values.joinfee.amount) && { opacity: 0.5 }]}
+              >
                 <Text style={styles.buttonText}>🚀 Create League</Text>
               </TouchableOpacity>
             </View>
@@ -214,44 +288,40 @@ function createnewleague() {
 }
 
 const styles = {
-  label: {
-    fontSize: 16,
-    color: '#fff',
-    marginBottom: 6,
+     backButtonText: {
+      marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
   },
+  label: { fontSize: 16, color: "#fff", marginBottom: 6 },
   input: {
     height: 48,
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: "#d1d5db",
     borderRadius: 10,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     fontSize: 16,
-    color: '#111827',
+    color: "#111827",
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: "#d1d5db",
     borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+    overflow: "hidden",
+    backgroundColor: "#fff",
   },
-  picker: {
-    height: 50,
-    color: '#111827',
-  },
+  picker: { height: 50, color: "#111827" },
+  errorText: { color: "#f87171", fontSize: 14, marginBottom: 8 },
   button: {
-    backgroundColor: '#2563eb',
+    backgroundColor: "#2563eb",
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
 };
 
-export default createnewleague;
+export default CreateNewLeague;

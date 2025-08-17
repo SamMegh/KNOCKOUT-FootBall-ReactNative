@@ -35,7 +35,9 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+ios
+android
 node_modules
 .env
-data.json
 LICENSE

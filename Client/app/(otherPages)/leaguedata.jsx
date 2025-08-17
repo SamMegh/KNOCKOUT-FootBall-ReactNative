@@ -1,9 +1,10 @@
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView,StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import { useLeagueStore } from "../../src/store/useLeagueStore.js";
+import CustomHeader from "../../src/components/customHeader.jsx";
 
 function LeagueData() {
   const { leagueid } = useLocalSearchParams();
@@ -30,10 +31,15 @@ const sortedLeagueData = mergedLeagueData.sort((a, b) =>
 );
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="p-4">
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text className="text-base text-blue-600 mb-4">← Go Back</Text>
-        </TouchableOpacity>
+             <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+   {/* Back Button */}
+           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+             <Text style={styles.backButtonText}>⋞⋞</Text>
+           </TouchableOpacity>
+
+
+      <ScrollView className="px-8  py-10 bg-black rounded-t-[40px]">
+     
 
         {sortedLeagueData
           .sort((a, b) =>
@@ -80,3 +86,15 @@ const sortedLeagueData = mergedLeagueData.sort((a, b) =>
 }
 
 export default LeagueData;
+
+
+
+const styles = StyleSheet.create({
+     backButtonText: {
+      marginLeft: 20,
+      marginBottom: 10,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
+})
