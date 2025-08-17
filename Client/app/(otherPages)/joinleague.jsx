@@ -77,7 +77,7 @@ const JoinLeague = () => {
       </TouchableOpacity>
       <View style={styles.containermain}>
 
-        <Text style={styles.main}>🏆Join if you want to Win.</Text>
+        <Text style={styles.headerTitle}>🏆Join if you want to Win.</Text>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {leagues.map((league) => (
