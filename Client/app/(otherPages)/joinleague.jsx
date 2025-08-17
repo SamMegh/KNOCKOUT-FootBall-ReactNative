@@ -59,8 +59,12 @@ const JoinLeague = () => {
 
   if (leagues.length === 0) {
     return (
-      <View style={styles.centered}>
-        <Text style={styles.noLeagueText}>No leagues available.</Text>
+      <View style={styles.container}>
+        <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Text style={styles.backButtonText}>⋞⋞</Text>
+        </TouchableOpacity>
+        <Text style={styles.centered}>No leagues available.</Text>
       </View>
     );
   }
@@ -68,10 +72,12 @@ const JoinLeague = () => {
   return (
     <View style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
+      </TouchableOpacity>
       <View style={styles.containermain}>
 
-        <Text style={styles.headerTitle}>🏆Join if you want to Win.</Text>
+        <Text style={styles.main}>🏆Join if you want to Win.</Text>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {leagues.map((league) => (
@@ -110,6 +116,12 @@ const JoinLeague = () => {
 export default JoinLeague;
 
 const styles = StyleSheet.create({
+  backButtonText: {
+    marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -119,6 +131,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     borderTopEndRadius: 40,
     borderTopStartRadius: 40,
+    marginTop: 10,
   },
   headerTitle: {
     fontSize: 26,
@@ -154,9 +167,8 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    margin: "auto",
+    height: "100vh",
   },
   loadingText: {
     marginTop: 12,

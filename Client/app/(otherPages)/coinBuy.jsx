@@ -61,9 +61,9 @@ const goToCoinBuy = (data) => {
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
       {/* Back Button */}
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backButtonText}>← Go Back</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+             <Text style={styles.backButtonText}>⋞⋞</Text>
+           </TouchableOpacity>
 
       {/* Coins Grid */}
       <FlatList
@@ -147,8 +147,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginBottom: 10,
   },
-  backButtonText: {
-    fontSize: 16,
+   backButtonText: {
+      marginLeft: 20,
+    fontSize: 20,
     fontWeight: "600",
     color: "#000",
   },

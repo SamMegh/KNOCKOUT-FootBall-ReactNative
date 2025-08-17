@@ -1,9 +1,10 @@
 import { useStripe } from "@stripe/stripe-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import Instance from "../../src/utils/axios.configuration";
+import CustomHeader from "../../src/components/customHeader";
 
 export default function CheckoutScreen() {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -51,7 +52,7 @@ export default function CheckoutScreen() {
       if (error) {
         console.error("initPaymentSheet error:", error);
         Alert.alert("Error", error.message);
-      check();
+        check();
         router.back();
       } else {
         setLoading(true);
@@ -95,56 +96,77 @@ export default function CheckoutScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Coin Details Card */}
-      <View style={styles.card}>
-        <Text style={styles.title}>{coinJsonData.coin} Coins</Text>
+    <SafeAreaView style={styles.containermain}>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>ID:</Text>
-          <Text style={styles.value}>{coinJsonData.id}</Text>
-        </View>
+      <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Amount:</Text>
-          <Text style={styles.value}>{coinJsonData.amount}</Text>
-        
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>Coin :</Text>
-          <Text style={styles.value}>{coinJsonData.coin}</Text>
-        </View>
-        {coinJsonData.freeamount && (
-          <View style={styles.detailRow}>
-            <Text style={styles.label}>Free Amount:</Text>
-            <Text style={styles.value}>{coinJsonData.freeamount}</Text>
-          </View>
-        )}
-
-        <View style={styles.detailRow}>
-          <Text style={styles.label}>USD Price:</Text>
-          <Text style={styles.value}>${coinJsonData.usd}</Text>
-        </View>
-      </View>
-
-      {/* Checkout Button */}
-      <TouchableOpacity
-        style={[styles.button, !loading && { opacity: 0.6 }]}
-        onPress={handleCheckout}
-        disabled={!loading}
-      >
-        <Text style={styles.buttonText}>Proceed to Pay</Text>
+      {/* Back Button */}
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
-    </View>
+      <View style={styles.container}>
+
+        {/* Coin Details Card */}
+        <View style={styles.card}>
+          <Text style={styles.title}>{coinJsonData.coin} Coins</Text>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>ID:</Text>
+            <Text style={styles.value}>{coinJsonData.id}</Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Amount:</Text>
+            <Text style={styles.value}>{coinJsonData.amount}</Text>
+
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>Coin :</Text>
+            <Text style={styles.value}>{coinJsonData.coin}</Text>
+          </View>
+          {coinJsonData.freeamount && (
+            <View style={styles.detailRow}>
+              <Text style={styles.label}>Free Amount:</Text>
+              <Text style={styles.value}>{coinJsonData.freeamount}</Text>
+            </View>
+          )}
+
+          <View style={styles.detailRow}>
+            <Text style={styles.label}>USD Price:</Text>
+            <Text style={styles.value}>${coinJsonData.usd}</Text>
+          </View>
+        </View>
+
+        {/* Checkout Button */}
+        <TouchableOpacity
+          style={[styles.button, !loading && { opacity: 0.6 }]}
+          onPress={handleCheckout}
+          disabled={!loading}
+        >
+          <Text style={styles.buttonText}>Proceed to Pay</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  backButtonText: {
+    marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
+  containermain: {
     flex: 1,
-    backgroundColor: "#121212",
-    padding: 20,
-    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
+
+    elevation: 2,
   },
   card: {
     width: "100%",

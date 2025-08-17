@@ -69,7 +69,10 @@ export default function JoinTeam() {
   return (
     <SafeAreaView style={styles.container}>
              <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-     
+          {/* Back Button */}
+           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+             <Text style={styles.backButtonText}>⋞⋞</Text>
+           </TouchableOpacity>
 
       <View style={styles.containermain}>
         <Text className="color-white text-lg  text-center font-bold mb-2">User: {myteam.userName}</Text>
@@ -205,11 +208,18 @@ export default function JoinTeam() {
 }
 
 const styles = StyleSheet.create({
+     backButtonText: {
+      marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
    container: {
     flex: 1,
     backgroundColor: '#fff',
   },
    containermain: {
+    marginTop: 10,
     backgroundColor: '#000',
     flex: 1,
     paddingHorizontal: 16,

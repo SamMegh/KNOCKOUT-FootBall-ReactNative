@@ -6,6 +6,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   Text,
   View
 } from "react-native";
@@ -83,6 +84,9 @@ function CreateLeague() {
     <SafeAreaView style={styles.container}>
       {/* Sticky Header */}
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
+      </TouchableOpacity>
 
       <View style={styles.header}>
         <Text style={styles.heading}>Welcome, Create and manage your leagues!</Text>
@@ -107,11 +111,18 @@ function CreateLeague() {
 export default CreateLeague;
 
 const styles = StyleSheet.create({
+    backButtonText: {
+      marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
   },
   header: {
+    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 40,
     paddingBottom: 20,

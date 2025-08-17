@@ -97,8 +97,13 @@ function CreateNewLeague() {
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+         {/* Back Button */}
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                   <Text style={styles.backButtonText}>⋞⋞</Text>
+                 </TouchableOpacity>
       <ScrollView
         contentContainerStyle={{
+          marginTop: 10,
           padding: 20,
           backgroundColor: "#000",
           borderTopEndRadius: 40,
@@ -283,6 +288,12 @@ function CreateNewLeague() {
 }
 
 const styles = {
+     backButtonText: {
+      marginLeft: 20,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#000",
+  },
   label: { fontSize: 16, color: "#fff", marginBottom: 6 },
   input: {
     height: 48,
