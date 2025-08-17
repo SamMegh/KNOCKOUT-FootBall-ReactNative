@@ -11,8 +11,15 @@ import {
 } from "react-native";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
+import { useState } from "react";
+import SearchModal from "../../src/components/searchIconWithBox.jsx";
+
 function MyLeague() {
   const { myleagues, getmyleagues } = useLeagueStore();
+
+  // search icon thinks
+  const [searchVisible, setSearchVisible] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -48,15 +55,23 @@ function MyLeague() {
           })
         }
       >
-        <Animated.View style={[styles.card, { transform: [{ scale: scaleValue }] }]}>
+        <Animated.View
+          style={[styles.card, { transform: [{ scale: scaleValue }] }]}
+        >
           <View style={styles.headerRow}>
             <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
             <Text style={styles.title}>{item.name}</Text>
           </View>
 
-          <Text style={styles.fee}>🏷️ Join Fee: {item.joinfee.type} {item.joinfee.amount}</Text>
-          <Text style={styles.date}>🕒 Start: {new Date(item.start).toDateString()}</Text>
-          <Text style={styles.date}>⏳ End: {new Date(item.end).toDateString()}</Text>
+          <Text style={styles.fee}>
+            🏷️ Join Fee: {item.joinfee.type} {item.joinfee.amount}
+          </Text>
+          <Text style={styles.date}>
+            🕒 Start: {new Date(item.start).toDateString()}
+          </Text>
+          <Text style={styles.date}>
+            ⏳ End: {new Date(item.end).toDateString()}
+          </Text>
         </Animated.View>
       </Pressable>
     );
@@ -79,6 +94,14 @@ function MyLeague() {
         >
           <Text style={styles.buttonText}>Create League</Text>
         </Pressable>
+
+        {/* search icon */}
+        <Pressable
+          style={[styles.button, styles.searchButton]}
+          onPress={() => setSearchVisible(true)}
+        >
+          <MaterialIcons name="search" size={22} color="#fff" />
+        </Pressable>
       </View>
 
       {/* League List */}
@@ -87,7 +110,17 @@ function MyLeague() {
         keyExtractor={(item) => item._id}
         renderItem={renderLeague}
         contentContainerStyle={{ paddingBottom: 16 }}
-      />
+      />    
+
+
+    {/* search box here  */}
+    <SearchModal
+  visible={searchVisible}
+  onClose={() => setSearchVisible(false)}
+  data={myleagues}
+  renderItem={renderLeague}
+  searchKey="name"  // 👈 searching by league name
+/>
     </View>
   );
 }
@@ -95,8 +128,8 @@ function MyLeague() {
 export default MyLeague;
 
 const styles = StyleSheet.create({
-   container: {
-    backgroundColor: '#000',
+  container: {
+    backgroundColor: "#000",
     flex: 1,
     paddingHorizontal: 1,
     paddingTop: 1,
@@ -109,7 +142,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
-    marginBottom:8,
+    marginBottom: 8,
     gap: 12,
   },
   button: {
@@ -165,4 +198,13 @@ const styles = StyleSheet.create({
     color: "#9CA3AF",
     marginBottom: 2,
   },
+
+  
+  // search css 
+  searchButton: {
+  backgroundColor: "#F59E0B", // amber
+  flex: 0.2,
+  justifyContent: "center",
+},
+
 });
