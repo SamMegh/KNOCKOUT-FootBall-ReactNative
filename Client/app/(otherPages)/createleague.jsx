@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0f2fe",
     borderBottomColor: "#bae6fd",
     borderBottomWidth: 1,
+    
     borderRadius: 12,
     elevation: 2,
   },
