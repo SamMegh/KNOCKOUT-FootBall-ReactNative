@@ -44,7 +44,7 @@ function MyLeague() {
         onPress={() =>
           router.push({
             pathname: "/leaguedata",
-            params: { leagueid: item._id },
+            params: { league: JSON.stringify(item) },
           })
         }
       >

@@ -16,27 +16,7 @@ import CustomHeader from "../../src/components/customHeader";
 import WeekSelector from "../../src/components/weekComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-
-// ✅ Updated validation schema
-const leagueValidator = Yup.object().shape({
-  name: Yup.string().required("League name is required"),
-  type: Yup.string().required("League type is required"),
-  totalWeeks: Yup.number()
-    .required("Total weeks required")
-    .min(1, "At least 1 week required"),
-  maxTimeTeamSelect: Yup.number()
-    .required("Max time required")
-    .min(1, "Must be at least 1"),
-  lifelinePerUser: Yup.number()
-    .required("Lifeline required")
-    .min(1, "Must be at least 1"),
-  joinfee: Yup.object().shape({
-    amount: Yup.number()
-      .required("Joining Fee is required")
-      .min(20, "Joining Fee must be at least 20"),
-    type: Yup.string().required(),
-  }),
-});
+import leagueValidator from "../../src/utils/leagueValidator";
 
 function CreateNewLeague() {
   const router = useRouter();
@@ -97,10 +77,12 @@ function CreateNewLeague() {
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-         {/* Back Button */}
-              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-                   <Text style={styles.backButtonText}>⋞⋞</Text>
-                 </TouchableOpacity>
+
+      {/* Back Button */}
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
+      </TouchableOpacity>
+
       <ScrollView
         contentContainerStyle={{
           marginTop: 10,
@@ -133,6 +115,7 @@ function CreateNewLeague() {
             errors,
             touched,
             setFieldValue,
+            isValid,
           }) => (
             <View style={{ gap: 20 }}>
               {/* League Name */}
@@ -157,28 +140,15 @@ function CreateNewLeague() {
                 <View style={styles.pickerContainer}>
                   <Picker
                     selectedValue={values.type}
-                    onValueChange={handleChange("type")}
+                    onValueChange={(val) => setFieldValue("type", val)}
                     style={styles.picker}
                   >
                     <Picker.Item label="Private" value="private" />
                     <Picker.Item label="Public" value="public" />
                   </Picker>
                 </View>
-
-                {values.type === "public" && (
-                  <View
-                    style={{
-                      backgroundColor: "#dcfce7",
-                      padding: 10,
-                      borderRadius: 8,
-                      marginTop: 6,
-                    }}
-                  >
-                    <Text style={{ color: "#15803d", fontSize: 14 }}>
-                      ✅ This league is public. Anyone can join without admin
-                      approval.
-                    </Text>
-                  </View>
+                {touched.type && errors.type && (
+                  <Text style={styles.errorText}>{errors.type}</Text>
                 )}
               </View>
 
@@ -190,9 +160,7 @@ function CreateNewLeague() {
 
               {/* Max Time Team Select */}
               <View>
-                <Text style={styles.label}>
-                  ⏱️ Max Time Team Can Be Selected
-                </Text>
+                <Text style={styles.label}>⏱️ Max Time Team Can Be Selected</Text>
                 <TextInput
                   style={styles.input}
                   onChangeText={handleChange("maxTimeTeamSelect")}
@@ -202,6 +170,9 @@ function CreateNewLeague() {
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                 />
+                {touched.maxTimeTeamSelect && errors.maxTimeTeamSelect && (
+                  <Text style={styles.errorText}>{errors.maxTimeTeamSelect}</Text>
+                )}
               </View>
 
               {/* Lifeline Per User */}
@@ -216,39 +187,36 @@ function CreateNewLeague() {
                   placeholderTextColor="#999"
                   keyboardType="numeric"
                 />
+                {touched.lifelinePerUser && errors.lifelinePerUser && (
+                  <Text style={styles.errorText}>{errors.lifelinePerUser}</Text>
+                )}
               </View>
 
-              {/* Coin Type + Join Fee in the same row */}
-              <View
-                style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
-              >
-                {/* Coin Type Picker */}
+              {/* Coin Type + Join Fee */}
+              <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>💰 Coin Type</Text>
                   <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={values.joinfee.type}
-                      onValueChange={(val) =>
-                        setFieldValue("joinfee.type", val)
-                      }
+                      onValueChange={(val) => setFieldValue("joinfee.type", val)}
                       style={styles.picker}
                     >
                       <Picker.Item label="SCoin" value="SCoin" />
                       <Picker.Item label="GCoin" value="GCoin" />
                     </Picker>
                   </View>
+                  {touched.joinfee?.type && errors.joinfee?.type && (
+                    <Text style={styles.errorText}>{errors.joinfee.type}</Text>
+                  )}
                 </View>
 
-                {/* Join Fee Amount */}
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>💸 Join Fee</Text>
                   <TextInput
                     style={styles.input}
                     onChangeText={(text) =>
-                      setFieldValue(
-                        "joinfee.amount",
-                        text.replace(/[^0-9]/g, "")
-                      )
+                      setFieldValue("joinfee.amount", text.replace(/[^0-9]/g, ""))
                     }
                     onBlur={handleBlur("joinfee.amount")}
                     value={String(values.joinfee.amount)}
@@ -257,9 +225,7 @@ function CreateNewLeague() {
                     keyboardType="numeric"
                   />
                   {touched.joinfee?.amount && errors.joinfee?.amount && (
-                    <Text style={styles.errorText}>
-                      {errors.joinfee.amount}
-                    </Text>
+                    <Text style={styles.errorText}>{errors.joinfee.amount}</Text>
                   )}
                 </View>
               </View>
@@ -267,15 +233,8 @@ function CreateNewLeague() {
               {/* Submit Button */}
               <TouchableOpacity
                 onPress={handleSubmit}
-                disabled={
-                  !values.name ||
-                  !values.joinfee.amount ||
-                  !values.joinfee.type ||
-                  !values.totalWeeks ||
-                  !values.maxTimeTeamSelect ||
-                  !values.lifelinePerUser
-                }
-                style={[styles.button, (!values.name || !values.joinfee.amount) && { opacity: 0.5 }]}
+                disabled={!isValid}
+                style={[styles.button, !isValid && { opacity: 0.5 }]}
               >
                 <Text style={styles.buttonText}>🚀 Create League</Text>
               </TouchableOpacity>
@@ -288,8 +247,9 @@ function CreateNewLeague() {
 }
 
 const styles = {
-     backButtonText: {
-      marginLeft: 20,
+  backButton: { margin: 10 },
+  backButtonText: {
+    marginLeft: 20,
     fontSize: 20,
     fontWeight: "600",
     color: "#000",

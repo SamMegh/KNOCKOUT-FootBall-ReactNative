@@ -6,8 +6,8 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Text,
+  TouchableOpacity,
   View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -50,7 +50,7 @@ function CreateLeague() {
         onPress={() =>
           router.push({
             pathname: "/leaguedata",
-            params: { leagueid: league._id },
+            params: { league: JSON.stringify(league) },
           })
         }
       >

@@ -1,7 +1,7 @@
-import { Picker } from '@react-native-picker/picker';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Picker } from "@react-native-picker/picker";
+import moment from "moment";
+import { useEffect, useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const CalendarWeekSelector = ({ values, handleChange }) => {
   const [selectedMonth, setSelectedMonth] = useState(moment().month());
@@ -12,44 +12,69 @@ const CalendarWeekSelector = ({ values, handleChange }) => {
     generateCalendar(selectedMonth);
   }, [selectedMonth]);
 
-const generateCalendar = (monthIndex) => {
-  const year = moment().year();
-  const startOfMonth = moment([year, monthIndex]).startOf('month');
-  const endOfMonth = moment([year, monthIndex]).endOf('month');
+  const generateCalendar = (monthIndex) => {
+    const currentMonth = moment().month();
+    const currentYear = moment().year();
 
-  const calendar = [];
-  let current = startOfMonth.clone().startOf('week'); // includes previous month
-  const lastDay = endOfMonth.clone().endOf('week');   // includes next month
+    // If selected month is before current month, assume it's next year
+    const year = monthIndex < currentMonth ? currentYear + 1 : currentYear;
 
-  while (current.isSameOrBefore(lastDay)) {
-    const week = [];
-    for (let i = 0; i < 7; i++) {
-      week.push(current.clone());
-      current.add(1, 'day');
+    const startOfMonth = moment([year, monthIndex]).startOf("month");
+    const endOfMonth = moment([year, monthIndex]).endOf("month");
+
+    const calendar = [];
+    let current = startOfMonth.clone().startOf("week");
+    const lastDay = endOfMonth.clone().endOf("week");
+
+    while (current.isSameOrBefore(lastDay)) {
+      const week = [];
+      for (let i = 0; i < 7; i++) {
+        week.push(current.clone());
+        current.add(1, "day");
+      }
+      calendar.push(week);
     }
-    calendar.push(week);
-  }
 
-  setWeeks(calendar);
-};
+    setWeeks(calendar);
+  };
+  const isPastOrCurrentWeek = (week) => {
+    const today = moment().startOf("day");
+    const weekEnd = week[6].clone().startOf("day");
+    return weekEnd.isSameOrBefore(today);
+  };
+  const toggleWeekSelection = (weekIndex) => {
+    // now user can not select the previous weeks or current week
+    const today = moment().startOf("day");
+    const weekEnd = weeks[weekIndex][6].clone().startOf("day");
 
-const toggleWeekSelection = (weekIndex) => {
-  // Always replace with the newly selected week
-  const updated = [weekIndex];
-  setSelectedWeekIndices(updated);
+    if (weekEnd.isSameOrBefore(today)) {
+      return;
+    }
 
-  const start = weeks[weekIndex][0].format('YYYY-MM-DD');
-  const end = weeks[weekIndex][6].format('YYYY-MM-DD');
-  const label = `${weeks[weekIndex][0].format('MMM D')} - ${weeks[weekIndex][6].format('D')}`;
+    // Always replace with the newly selected week
+    const updated = [weekIndex];
+    setSelectedWeekIndices(updated);
 
-  // Update Formik fields
-  handleChange('totalWeeks')("1");
-  handleChange('start')(start);
-  handleChange('end')(end);
-};
+    const start = weeks[weekIndex][0].format("YYYY-MM-DD");
+    const end = weeks[weekIndex][6].format("YYYY-MM-DD");
+    const label = `${weeks[weekIndex][0].format("MMM D")} - ${weeks[weekIndex][6].format("D")}`;
+
+    // Update Formik fields
+    handleChange("totalWeeks")("1");
+    handleChange("start")(start);
+    handleChange("end")(end);
+  };
 
   const getColorForWeek = (index) => {
-    const colors = ['#FFCDD2', '#F8BBD0', '#E1BEE7', '#D1C4E9', '#C5CAE9', '#B2DFDB', '#FFF9C4'];
+    const colors = [
+      "#FFCDD2",
+      "#F8BBD0",
+      "#E1BEE7",
+      "#D1C4E9",
+      "#C5CAE9",
+      "#B2DFDB",
+      "#FFF9C4",
+    ];
     return colors[index % colors.length];
   };
 
@@ -62,50 +87,64 @@ const toggleWeekSelection = (weekIndex) => {
           onValueChange={(itemValue) => setSelectedMonth(itemValue)}
           style={styles.picker}
         >
-          {Array.from({ length: 12 }, (_, i) => (
-            <Picker.Item key={i} label={moment().month(i).format('MMMM')} value={i} />
-          ))}
+          {Array.from({ length: 12 }, (_, i) => {
+            const now = moment();
+            const currentMonth = now.month();
+            const currentYear = now.year();
+            const year = i < currentMonth ? currentYear + 1 : currentYear;
+
+            return (
+              <Picker.Item
+                key={i}
+                label={`${moment().month(i).format("MMMM")} ${year}`}
+                value={i}
+              />
+            );
+          })}
         </Picker>
       </View>
 
       <Text style={styles.label}>📅 Calendar View</Text>
       <View style={styles.calendar}>
-  <View style={styles.weekRow}>
-    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-      <Text key={day} style={styles.dayHeader}>{day}</Text>
-    ))}
-  </View>
+        <View style={styles.weekRow}>
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <Text key={day} style={styles.dayHeader}>
+              {day}
+            </Text>
+          ))}
+        </View>
 
-  {weeks.map((week, index) => (
-    <TouchableOpacity
-      key={index}
-      style={styles.weekContainer}
-      onPress={() => toggleWeekSelection(index)}
-    >
-      <View
-        style={[
-          styles.weekRow,
-          selectedWeekIndices.includes(index) && {
-            backgroundColor: getColorForWeek(index),
-          },
-        ]}
-      >
-        {week.map((day, i) => (
-          <Text
-  key={i}
-  style={[
-    styles.dayCell,
-    day.month() !== selectedMonth && { color: '#9CA3AF' }, // Tailwind gray-400
-  ]}
->
-  {day.date()}
-</Text>
-
+        {weeks.map((week, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.weekContainer}
+            onPress={() => toggleWeekSelection(index)}
+            disabled={isPastOrCurrentWeek(week)}
+          >
+            <View
+              style={[
+                styles.weekRow,
+                selectedWeekIndices.includes(index) && {
+                  backgroundColor: getColorForWeek(index),
+                },
+                isPastOrCurrentWeek(week) && { opacity: 0.4 },
+              ]}
+            >
+              {week.map((day, i) => (
+                <Text
+                  key={i}
+                  style={[
+                    styles.dayCell,
+                    day.month() !== selectedMonth && { color: "#9CA3AF" }, // Tailwind gray-400
+                  ]}
+                >
+                  {day.date()}
+                </Text>
+              ))}
+            </View>
+          </TouchableOpacity>
         ))}
       </View>
-    </TouchableOpacity>
-  ))}
-</View>
     </View>
   );
 };
@@ -113,53 +152,52 @@ const toggleWeekSelection = (weekIndex) => {
 const styles = StyleSheet.create({
   label: {
     fontSize: 16,
-    color: '#fff',
+    color: "#fff",
     marginBottom: 6,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: "#d1d5db",
     borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+    overflow: "hidden",
+    backgroundColor: "#fff",
   },
   picker: {
     height: 50,
-    color: '#111827',
+    color: "#111827",
   },
-   calendar: {
+  calendar: {
     gap: 4,
-    padding:4,
+    padding: 4,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#4B5563',
+    borderColor: "#4B5563",
   },
   weekContainer: {
     borderWidth: 2,
-    borderColor: '#4B5563', // Gray border
+    borderColor: "#4B5563", // Gray border
     borderRadius: 10,
     marginBottom: 2,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   weekRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 2,
     paddingHorizontal: 4,
   },
   dayHeader: {
-    width: '13%',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#fff',
+    width: "13%",
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "#fff",
   },
   dayCell: {
-    width: '13%',
-    textAlign: 'center',
-    color: '#fff',
+    width: "13%",
+    textAlign: "center",
+    color: "#fff",
     fontSize: 14,
   },
-
 });
 
 export default CalendarWeekSelector;

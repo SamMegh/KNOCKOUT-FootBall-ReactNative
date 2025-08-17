@@ -9,7 +9,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -18,7 +18,15 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 export default function Home() {
   const router = useRouter();
-  const { leagues, removeLeague, getleague, joinleague, loading, myleagues, getmyleagues } = useLeagueStore();
+  const {
+    leagues,
+    removeLeague,
+    getleague,
+    joinleague,
+    loading,
+    myleagues,
+    getmyleagues,
+  } = useLeagueStore();
   const { isAuthUser } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
@@ -67,7 +75,7 @@ export default function Home() {
       onPress={() =>
         router.push({
           pathname: "/leaguedata",
-          params: { leagueid: league._id },
+          params: { league: JSON.stringify(league) },
         })
       }
     >
@@ -100,54 +108,89 @@ export default function Home() {
         <Text style={styles.leagueData}>
           Time: {league.start.split("T")[0]} to {league.end.split("T")[0]}
         </Text>
-        <Text style={styles.leagueData}>Joining Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
+        <Text style={styles.leagueData}>
+          Joining Fee: {league.joinfee.type} {league.joinfee.amount}
+        </Text>
         <Text style={styles.leagueData}>Owner: {league.ownerName}</Text>
       </View>
-      <TouchableOpacity style={styles.joinButton} onPress={() => confirmJoin(league)}>
+      <TouchableOpacity
+        style={styles.joinButton}
+        onPress={() => confirmJoin(league)}
+      >
         <Text style={{ color: "#fff", fontWeight: "600" }}>Join</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <>        
-
+    <>
       <SafeAreaView style={styles.container}>
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        >
+          <Text style={styles.heading}>Welcome, {isAuthUser?.name}!</Text>
+          {/* Tips Section */}
+          <View style={styles.tipsBox}>
+            <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
+            <View style={{ marginLeft: 12 }}>
+              <Text style={styles.tipsTitle}>Quick Tips</Text>
+              {tips.map((tip, i) => (
+                <Text key={i} style={styles.tipItem}>
+                  • {tip}
+                </Text>
+              ))}
+            </View>
+          </View>
 
-        <Text style={styles.heading}>Welcome, {isAuthUser?.name}!</Text>
-  {/* Tips Section */}
-  <View style={styles.tipsBox}>
-    <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
-    <View style={{ marginLeft: 12 }}>
-      <Text style={styles.tipsTitle}>Quick Tips</Text>
-      {tips.map((tip, i) => (
-        <Text key={i} style={styles.tipItem}>• {tip}</Text>
-      ))}
-    </View>
-  </View>
+          {/* My Leagues */}
+          <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
+          {myleagues
+            .slice(0, 3)
+            .map((league) => renderMyLeague({ item: league }))}
 
-  {/* My Leagues */}
-  <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
-  {myleagues.map((league) => renderMyLeague({ item: league }))}
+          {myleagues.length > 3 && (
+            <TouchableOpacity
+              onPress={() => router.push("/league")}
+              style={styles.viewMoreBtn}
+            >
+              <Text style={styles.viewMoreText}>View More</Text>
+            </TouchableOpacity>
+          )}
 
-  {/* Public Leagues */}
-  <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
-  {loading ? (
-    <ActivityIndicator size="large" color="#f59e0b" />
-  ) : leagues?.length > 0 ? (
-    leagues.map((league) => renderPublicLeague({ item: league }))
-  ) : (
-    <Text style={{ fontStyle: "italic", color: "#f59e0b" }}>
-      No public leagues available yet.
-    </Text>
-  )}
+          {/* Public Leagues */}
+          <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#f59e0b" />
+          ) : leagues?.length > 0 ? (
+            <>
+              {leagues
+                .slice(0, 3)
+                .map((league) => renderPublicLeague({ item: league }))}
 
-  {/* Create League Button */}
-  <TouchableOpacity style={styles.createButton} onPress={() => router.push("/createnewleague")}>
-    <Text style={styles.createText}>+ Create New League</Text>
-  </TouchableOpacity>
-</ScrollView>
+              {leagues.length > 3 && (
+                <TouchableOpacity
+                  onPress={() => router.push("/joinleague")} 
+                  style={styles.viewMoreBtn}
+                >
+                  <Text style={styles.viewMoreText}>View More</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          ) : (
+            <Text style={{ fontStyle: "italic", color: "#f59e0b" }}>
+              No public leagues available yet.
+            </Text>
+          )}
+
+          {/* Create League Button */}
+          <TouchableOpacity
+            style={styles.createButton}
+            onPress={() => router.push("/createnewleague")}
+          >
+            <Text style={styles.createText}>+ Create New League</Text>
+          </TouchableOpacity>
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -257,5 +300,15 @@ const styles = StyleSheet.create({
   tipItem: {
     fontSize: 13,
     color: "#000",
+  },
+  viewMoreBtn: {
+    paddingVertical: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  viewMoreText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#3b82f6", 
   },
 });
