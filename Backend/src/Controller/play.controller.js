@@ -3,7 +3,7 @@ import LeagueData from "../DBmodel/league.data.model.js";
 import League from "../DBmodel/league.model.js";
 import { Request } from "../DBmodel/league.reques.model.js";
 import User from '../DBmodel/user.db.model.js';
-
+import { getReceiverSocketId, io } from '../lib/socket.config.js';
 /**
  * 🌍 Controller: Get Available Public Leagues
  * ----------------------------------------------------------------------------
@@ -784,3 +784,50 @@ export const joinrequest = async (req, res) => {
 };
 
 
+/**
+ * 📜 Controller: Update Coin on League Join
+ * ------------------------------------------
+ * Deducts the required coin (GCoin / SCoin) from the user 
+ * when they attempt to join a league.
+ */
+export const updateCoin = async (req, res) => {
+    try {
+        // 🔐 Get user and leagueId
+        const user = req.user;
+        const { leagueId } = req.body;
+
+        // ⚽ Fetch league details
+        const league = await League.findById(leagueId);
+
+        // 💰 Check if user has enough coins of required type
+        const haveCoin = league.joinfee.amount <= user[league.joinfee.type];
+        if (!haveCoin) {
+            return res.status(400).json({
+                message: "You do not have enough coins to join this league"
+            });
+        }
+
+        // 🔄 Deduct coins based on type
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                $inc: {
+                    GCoin: league.joinfee.type === 'GCoin' ? -(league.joinfee.amount) : 0,
+                    SCoin: league.joinfee.type === 'SCoin' ? -(league.joinfee.amount) : 0,
+                }
+            },
+            { new: true } // return updated user
+        );
+
+        // ✅ Success response with updated user
+        const socketUserId = getReceiverSocketId(user._id);
+        if(socketUserId){
+            io.to(socketUserId).emit("coinsUpdated",updatedUser);
+
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        // ❌ Handle server errors
+        res.status(500).json({ message: "Unable to decrease coin" });
+    }
+};

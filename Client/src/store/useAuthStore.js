@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { removeItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
 
-const MAINURL='http://localhost:8080/'
+const MAINURL=process.env.EXPO_PUBLIC_API_URL
 export const useAuthStore = create((set,get) => ({
     isAuthUser: null,
     socket:null,
@@ -116,19 +116,25 @@ export const useAuthStore = create((set,get) => ({
 coinUpdates: () => {
   try {
     const { socket } = get();
+    if (!socket) return;
 
-   
-
-    socket.on("coinsUpdated", (data) => {
-      // Update store with new user data
-      set({ isAuthUser: data });
-    });
-     // Clear old listener to avoid duplicates
+    // Remove any old listener first
     socket.off("coinsUpdated");
+
+    // Attach fresh listener
+    socket.on("coinsUpdated", (data) => {
+      // ✅ Replace the object reference
+      set((state) => ({
+        isAuthUser: { ...state.isAuthUser, ...data }
+      }));
+    });
+
   } catch (error) {
     console.error("❌ coinUpdates listener error:", error);
   }
 }
+
+
 
 
 }))

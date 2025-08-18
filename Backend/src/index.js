@@ -26,13 +26,7 @@ app.use(cookie());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (process.env.originName.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: "*",
   credentials: true
 }));
 
