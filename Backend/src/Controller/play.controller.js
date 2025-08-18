@@ -932,24 +932,42 @@ export const rejectRequest = async (req, res) => {
         res.status(400).json({ message: "Unable to reject the request" });
     }
 };
-
-export const requests = async(req,res)=>{
+/**
+ * 📜 Controller: Get League Join Requests
+ * ----------------------------------------
+ * Fetches all join requests for a specific league.
+ * Only the league owner (admin) can access this.
+ */
+export const requests = async (req, res) => {
     try {
+        // 🔐 Get logged-in user & leagueId
         const user = req.user;
-        const {leagueId}=req.body;
+        const { leagueId } = req.body;
+
+        // ⚠️ Validate input
+        if (!leagueId) {
+            return res.status(400).json({ message: "leagueId is required" });
+        }
+
+        // ⚽ Find league
         const league = await League.findById(leagueId);
-        if(league.ownerId!=user._id)return res.status(400).json({message:"only admin can get the requests"});
-        const requests = await Request.find(
-            {
-                leagueId:leagueId
-            }
-        );
+        if (!league) {
+            return res.status(404).json({ message: "League not found" });
+        }
+
+        // 🚫 Only league owner can view requests
+        if (String(league.ownerId) !== String(user._id)) {
+            return res.status(403).json({ message: "Only admin can get the requests" });
+        }
+
+        // 📥 Fetch all requests for this league
+        const requests = await Request.find({ leagueId });
+
+        // ✅ Success
         res.status(200).json(requests);
 
     } catch (error) {
-        res.status(500).json({
-            message:"unable to fetch requests"
-        })
+        // ❌ Error handling
+        res.status(500).json({ message: "Unable to fetch requests" });
     }
-
-}
+};
