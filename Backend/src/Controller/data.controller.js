@@ -190,7 +190,7 @@ cron.schedule('1 0 * * *', async () => {
       }
     })
   };
-
+console.log(matchStartTimes);
   await getmatch(req, res);
 }, {
   timezone: "UTC"

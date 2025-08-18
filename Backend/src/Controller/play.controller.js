@@ -236,6 +236,8 @@ export const joinleague = async (req, res) => {
             return res.status(400).json({ message: "Already joined" });
         }
 
+        await _updateCoin(userId,leagueId)
+        
         // 🛠️ Create initial team data for the user (helper function)
         await _createTeam(user._id, user.name, league._id, league.name);
 
@@ -932,6 +934,8 @@ export const rejectRequest = async (req, res) => {
         res.status(400).json({ message: "Unable to reject the request" });
     }
 };
+
+
 /**
  * 📜 Controller: Get League Join Requests
  * ----------------------------------------
