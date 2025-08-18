@@ -792,41 +792,81 @@ export const joinrequest = async (req, res) => {
  */
 // 🛠️ Function to update coins
 const _updateCoin = async (userId, leagueId) => {
-  try {
-    // ⚽ Fetch user & league
-    const user = await User.findById(userId);
-    if (!user) throw new Error("User not found");
+    try {
+        // ⚽ Fetch user & league
+        const user = await User.findById(userId);
+        if (!user) throw new Error("User not found");
 
-    const league = await League.findById(leagueId);
-    if (!league) throw new Error("League not found");
+        const league = await League.findById(leagueId);
+        if (!league) throw new Error("League not found");
 
-    // 💰 Check if user has enough coins of required type
-    const haveCoin = league.joinfee.amount <= user[league.joinfee.type];
-    if (!haveCoin) {
-      throw new Error("You do not have enough coins to join this league");
+        // 💰 Check if user has enough coins of required type
+        const haveCoin = league.joinfee.amount <= user[league.joinfee.type];
+        if (!haveCoin) {
+            throw new Error("You do not have enough coins to join this league");
+        }
+
+        // 🔄 Deduct coins based on type
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                $inc: {
+                    GCoin: league.joinfee.type === "GCoin" ? -(league.joinfee.amount) : 0,
+                    SCoin: league.joinfee.type === "SCoin" ? -(league.joinfee.amount) : 0,
+                },
+            },
+            { new: true }
+        );
+
+        // 🔔 Emit socket event if user is online
+        const socketUserId = getReceiverSocketId(user._id);
+        if (socketUserId) {
+            io.to(socketUserId).emit("coinsUpdated", updatedUser);
+        }
+
+    } catch (error) {
+        throw error; // ❌ let caller handle error
     }
-
-    // 🔄 Deduct coins based on type
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      {
-        $inc: {
-          GCoin: league.joinfee.type === "GCoin" ? -(league.joinfee.amount) : 0,
-          SCoin: league.joinfee.type === "SCoin" ? -(league.joinfee.amount) : 0,
-        },
-      },
-      { new: true }
-    );
-
-    // 🔔 Emit socket event if user is online
-    const socketUserId = getReceiverSocketId(user._id);
-    if (socketUserId) {
-      io.to(socketUserId).emit("coinsUpdated", updatedUser);
-    }
-
-    return updatedUser; // ✅ return for usage in controllers/services
-  } catch (error) {
-    throw error; // ❌ let caller handle error
-  }
 };
 
+
+export const acceptRequest = async (req, res) => {
+    try {
+        const user = req.user;
+        const { leagueId } = req.body;
+        if (!leagueId) return res.status(400).json({ message: "league Id is required" });
+
+
+        const requestAccept = await Request.findOneAndUpdate({
+            userId: user._id,
+            leagueId: leagueId
+        }, {
+            status: "accept"
+        }, {
+            new: true
+        });
+        if (!requestAccept) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+        await _updateCoin(user._id, leagueId);
+        const league = await League.findByIdAndUpdate(leagueId, {
+            $addToSet: {
+                participantsId: user._id,
+                participantsNames: user.name,
+            },
+        }, {
+            new: true
+        });
+        await _createTeam(user._id, user.name, leagueId, league.name);
+
+        res.status(200).json({
+            message: "successfully accepted"
+        })
+
+
+    } catch (error) {
+        res.status(400).json({
+            message: "unable to accept the request"
+        })
+    }
+}

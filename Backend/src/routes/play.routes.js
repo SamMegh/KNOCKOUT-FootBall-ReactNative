@@ -1,5 +1,5 @@
 import express from 'express';
-import { createleague, dailyCoin, getleague, getMyCreatedLeagues, getmyleague, joinleague, joinrequest, jointeam, leaguebyname, myteam, teams, tranxtxtion } from '../Controller/play.controller.js';
+import { acceptRequest, createleague, dailyCoin, getleague, getMyCreatedLeagues, getmyleague, joinleague, joinrequest, jointeam, leaguebyname, myteam, teams, tranxtxtion } from '../Controller/play.controller.js';
 import { protection } from '../midlayer/protect.midlayer.js';
 
 const router = express.Router();
@@ -17,4 +17,5 @@ router.get("/dailyreward", protection, dailyCoin)
 router.get("/transaction", protection, tranxtxtion)
 
 router.post("/joinrequest", protection, joinrequest);
+router.post("/acceptrequest", protection, acceptRequest);
 export default router;
