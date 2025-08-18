@@ -830,43 +830,56 @@ const _updateCoin = async (userId, leagueId) => {
 };
 
 
+/**
+ * 📜 Controller: Accept Join Request
+ * -----------------------------------
+ * Accepts a user's league join request, deducts coins,
+ * adds them to participants, and creates their team.
+ */
 export const acceptRequest = async (req, res) => {
     try {
+        // 🔐 Get user and leagueId
         const user = req.user;
         const { leagueId } = req.body;
-        if (!leagueId) return res.status(400).json({ message: "league Id is required" });
 
+        // ⚠️ Validate input
+        if (!leagueId) return res.status(400).json({ message: "League Id is required" });
 
-        const requestAccept = await Request.findOneAndUpdate({
-            userId: user._id,
-            leagueId: leagueId
-        }, {
-            status: "accept"
-        }, {
-            new: true
-        });
+        // 🔄 Update request status to 'accept'
+        const requestAccept = await Request.findOneAndUpdate(
+            { userId: user._id, leagueId },
+            { status: "accept" },
+            { new: true }
+        );
+
+        // 🚫 If request not found
         if (!requestAccept) {
             return res.status(404).json({ message: "Request not found" });
         }
+
+        // 💰 Deduct coins from user
         await _updateCoin(user._id, leagueId);
-        const league = await League.findByIdAndUpdate(leagueId, {
-            $addToSet: {
-                participantsId: user._id,
-                participantsNames: user.name,
+
+        // 👥 Add user to league participants
+        const league = await League.findByIdAndUpdate(
+            leagueId,
+            {
+                $addToSet: {
+                    participantsId: user._id,
+                    participantsNames: user.name,
+                },
             },
-        }, {
-            new: true
-        });
+            { new: true }
+        );
+
+        // ⚽ Create team for user in league
         await _createTeam(user._id, user.name, leagueId, league.name);
 
-        res.status(200).json({
-            message: "successfully accepted"
-        })
-
+        // ✅ Success response
+        res.status(200).json({ message: "Successfully accepted" });
 
     } catch (error) {
-        res.status(400).json({
-            message: "unable to accept the request"
-        })
+        // ❌ Error handling
+        res.status(400).json({ message: "Unable to accept the request" });
     }
-}
+};

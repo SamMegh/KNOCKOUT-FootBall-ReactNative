@@ -15,7 +15,6 @@ router.get("/leagueteams", protection, teams);
 router.post("/leaguebyname", protection, leaguebyname);
 router.get("/dailyreward", protection, dailyCoin)
 router.get("/transaction", protection, tranxtxtion)
-
 router.post("/joinrequest", protection, joinrequest);
 router.post("/acceptrequest", protection, acceptRequest);
 export default router;
