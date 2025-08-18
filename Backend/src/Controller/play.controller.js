@@ -1,6 +1,7 @@
 // Importing required models
 import LeagueData from "../DBmodel/league.data.model.js";
 import League from "../DBmodel/league.model.js";
+import { Request } from "../DBmodel/league.reques.model.js";
 import User from '../DBmodel/user.db.model.js';
 
 /**
@@ -738,4 +739,43 @@ export const tranxtxtion = async (req, res) => {
         res.status(500).json({ message: "Unable to get the Transaction" });
     }
 };
+
+
+export const joinrequest = async (req,res)=>{
+    try {
+        const user= req.user;
+        const {leagueId}= req.body;
+
+        const previous = await Request.findOne({
+            userId:user._id,
+            leagueId:leagueId
+        });
+        if(previous) return res.status(400).json({
+            message:"you have already send request for this league"
+        })
+
+        const league = await League.findById(leagueId);
+        
+        const newRequest = new Request(
+            {
+                userId:user._id,
+                userName:user.name,
+                leagueId:league._id,
+                joinfee:{
+                    amount:league.joinfee.amount,
+                    type:league.joinfee.type,
+                }
+            }
+        );
+
+        await newRequest.save();
+
+        res.status(200).json(newRequest);
+
+    } catch (error) {
+        res.status(500).json({
+            message:"unable to send request"
+        })
+    }
+}
 
