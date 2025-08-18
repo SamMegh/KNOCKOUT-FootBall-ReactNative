@@ -932,3 +932,24 @@ export const rejectRequest = async (req, res) => {
         res.status(400).json({ message: "Unable to reject the request" });
     }
 };
+
+export const requests = async(req,res)=>{
+    try {
+        const user = req.user;
+        const {leagueId}=req.body;
+        const league = await League.findById(leagueId);
+        if(league.ownerId!=user._id)return res.status(400).json({message:"only admin can get the requests"});
+        const requests = await Request.find(
+            {
+                leagueId:leagueId
+            }
+        );
+        res.status(200).json(requests);
+
+    } catch (error) {
+        res.status(500).json({
+            message:"unable to fetch requests"
+        })
+    }
+
+}
