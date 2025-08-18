@@ -1,5 +1,7 @@
 import { create } from 'zustand';
+import { useAuthStore } from '../store/useAuthStore';
 import Instance from '../utils/axios.configuration';
+import Toast from 'react-native-toast-message';
 export const useLeagueStore = create((set, get) => ({
   leagues: null,
   myleagues: [],
@@ -7,9 +9,11 @@ export const useLeagueStore = create((set, get) => ({
   leagueTeams: [],
   matchOfTheDay: [],
   myownleagues: [],
-  transactions:[],
-  istransactionsloading:false,
-  
+  transactions: [],
+  istransactionsloading: false,
+  isSearching: false,
+  leagueSearchResult: [],
+
 
   joinleague: async (leagueId) => {
     try {
@@ -47,7 +51,7 @@ export const useLeagueStore = create((set, get) => ({
         name: data.name,
         end: data.end,
         start: data.start,
-        type:data.type,
+        type: data.type,
         maxTimeTeamSelect: data.maxTimeTeamSelect,
         lifelinePerUser: data.lifelinePerUser
       })
@@ -117,15 +121,50 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  gettransaction: async()=>{
+  gettransaction: async () => {
     try {
-      set({istransactionsloading:true});
+      set({ istransactionsloading: true });
       const res = await Instance.get("/play/transaction");
-      set({transactions:res.data});
+      set({ transactions: res.data });
     } catch (error) {
       console.log(error);
-    }finally{
-      set({istransactionsloading:false});
+    } finally {
+      set({ istransactionsloading: false });
+    }
+  },
+
+  SearchByName: async (name) => {
+    set({ isSearching: true });
+    try {
+      const response = await Instance.post("/play/leaguebyname", { name });
+      set({ leagueSearchResult: response.data });
+    } catch (error) {
+      console.log(error.message)
+    } finally {
+      set({ isSearching: false });
+    }
+  },
+
+  //socket for get fast result
+  leaguebyname: () => {
+    const { socket } = useAuthStore.getState();
+    socket.off("leaguenameresult");
+    socket.on("leaguenameresult", (data) => {
+      set({ leagueSearchResult: data });
+    })
+  },
+
+  sendRequest: async (leagueId) => {
+    try {
+      const res = await Instance.post("/joinrequest", { leagueId });
+      if (res) {
+        Toast.show({
+          type: 'success',
+          text1: `Request Sent`
+        });
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }));

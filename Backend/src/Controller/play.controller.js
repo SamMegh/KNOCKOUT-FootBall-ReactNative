@@ -512,7 +512,7 @@ export const teams = async (req, res) => {
 export const leaguebyname = async (req, res) => {
     try {
         // 🔐 Extract the user's ID from the authenticated request
-        const userId = req.user._id;
+        const user = req.user;
 
         // 🕒 Get the current date and time
         const currentDate = new Date();
@@ -538,11 +538,15 @@ export const leaguebyname = async (req, res) => {
                 },
                 {
                     // 🚫 Exclude leagues the user has already joined
-                    participantsId: { $ne: userId }
+                    participantsId: { $ne: user._id }
                 }
             ]
         }).limit(6); // 📉 Limit results to 6 for better performance/UI
 
+        const receiver=getReceiverSocketId(user._id);
+        if(receiver){
+            io.to(receiver).emit("leaguenameresult",leagues)
+        }
         // ✅ Send the found leagues in the response
         res.status(200).json(leagues);
 

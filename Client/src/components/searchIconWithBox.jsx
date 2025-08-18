@@ -1,112 +1,156 @@
+// components/SearchPopup.jsx
+import { MaterialIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useEffect, useState } from "react";
 import {
-    FlatList,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { useLeagueStore } from "../store/useLeagueStore";
 
-const SearchModal = ({ visible, onClose, data, renderItem, searchKey }) => {
-  const [query, setQuery] = useState("");
-  const [filtered, setFiltered] = useState([]);
+const SearchPopup = ({ visible, onClose }) => {
+  const [name, setName] = useState("");
+  const { 
+    leagueSearchResult, 
+    leaguebyname, 
+    SearchByName, 
+    isSearching, 
+    sendRequest 
+  } = useLeagueStore();
 
+  // ⚡ Fetch initial leagues once on mount
   useEffect(() => {
-    if (query.trim() === "") {
-      setFiltered([]);
-    } else {
-      setFiltered(
-        data.filter((item) =>
-          item[searchKey]?.toLowerCase().includes(query.toLowerCase())
-        )
-      );
-    }
-  }, [query, data]);
+    leaguebyname();
+  }, []);
 
-  const handleClose = () => {
-    setQuery("");
-    onClose();
+  // ⚡ Debounce search to avoid spamming API
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (name.trim()) SearchByName(name);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [name]);
+
+  // ⚡ Handle user tapping a league
+  const handleJoinLeague = (league) => {
+    Alert.alert(
+      "Join League",
+      `Are you sure you want to join ${league.name}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Join",
+          onPress: () => {
+            sendRequest(league._id);
+            setName("")
+            onClose(); // optionally close popup after joining
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="fade"
-      onRequestClose={handleClose}
-    >
-      <BlurView intensity={80} tint="dark" style={styles.blurContainer}>
-        <View style={styles.searchBoxContainer}>
-          {/* Fixed input at top */}
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search..."
-            placeholderTextColor="#aaa"
-            value={query}
-            onChangeText={setQuery}
-            autoFocus
-          />
+    <Modal visible={visible} transparent animationType="fade">
+      <BlurView intensity={70} tint="dark" style={styles.blurContainer}>
+        <View style={styles.popup}>
+          {/* Search Input */}
+          <View style={styles.searchRow}>
+            <MaterialIcons name="search" size={24} color="gray" />
+            <TextInput
+              style={styles.input}
+              placeholder="Search leagues..."
+              placeholderTextColor="gray"
+              value={name}
+              onChangeText={setName}
+              autoFocus
+            />
+            <TouchableOpacity onPress={()=>{
+              setName("");
+              onClose();}}>
+              <MaterialIcons name="close" size={24} color="red" />
+            </TouchableOpacity>
+          </View>
 
-          {/* Scrollable results below */}
-          <FlatList
-            data={filtered}
-            keyExtractor={(item, index) => item._id || index.toString()}
-            renderItem={renderItem}
-            style={{ flex: 1 }}
-            ListEmptyComponent={
-              query !== "" ? (
-                <Text style={styles.noResult}>No results found</Text>
-              ) : null
-            }
-          />
-
-          {/* Close button at bottom */}
-          <Pressable style={styles.closeBtn} onPress={handleClose}>
-            <Text style={styles.closeText}>Close</Text>
-          </Pressable>
+          {/* Search Results */}
+          {isSearching ? (
+            <ActivityIndicator
+              size="large"
+              color="#6200ee"
+              style={{ marginTop: 20 }}
+            />
+          ) : (
+            <FlatList
+              data={leagueSearchResult || []}
+              keyExtractor={(item) => item._id}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => handleJoinLeague(item)}>
+                  <View style={styles.resultCard}>
+                    <Text style={styles.leagueName}>{item.name}</Text>
+                    <Text style={styles.leagueInfo}>• {item._id}</Text>
+                    <Text style={styles.leagueInfo}>
+                      {item.type.toUpperCase()} • {item.ownerName}
+                    </Text>
+                    <Text style={styles.joinFee}>
+                      Fee: {item.joinfee.amount} {item.joinfee.type}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                !isSearching && name.length > 0 && (
+                  <Text style={styles.noResult}>No results found</Text>
+                )
+              }
+            />
+          )}
         </View>
       </BlurView>
     </Modal>
   );
 };
 
-export default SearchModal;
-
 const styles = StyleSheet.create({
-  blurContainer: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  searchBoxContainer: {
-    backgroundColor: "rgba(0,0,0,0.7)",
+  blurContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  popup: {
+    width: "90%",
+    maxHeight: "70%",
+    backgroundColor: "rgba(255,255,255,0.9)",
     borderRadius: 16,
-    padding: 16,
-    maxHeight: "80%",
-    flex: 1,
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
     padding: 12,
-    fontSize: 16,
-    marginBottom: 12,
   },
-  closeBtn: {
-    marginTop: 10,
-    alignSelf: "center",
-    padding: 10,
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10,
+    paddingHorizontal: 5,
   },
-  closeText: {
-    color: "#fff",
-    fontSize: 16,
+  input: { flex: 1, fontSize: 16, padding: 8, color: "black" },
+  resultCard: {
+    padding: 12,
+    marginVertical: 6,
+    backgroundColor: "white",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
   },
-  noResult: {
-    textAlign: "center",
-    color: "#ccc",
-    marginTop: 20,
-  },
+  leagueName: { fontSize: 18, fontWeight: "600", color: "#333" },
+  leagueInfo: { fontSize: 14, color: "gray" },
+  joinFee: { fontSize: 14, color: "#6200ee", fontWeight: "500" },
+  noResult: { textAlign: "center", padding: 20, color: "gray" },
 });
+
+export default SearchPopup;

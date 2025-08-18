@@ -12,7 +12,7 @@ import {
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
 import { useState } from "react";
-import SearchModal from "../../src/components/searchIconWithBox.jsx";
+import SearchPopup from "../../src/components/searchIconWithBox";
 
 function MyLeague() {
   const { myleagues, getmyleagues } = useLeagueStore();
@@ -110,17 +110,13 @@ function MyLeague() {
         keyExtractor={(item) => item._id}
         renderItem={renderLeague}
         contentContainerStyle={{ paddingBottom: 16 }}
-      />    
+      />
 
-
-    {/* search box here  */}
-    <SearchModal
-  visible={searchVisible}
-  onClose={() => setSearchVisible(false)}
-  data={myleagues}
-  renderItem={renderLeague}
-  searchKey="name"  // 👈 searching by league name
-/>
+      {/* search box here  */}
+      <SearchPopup
+        visible={searchVisible}
+        onClose={() => setSearchVisible(false)}
+      />
     </View>
   );
 }
@@ -199,12 +195,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  
-  // search css 
+  // search css
   searchButton: {
-  backgroundColor: "#F59E0B", // amber
-  flex: 0.2,
-  justifyContent: "center",
-},
-
+    backgroundColor: "#F59E0B", // amber
+    flex: 0.2,
+    justifyContent: "center",
+  },
 });
