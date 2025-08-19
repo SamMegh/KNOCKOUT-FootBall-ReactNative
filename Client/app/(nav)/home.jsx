@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 
@@ -27,7 +28,7 @@ export default function Home() {
     myleagues,
     getmyleagues,
   } = useLeagueStore();
-  const { isAuthUser } = useAuthStore();
+  const { isAuthUser,coinUpdates } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
   const tips = [
@@ -45,7 +46,8 @@ export default function Home() {
         Alert.alert("Error", "Failed to fetch leagues.");
       }
     })();
-  }, []);
+    coinUpdates();
+  }, [coinUpdates]);
 
   const confirmJoin = (league) => {
     const handleJoin = () => {
@@ -190,6 +192,7 @@ export default function Home() {
           >
             <Text style={styles.createText}>+ Create New League</Text>
           </TouchableOpacity>
+          <LoaderCard/>
         </ScrollView>
       </SafeAreaView>
     </>

@@ -21,7 +21,7 @@ const SearchPopup = ({ visible, onClose }) => {
     leagueSearchResult, 
     leaguebyname, 
     SearchByName, 
-    isSearching, 
+    isLoading, 
     sendRequest 
   } = useLeagueStore();
 
@@ -81,7 +81,7 @@ const SearchPopup = ({ visible, onClose }) => {
           </View>
 
           {/* Search Results */}
-          {isSearching ? (
+          {isLoading ? (
             <ActivityIndicator
               size="large"
               color="#6200ee"
@@ -106,7 +106,7 @@ const SearchPopup = ({ visible, onClose }) => {
                 </TouchableOpacity>
               )}
               ListEmptyComponent={
-                !isSearching && name.length > 0 && (
+                !isLoading && name.length > 0 && (
                   <Text style={styles.noResult}>No results found</Text>
                 )
               }
