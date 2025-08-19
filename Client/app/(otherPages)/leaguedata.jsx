@@ -15,75 +15,47 @@ import { useLeagueStore } from "../../src/store/useLeagueStore.js";
 function LeagueData() {
   const { league } = useLocalSearchParams();
   const parsedLeague = league ? JSON.parse(league) : null;
-  const { isAuthUser } = useAuthStore();
+  const { isAuthUser, coinUpdates } = useAuthStore();
   const router = useRouter();
-  const { leagueTeams, getleagueteams, getmyteam, myteam } = useLeagueStore();
+  const { leagueTeams, getleagueteams, getmyteam, myteam, getRequests, requests, rejectRequest, acceptRequest } = useLeagueStore();
 
-  const [activeTab, setActiveTab] = useState("Teams"); // "Teams" | "requests"
-
-  // Demo data
-  const [pendingRequests, setPendingRequests] = useState([
-    { id: "1", userName: "Rahul", message: "Wants to join your league" },
-    { id: "2", userName: "Aman", message: "Requested to join as player" },
-  ]);
-  const [rejectedRequests, setRejectedRequests] = useState([]);
+  const [activeTab, setActiveTab] = useState("Teams");
 
   if (!isAuthUser) return <Redirect href="/" />;
 
   useEffect(() => {
     if (parsedLeague?._id) {
       getmyteam(parsedLeague._id);
+      getRequests(parsedLeague._id);
       getleagueteams(parsedLeague._id);
     } else {
       router.back();
     }
-  }, [parsedLeague?._id, getleagueteams, getmyteam]);
+    coinUpdates();
+  }, [parsedLeague?._id]);
 
   const mergedLeagueData = myteam
-    ? [myteam, ...leagueTeams.filter((team) => team.userId !== myteam.userId)]
+    ? [myteam, ...leagueTeams.filter((t) => t.userId !== myteam.userId)]
     : leagueTeams;
 
   const sortedLeagueData = mergedLeagueData.sort((a, b) =>
     a.userId === isAuthUser._id ? -1 : b.userId === isAuthUser._id ? 1 : 0
   );
 
-// handle accept/reject
-const handleRequest = (id, action, fromRejected = false) => {
-  if (action === "accepted") {
-    if (fromRejected) {
-      // remove from rejected
-      setRejectedRequests((prev) => prev.filter((r) => r.id !== id));
-    } else {
-      // remove from pending
-      setPendingRequests((prev) => prev.filter((r) => r.id !== id));
-    }
-    console.log("✅ Accepted:", id);
-  } 
-  else if (action === "rejected") {
-    const rejected = pendingRequests.find((r) => r.id === id);
-    if (rejected) {
-      // move from pending → rejected
-      setPendingRequests((prev) => prev.filter((r) => r.id !== id));
-      setRejectedRequests((prev) => [...prev, rejected]);
-    }
-    console.log("❌ Rejected:", id);
-  }
-};
-
-
+  const pendingRequests = requests.filter((r) => r.status === "pending");
+  const rejectedRequests = requests.filter((r) => r.status === "reject");
   const totalRequests = pendingRequests.length + rejectedRequests.length;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
-      {/* Back Button */}
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
 
-      {/* Show tabs only if current user is owner */}
-      {parsedLeague?.ownerId === isAuthUser._id && (
+      {/* Tabs */}
+      {parsedLeague?.ownerId === isAuthUser._id &&parsedLeague.type==="private" && (
         <View className="mx-8 mt-2">
           <View style={styles.tabContainer}>
             <TouchableOpacity
@@ -103,13 +75,13 @@ const handleRequest = (id, action, fromRejected = false) => {
 
             <TouchableOpacity
               style={styles.tab}
-              onPress={() => setActiveTab("requests")}
+              onPress={() => setActiveTab("Requests")}
             >
               <View className="flex-row items-center">
                 <Text
                   style={[
                     styles.tabText,
-                    activeTab === "requests" && styles.activeTabText,
+                    activeTab === "Requests" && styles.activeTabText,
                   ]}
                 >
                   Requests
@@ -120,7 +92,7 @@ const handleRequest = (id, action, fromRejected = false) => {
                   </View>
                 )}
               </View>
-              {activeTab === "requests" && <View style={styles.underline} />}
+              {activeTab === "Requests" && <View style={styles.underline} />}
             </TouchableOpacity>
           </View>
         </View>
@@ -128,7 +100,6 @@ const handleRequest = (id, action, fromRejected = false) => {
 
       <ScrollView className="px-8 py-10 bg-black rounded-t-[40px]">
         {activeTab === "Teams" ? (
-          // --- Show league teams ---
           sortedLeagueData.map((user, index) => (
             <TouchableOpacity
               key={index}
@@ -151,7 +122,7 @@ const handleRequest = (id, action, fromRejected = false) => {
                 {user.userName}'s Team
               </Text>
 
-              {user.teams.map((team, idx) => (
+              {user.teams?.map((team, idx) => (
                 <View key={idx} className="mb-1 pl-2">
                   <Text className="text-sm text-gray-800">
                     * {new Date(team.day).toDateString()} — {team.teamName}
@@ -161,71 +132,52 @@ const handleRequest = (id, action, fromRejected = false) => {
             </TouchableOpacity>
           ))
         ) : (
-          // --- Requests Section ---
           <View>
             {/* Pending Requests */}
             <Text className="text-lg text-white font-bold mb-3">
-              Pending Requests ({pendingRequests.length})
+              Pending Requests ({pendingRequests.length>0?pendingRequests.length:""})
             </Text>
-            {pendingRequests.length === 0 ? (
-              <Text className="text-white mb-6">No pending requests</Text>
-            ) : (
-              pendingRequests.map((req) => (
-                <View
-                  key={req.id}
-                  className="bg-white p-4 mb-3 rounded-xl flex-row justify-between items-center"
-                >
-                  <View>
-                    <Text className="text-lg font-semibold">
-                      {req.userName}
-                    </Text>
-                    <Text className="text-gray-600">{req.message}</Text>
-                  </View>
-                  <View className="flex-row">
-                    <TouchableOpacity
-                      className="bg-green-500 px-3 py-1 rounded-lg mr-2"
-                      onPress={() => handleRequest(req.id, "accepted")}
-                    >
-                      <Text className="text-white">Accept</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="bg-red-500 px-3 py-1 rounded-lg"
-                      onPress={() => handleRequest(req.id, "rejected")}
-                    >
-                      <Text className="text-white">Reject</Text>
-                    </TouchableOpacity>
-                  </View>
+            {pendingRequests.map((req) => (
+              <View
+                key={req._id}
+                className="bg-white p-3 mb-3 rounded-xl flex-row justify-between items-center"
+              >
+                <View>
+                  <Text className="text-lg font-semibold">{req.userName}</Text>
+                  <Text className="text-black text-[12px]">UID : {req.userId}</Text>
+                  <Text className="text-gray-600">{req.status}</Text>
                 </View>
-              ))
-            )}
+                <View className="flex-row">
+                  <TouchableOpacity className="bg-green-500 px-3 py-1 rounded-lg mr-2" onPress={()=>acceptRequest(req._id)} >
+                    <Text className="text-white">Accept</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity className="bg-red-500 px-3 py-1 rounded-lg" onPress={()=>rejectRequest(req._id)}>
+                    <Text className="text-white">Reject</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
 
             {/* Rejected Requests */}
             <Text className="text-lg text-red-400 font-bold mb-3 mt-6">
               Rejected Requests ({rejectedRequests.length})
             </Text>
-            {rejectedRequests.length === 0 ? (
-              <Text className="text-white">No rejected requests</Text>
-            ) : (
-              rejectedRequests.map((req) => (
-                <View
-                  key={req.id}
-                  className="bg-red-100 p-4 mb-3 rounded-xl flex-row justify-between items-center"
-                >
-                  <View>
-                    <Text className="text-lg font-semibold text-red-600">
-                      {req.userName}
-                    </Text>
-                    <Text className="text-red-500">{req.message}</Text>
-                  </View>
-                  <TouchableOpacity
-                    className="bg-green-500 px-3 py-1 rounded-lg"
-                    onPress={() => handleRequest(req.id, "accepted", true)}
-                  >
-                    <Text className="text-white">Accept</Text>
-                  </TouchableOpacity>
+            {rejectedRequests.map((req) => (
+              <View
+                key={req._id}
+                className="bg-red-100 p-4 mb-3 rounded-xl flex-row justify-between items-center"
+              >
+                <View>
+                  <Text className="text-lg font-semibold text-red-600">
+                    {req.userName}
+                  </Text>
+                  <Text className="text-red-500">{req.status}</Text>
                 </View>
-              ))
-            )}
+                <TouchableOpacity className="bg-green-500 px-3 py-1 rounded-lg" onPress={()=>acceptRequest(req._id)}>
+                  <Text className="text-white">Accept</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
       </ScrollView>
@@ -286,5 +238,8 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "700",
+  },
+  backButton: {
+    marginTop: 10,
   },
 });

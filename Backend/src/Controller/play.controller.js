@@ -236,8 +236,8 @@ export const joinleague = async (req, res) => {
             return res.status(400).json({ message: "Already joined" });
         }
 
-        await _updateCoin(userId,leagueId)
-        
+        await _updateCoin(userId, leagueId)
+
         // 🛠️ Create initial team data for the user (helper function)
         await _createTeam(user._id, user.name, league._id, league.name);
 
@@ -543,9 +543,9 @@ export const leaguebyname = async (req, res) => {
             ]
         }).limit(6); // 📉 Limit results to 6 for better performance/UI
 
-        const receiver=getReceiverSocketId(user._id);
-        if(receiver){
-            io.to(receiver).emit("leaguenameresult",leagues)
+        const receiver = getReceiverSocketId(user._id);
+        if (receiver) {
+            io.to(receiver).emit("leaguenameresult", leagues)
         }
         // ✅ Send the found leagues in the response
         res.status(200).json(leagues);
@@ -845,32 +845,42 @@ const _updateCoin = async (userId, leagueId) => {
  */
 export const acceptRequest = async (req, res) => {
     try {
-        // 🔐 Get userId and leagueId
-        const { leagueId, userId } = req.body;
+        // 🔐 Get requestId
+        const { requestId } = req.body;
+        if (!requestId) {
+            return res.status(400).json({ message: "Request ID is required" });
+        }
+
+        // 🔎 Find request
+        const request = await Request.findById(requestId);
+        if (!request) {
+            return res.status(404).json({ message: "Request not found" });
+        }
+
         const loginuser = req.user;
-        // ⚠️ Validate input
-        if (!leagueId || !userId) return res.status(400).json({ message: "all fields is required" });
-        const user = await findById(userId);
-        const league = await League.findById(leagueId);
-        if (loginuser._id != league.ownerId) return res.status(400).json({ message: "only admin can accept request" })
+
+        // 🔎 Get user & league
+        const user = await User.findById(request.userId);
+        const league = await League.findById(request.leagueId);
+
+        // 🔒 Only owner can accept
+        if (loginuser._id.toString() !== league.ownerId.toString()) {
+            return res.status(400).json({ message: "Only admin can accept request" });
+        }
+
         // 🔄 Update request status to 'accept'
-        const requestAccept = await Request.findOneAndUpdate(
-            { userId: user._id, leagueId },
+        const requestAccept = await Request.findByIdAndUpdate(
+            requestId,
             { status: "accept" },
             { new: true }
         );
 
-        // 🚫 If request not found
-        if (!requestAccept) {
-            return res.status(404).json({ message: "Request not found" });
-        }
-
-        // 💰 Deduct coins from user
-        await _updateCoin(user._id, leagueId);
+        // 💰 Deduct coins
+        await _updateCoin(user._id, league._id);
 
         // 👥 Add user to league participants
         await League.findByIdAndUpdate(
-            leagueId,
+            league._id,
             {
                 $addToSet: {
                     participantsId: user._id,
@@ -881,17 +891,15 @@ export const acceptRequest = async (req, res) => {
         );
 
         // ⚽ Create team for user in league
-        await _createTeam(user._id, user.name, leagueId, league.name);
+        await _createTeam(user._id, user.name, league._id, league.name);
 
         // ✅ Success response
-        res.status(200).json(requestAccept);
-
+        return res.status(200).json(requestAccept);
     } catch (error) {
-        // ❌ Error handling
-        res.status(400).json({ message: "Unable to accept the request" });
+        console.error(error);
+        return res.status(400).json({ message: "Unable to accept the request" });
     }
 };
-
 
 /**
  * 📜 Controller: Reject Join Request
@@ -901,17 +909,19 @@ export const acceptRequest = async (req, res) => {
 export const rejectRequest = async (req, res) => {
     try {
         // 🔐 Get leagueId, userId from body & logged-in user
-        const { leagueId, userId } = req.body;
+        const { requestId } = req.body;
         const loginuser = req.user;
-
+        const request = await Request.findById(requestId);
+        if (!request) {
+            return res.status(404).json({ message: "Request not found" });
+        }
         // ⚠️ Validate input
-        if (!leagueId || !userId) {
+        if (!requestId) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // 👤 Find user and league
-        const user = await User.findById(userId);
-        const league = await League.findById(leagueId);
+        // 👤 Find and league
+        const league = await League.findById(request.leagueId);
 
         // 🚫 Only league owner can reject requests
         if (String(loginuser._id) !== String(league.ownerId)) {
@@ -919,16 +929,13 @@ export const rejectRequest = async (req, res) => {
         }
 
         // 🔄 Update request status to 'reject'
-        const requestRejected = await Request.findOneAndUpdate(
-            { userId: user._id, leagueId },
+        const requestRejected = await Request.findByIdAndUpdate(requestId,
             { status: "reject" },
             { new: true }
         );
 
         // 🚫 If request not found
-        if (!requestRejected) {
-            return res.status(404).json({ message: "Request not found" });
-        }
+
 
         // ✅ Success
         res.status(200).json(requestRejected);

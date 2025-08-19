@@ -1,7 +1,7 @@
+import Toast from 'react-native-toast-message';
 import { create } from 'zustand';
 import { useAuthStore } from '../store/useAuthStore';
 import Instance from '../utils/axios.configuration';
-import Toast from 'react-native-toast-message';
 export const useLeagueStore = create((set, get) => ({
   leagues: null,
   myleagues: [],
@@ -13,6 +13,7 @@ export const useLeagueStore = create((set, get) => ({
   istransactionsloading: false,
   isSearching: false,
   leagueSearchResult: [],
+  requests: [],
 
 
   joinleague: async (leagueId) => {
@@ -145,18 +146,9 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
-  //socket for get fast result
-  leaguebyname: () => {
-    const { socket } = useAuthStore.getState();
-    socket.off("leaguenameresult");
-    socket.on("leaguenameresult", (data) => {
-      set({ leagueSearchResult: data });
-    })
-  },
-
   sendRequest: async (leagueId) => {
     try {
-      const res = await Instance.post("/joinrequest", { leagueId });
+      const res = await Instance.post("/play/joinrequest", { leagueId });
       if (res) {
         Toast.show({
           type: 'success',
@@ -166,5 +158,49 @@ export const useLeagueStore = create((set, get) => ({
     } catch (error) {
       console.log(error);
     }
-  }
+  },
+
+  getRequests: async (leagueId) => {
+    try {
+      set({ requests: [] });
+      const res = await Instance.post("/play/requests", { leagueId });
+      set({ requests: res.data });
+    } catch (error) {
+      console.log(error)
+    }
+  },
+
+  rejectRequest: async (requestId) => {
+    try {
+      const res = await Instance.post("/play/rejectrequest", { requestId });
+      set((state) => ({
+        requests: state.requests.map((req) =>
+          req._id === requestId ? { ...req, status: res.data.status } : req
+        ),
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  acceptRequest: async (requestId) => {
+    try {
+      const res = await Instance.post("/play/acceptrequest", { requestId });
+      set((state) => ({
+        requests: state.requests.map((req) =>
+          req._id === requestId ? { ...req, status: res.data.status } : req
+        ),
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  //socket for get fast result
+  leaguebyname: () => {
+    const { socket } = useAuthStore.getState();
+    socket.off("leaguenameresult");
+    socket.on("leaguenameresult", (data) => {
+      set({ leagueSearchResult: data });
+    })
+  },
 }));
