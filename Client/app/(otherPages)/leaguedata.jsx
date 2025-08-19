@@ -11,16 +11,33 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader.jsx";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import { useLeagueStore } from "../../src/store/useLeagueStore.js";
+import { useFonts } from "expo-font";
 
 function LeagueData() {
   const { league } = useLocalSearchParams();
   const parsedLeague = league ? JSON.parse(league) : null;
+
   const { isAuthUser, coinUpdates } = useAuthStore();
   const router = useRouter();
-  const { leagueTeams, getleagueteams, getmyteam, myteam, getRequests, requests, rejectRequest, acceptRequest } = useLeagueStore();
+
+  const {
+    leagueTeams,
+    getleagueteams,
+    getmyteam,
+    myteam,
+    getRequests,
+    requests,
+    rejectRequest,
+    acceptRequest,
+  } = useLeagueStore();
 
   const [activeTab, setActiveTab] = useState("Teams");
 
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
+
+  if (!fontsLoaded) return null;
   if (!isAuthUser) return <Redirect href="/" />;
 
   useEffect(() => {
@@ -47,7 +64,7 @@ function LeagueData() {
   const totalRequests = pendingRequests.length + rejectedRequests.length;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -55,8 +72,8 @@ function LeagueData() {
       </TouchableOpacity>
 
       {/* Tabs */}
-      {parsedLeague?.ownerId === isAuthUser._id &&parsedLeague.type==="private" && (
-        <View className="mx-8 mt-2">
+      {parsedLeague?.ownerId === isAuthUser._id && parsedLeague.type === "private" && (
+        <View style={styles.tabWrapper}>
           <View style={styles.tabContainer}>
             <TouchableOpacity
               style={styles.tab}
@@ -77,7 +94,7 @@ function LeagueData() {
               style={styles.tab}
               onPress={() => setActiveTab("Requests")}
             >
-              <View className="flex-row items-center">
+              <View style={styles.tabBadgeWrapper}>
                 <Text
                   style={[
                     styles.tabText,
@@ -98,7 +115,7 @@ function LeagueData() {
         </View>
       )}
 
-      <ScrollView className="px-8 py-10 bg-black rounded-t-[40px]">
+      <ScrollView style={styles.scrollView}>
         {activeTab === "Teams" ? (
           sortedLeagueData.map((user, index) => (
             <TouchableOpacity
@@ -112,19 +129,19 @@ function LeagueData() {
                   });
                 }
               }}
-              className="mb-4 p-4 rounded-xl boxShadow"
-              style={{
-                backgroundColor:
-                  isAuthUser._id === user.userId ? "#A4BCFF" : "#CCCCCC",
-              }}
+              style={[
+                styles.teamCard,
+                {
+                  backgroundColor:
+                    isAuthUser._id === user.userId ? "#A4BCFF" : "#CCCCCC",
+                },
+              ]}
             >
-              <Text className="text-xl font-semibold text-blue-700 mb-2">
-                {user.userName}'s Team
-              </Text>
+              <Text style={styles.teamTitle}>{user.userName}'s Team</Text>
 
               {user.teams?.map((team, idx) => (
-                <View key={idx} className="mb-1 pl-2">
-                  <Text className="text-sm text-gray-800">
+                <View key={idx} style={{ marginBottom: 4, paddingLeft: 8 }}>
+                  <Text style={styles.teamInfo}>
                     * {new Date(team.day).toDateString()} — {team.teamName}
                   </Text>
                 </View>
@@ -134,47 +151,48 @@ function LeagueData() {
         ) : (
           <View>
             {/* Pending Requests */}
-            <Text className="text-lg text-white font-bold mb-3">
-              Pending Requests ({pendingRequests.length>0?pendingRequests.length:""})
+            <Text style={styles.sectionTitle}>
+              Pending Requests ({pendingRequests.length})
             </Text>
             {pendingRequests.map((req) => (
-              <View
-                key={req._id}
-                className="bg-white p-3 mb-3 rounded-xl flex-row justify-between items-center"
-              >
+              <View key={req._id} style={styles.pendingCard}>
                 <View>
-                  <Text className="text-lg font-semibold">{req.userName}</Text>
-                  <Text className="text-black text-[12px]">UID : {req.userId}</Text>
-                  <Text className="text-gray-600">{req.status}</Text>
+                  <Text style={styles.pendingName}>{req.userName}</Text>
+                  <Text style={styles.pendingInfo}>UID : {req.userId}</Text>
+                  <Text style={styles.pendingStatus}>{req.status}</Text>
                 </View>
-                <View className="flex-row">
-                  <TouchableOpacity className="bg-green-500 px-3 py-1 rounded-lg mr-2" onPress={()=>acceptRequest(req._id)} >
-                    <Text className="text-white">Accept</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity
+                    style={styles.acceptButton}
+                    onPress={() => acceptRequest(req._id)}
+                  >
+                    <Text style={styles.buttonText}>Accept</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity className="bg-red-500 px-3 py-1 rounded-lg" onPress={()=>rejectRequest(req._id)}>
-                    <Text className="text-white">Reject</Text>
+                  <TouchableOpacity
+                    style={styles.rejectButton}
+                    onPress={() => rejectRequest(req._id)}
+                  >
+                    <Text style={styles.buttonText}>Reject</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             ))}
 
             {/* Rejected Requests */}
-            <Text className="text-lg text-red-400 font-bold mb-3 mt-6">
+            <Text style={styles.rejectedTitle}>
               Rejected Requests ({rejectedRequests.length})
             </Text>
             {rejectedRequests.map((req) => (
-              <View
-                key={req._id}
-                className="bg-red-100 p-4 mb-3 rounded-xl flex-row justify-between items-center"
-              >
+              <View key={req._id} style={styles.rejectedCard}>
                 <View>
-                  <Text className="text-lg font-semibold text-red-600">
-                    {req.userName}
-                  </Text>
-                  <Text className="text-red-500">{req.status}</Text>
+                  <Text style={styles.rejectedName}>{req.userName}</Text>
+                  <Text style={styles.rejectedStatus}>{req.status}</Text>
                 </View>
-                <TouchableOpacity className="bg-green-500 px-3 py-1 rounded-lg" onPress={()=>acceptRequest(req._id)}>
-                  <Text className="text-white">Accept</Text>
+                <TouchableOpacity
+                  style={styles.acceptButton}
+                  onPress={() => acceptRequest(req._id)}
+                >
+                  <Text style={styles.buttonText}>Accept</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -188,12 +206,24 @@ function LeagueData() {
 export default LeagueData;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  backButton: {
+    marginTop: 10,
+  },
   backButtonText: {
     marginLeft: 20,
     marginBottom: 10,
     fontSize: 20,
     fontWeight: "600",
     color: "#000",
+    fontFamily: "NedianMedium",
+  },
+  tabWrapper: {
+    marginHorizontal: 32,
+    marginTop: 8,
   },
   tabContainer: {
     flexDirection: "row",
@@ -211,10 +241,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     color: "#666",
+    fontFamily: "NedianMedium",
   },
   activeTabText: {
     color: "#000",
     fontWeight: "700",
+    fontFamily: "NedianMedium",
   },
   underline: {
     position: "absolute",
@@ -223,6 +255,10 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#007AFF",
     borderRadius: 2,
+  },
+  tabBadgeWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   badge: {
     marginLeft: 6,
@@ -238,8 +274,104 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "700",
+    fontFamily: "NedianMedium",
   },
-  backButton: {
-    marginTop: 10,
+  scrollView: {
+    paddingHorizontal: 32,
+    paddingVertical: 40,
+    backgroundColor: "#000",
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+  },
+  teamCard: {
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 12,
+  },
+  teamTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#003366",
+    marginBottom: 8,
+    fontFamily: "NedianMedium",
+  },
+  teamInfo: {
+    fontSize: 12,
+    color: "#333",
+    fontFamily: "NedianMedium",
+  },
+  sectionTitle: {
+    fontSize: 14,
+    color: "#fff",
+    fontWeight: "700",
+    marginBottom: 12,
+    fontFamily: "NedianMedium",
+  },
+  pendingCard: {
+    backgroundColor: "#fff",
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pendingName: {
+    fontSize: 14,
+    fontWeight: "600",
+    fontFamily: "NedianMedium",
+  },
+  pendingInfo: {
+    fontSize: 12,
+    color: "#333",
+    fontFamily: "NedianMedium",
+  },
+  pendingStatus: {
+    color: "#666",
+    fontFamily: "NedianMedium",
+  },
+  acceptButton: {
+    backgroundColor: "#22C55E",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  rejectButton: {
+    backgroundColor: "#EF4444",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontFamily: "NedianMedium",
+  },
+  rejectedTitle: {
+    fontSize: 18,
+    color: "#F87171",
+    fontWeight: "700",
+    marginTop: 24,
+    marginBottom: 12,
+    fontFamily: "NedianMedium",
+  },
+  rejectedCard: {
+    backgroundColor: "#FECACA",
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  rejectedName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#B91C1C",
+    fontFamily: "NedianMedium",
+  },
+  rejectedStatus: {
+    color: "#991B1B",
+    fontFamily: "NedianMedium",
   },
 });

@@ -8,21 +8,28 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
+import { useFonts } from "expo-font";
 
 function CreateLeague() {
   const { getmecreatedleagues, myownleagues } = useLeagueStore();
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
 
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
+
   useEffect(() => {
     getmecreatedleagues();
   }, [getmecreatedleagues]);
+
+  if (!fontsLoaded) return null;
 
   if (!isAuthUser) return <Redirect href="/" />;
 
@@ -67,7 +74,9 @@ function CreateLeague() {
             ⏳ End: {new Date(league.end).toDateString()}
           </Text>
           <Text style={styles.detail}>📆 Total Weeks: {league.totalWeeks}</Text>
-          <Text style={styles.detail}>💰 Join Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
+          <Text style={styles.detail}>
+            💰 Join Fee: {league.joinfee.type} {league.joinfee.amount}
+          </Text>
           <Text style={styles.detail}>🎮 Type: {league.type}</Text>
           <Text style={styles.detail}>
             ❤️ Life Lines / User: {league.lifelinePerUser}
@@ -82,15 +91,15 @@ function CreateLeague() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Sticky Header */}
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
 
       <View style={styles.header}>
         <Text style={styles.heading}>Welcome, Create and manage your leagues!</Text>
-        {/* Create New League Button */}
+
         <Pressable
           onPress={() => router.push("/createnewleague")}
           style={styles.createBtn}
@@ -99,24 +108,17 @@ function CreateLeague() {
           <Text style={styles.createText}>Create New League</Text>
         </Pressable>
 
-        {/* League List */}
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           {myownleagues.map(renderLeagueCard)}
         </ScrollView>
       </View>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }
 
 export default CreateLeague;
 
 const styles = StyleSheet.create({
-    backButtonText: {
-      marginLeft: 20,
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#000",
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -128,7 +130,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: "#000",
     borderBottomWidth: 1,
-    
     borderRadius: 12,
     elevation: 2,
   },
@@ -137,17 +138,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 12,
   },
-  backText: {
-    color: "#2563eb",
-    fontSize: 16,
+  backButtonText: {
+    marginLeft: 20,
+    fontSize: 20,
     fontWeight: "600",
-    marginLeft: 8,
+    color: "#000",
+    // fontFamily: "NedianMedium",
   },
   heading: {
     fontSize: 26,
     fontWeight: "700",
     color: "#fff",
     textAlign: "center",
+    fontFamily: "NedianMedium",
   },
   createBtn: {
     flexDirection: "row",
@@ -166,6 +169,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: "NedianMedium",
   },
   card: {
     backgroundColor: "#ffffff",
@@ -189,10 +193,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 10,
     color: "#1F2937",
+    fontFamily: "NedianMedium",
   },
   detail: {
     fontSize: 14,
     color: "#4B5563",
     marginBottom: 4,
+    fontFamily: "NedianMedium",
   },
 });

@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { useFonts } from "expo-font";
+
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 import CustomHeader from "../../src/components/customHeader";
 
@@ -18,35 +20,31 @@ const JoinLeague = () => {
   const { getleague, leagues, joinleague, removeLeague } = useLeagueStore();
   const router = useRouter();
 
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
+
   useEffect(() => {
     getleague();
   }, []);
 
   const confirmJoin = (league) => {
+    const onConfirm = () => {
+      joinleague(league._id);
+      removeLeague(league._id);
+    };
+
     if (Platform.OS === "web") {
-      const ok = window.confirm(`Join "${league.name}"?`);
-      if (ok) {
-        joinleague(league._id);
-        removeLeague(league._id);
-      }
+      if (window.confirm(`Join "${league.name}"?`)) onConfirm();
     } else {
-      Alert.alert(
-        "Join League",
-        `Are you sure you want to join "${league.name}"?`,
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Join",
-            onPress: () => {
-              joinleague(league._id);
-              removeLeague(league._id);
-            },
-          },
-        ],
-        { cancelable: true }
-      );
+      Alert.alert("Join League", `Are you sure you want to join "${league.name}"?`, [
+        { text: "Cancel", style: "cancel" },
+        { text: "Join", onPress: onConfirm },
+      ]);
     }
   };
+
+  if (!fontsLoaded) return null;
 
   if (!leagues) {
     return (
@@ -64,7 +62,9 @@ const JoinLeague = () => {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Text style={styles.backButtonText}>⋞⋞</Text>
         </TouchableOpacity>
-        <Text style={styles.centered}>No leagues available.</Text>
+        <Text style={[styles.centered, { fontFamily: "NedianMedium", fontSize: 16 }]}>
+          No leagues available.
+        </Text>
       </View>
     );
   }
@@ -75,8 +75,8 @@ const JoinLeague = () => {
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
-      <View style={styles.containermain}>
 
+      <View style={styles.containermain}>
         <Text style={styles.headerTitle}>🏆Join if you want to Win.</Text>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -89,26 +89,17 @@ const JoinLeague = () => {
               <Text style={styles.leagueTitle}>{league.name}</Text>
               <Text style={styles.detail}>🆔 ID: {league._id}</Text>
               <Text style={styles.detail}>💰 Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
-              <Text style={styles.detail}>
-                🕒 Start: {new Date(league.start).toDateString()}
-              </Text>
-              <Text style={styles.detail}>
-                ⏳ End: {new Date(league.end).toDateString()}
-              </Text>
+              <Text style={styles.detail}>🕒 Start: {new Date(league.start).toDateString()}</Text>
+              <Text style={styles.detail}>⏳ End: {new Date(league.end).toDateString()}</Text>
               <Text style={styles.detail}>🎮 Type: {league.type}</Text>
-              <Text style={styles.detail}>
-                ❤️ Lifelines/User: {league.lifelinePerUser}
-              </Text>
-              <Text style={styles.detail}>
-                🔁 Repeat Limit: {league.maxTimeTeamSelect}
-              </Text>
+              <Text style={styles.detail}>❤️ Lifelines/User: {league.lifelinePerUser}</Text>
+              <Text style={styles.detail}>🔁 Repeat Limit: {league.maxTimeTeamSelect}</Text>
               <Text style={styles.detail}>👑 Owner: {league.ownerName}</Text>
               <Text style={styles.detail}>📆 Weeks: {league.totalWeeks}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
-
     </View>
   );
 };
@@ -121,6 +112,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     color: "#000",
+    fontFamily: "NedianMedium",
   },
   container: {
     flex: 1,
@@ -139,6 +131,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     marginVertical: 20,
+    fontFamily: "NedianMedium",
   },
   scrollContent: {
     padding: 16,
@@ -160,23 +153,28 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1e40af",
     marginBottom: 8,
+    fontFamily: "NedianMedium",
   },
   detail: {
     fontSize: 14,
     color: "#334155",
     marginBottom: 2,
+    fontFamily: "NedianMedium",
   },
   centered: {
-    margin: "auto",
-    height: "100vh",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
     marginTop: 12,
     fontSize: 16,
     color: "#334155",
+    fontFamily: "NedianMedium",
   },
   noLeagueText: {
     fontSize: 18,
     color: "#64748b",
+    fontFamily: "NedianMedium",
   },
 });

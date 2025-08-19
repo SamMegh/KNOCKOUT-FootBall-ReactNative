@@ -1,54 +1,60 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useFonts } from "expo-font";
 import CustomHeader from "../../src/components/customHeader";
 
 export default function CoinBuy() {
   const router = useRouter();
   const { coinData } = useLocalSearchParams();
   const coinPackages = JSON.parse(coinData || "[]");
-const goToCoinBuy = (data) => {
-  router.push({
-    pathname: "/checkOut",
-    params: { coinData: JSON.stringify(data) },
+
+  // ✅ Load font
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
   });
-};
+
+  // ✅ Wait for font to load
+  if (!fontsLoaded) return null;
+
+  const goToCoinBuy = (data) => {
+    router.push({
+      pathname: "/checkOut",
+      params: { coinData: JSON.stringify(data) },
+    });
+  };
+
   const renderItem = ({ item }) => {
     const isGcoin = item.coin === "Gcoin";
 
     return (
-      <TouchableOpacity activeOpacity={0.8} style={styles.card} onPress={()=>goToCoinBuy(item)}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={styles.card}
+        onPress={() => goToCoinBuy(item)}
+      >
         <LinearGradient
-          colors={
-            isGcoin
-              ? ["#222", "#555"] // dark gray for Gcoin
-              : ["#111", "#333"] // darker gray for Scoin
-          }
+          colors={isGcoin ? ["#222", "#555"] : ["#111", "#333"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradient}
         >
-          {/* Coin Icon */}
           <Text style={styles.icon}>{isGcoin ? "🪙" : "⚪"}</Text>
 
-          {/* Coin Type */}
           <Text style={styles.coinType}>
-            {isGcoin ? "Gold Coin Pack" : "Silver Coin Pack"}
+            {isGcoin ? "Gold Coin\nPack" : "Silver Coin\nPack"}
           </Text>
 
-          {/* Amount */}
           <Text style={styles.amount}>
             {item.amount} {isGcoin ? "Gcoins" : "Scoins"}
           </Text>
 
-          {/* Free coins only for Gcoin */}
-          {isGcoin && item.freeamount ? (
+          {isGcoin && item.freeamount && (
             <View style={styles.freeBadge}>
               <Text style={styles.freeText}>+{item.freeamount} Scoins FREE</Text>
             </View>
-          ) : null}
+          )}
 
-          {/* Price */}
           <Text style={styles.price}>${item.usd}</Text>
         </LinearGradient>
       </TouchableOpacity>
@@ -57,15 +63,14 @@ const goToCoinBuy = (data) => {
 
   return (
     <View style={styles.container}>
-      {/* ✅ Single Header at the top */}
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
       {/* Back Button */}
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-             <Text style={styles.backButtonText}>⋞⋞</Text>
-           </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
+      </TouchableOpacity>
 
-      {/* Coins Grid */}
+      {/* Coin List */}
       <FlatList
         data={coinPackages}
         renderItem={renderItem}
@@ -81,7 +86,7 @@ const goToCoinBuy = (data) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // black theme
+    backgroundColor: "#fff",
     paddingTop: 20,
   },
   list: {
@@ -111,14 +116,15 @@ const styles = StyleSheet.create({
   },
   coinType: {
     fontSize: 15,
-    fontWeight: "bold",
     color: "#fff",
     marginBottom: 4,
+    textAlign: "center",
+    fontFamily: "NedianMedium",
   },
   amount: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 18,
     color: "#fff",
+    fontFamily: "NedianMedium",
   },
   freeBadge: {
     backgroundColor: "#fff",
@@ -129,14 +135,14 @@ const styles = StyleSheet.create({
   },
   freeText: {
     fontSize: 13,
-    fontWeight: "600",
     color: "#000",
+    fontFamily: "NedianMedium",
   },
   price: {
     fontSize: 18,
-    fontWeight: "bold",
     marginTop: 10,
     color: "#fff",
+    fontFamily: "NedianMedium",
   },
   backButton: {
     backgroundColor: "#fff",
@@ -147,10 +153,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     marginBottom: 10,
   },
-   backButtonText: {
-      marginLeft: 20,
+  backButtonText: {
+    marginLeft: 20,
     fontSize: 20,
-    fontWeight: "600",
     color: "#000",
+    // fontFamily: "NedianMedium",
   },
 });

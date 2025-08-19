@@ -8,9 +8,11 @@ import {
   StyleSheet,
   Text,
   View,
+  ActivityIndicator,
 } from "react-native";
-import { useLeagueStore } from "../../src/store/useLeagueStore";
 import SearchPopup from "../../src/components/searchIconWithBox";
+import { useLeagueStore } from "../../src/store/useLeagueStore";
+import { useFonts } from "expo-font";
 
 function MyLeague() {
   const { myleagues, getmyleagues } = useLeagueStore();
@@ -18,9 +20,21 @@ function MyLeague() {
 
   const [searchVisible, setSearchVisible] = useState(false);
 
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
+
   useEffect(() => {
     getmyleagues();
   }, [getmyleagues]);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#6C63FF" />
+      </View>
+    );
+  }
 
   const renderLeague = ({ item }) => {
     const scaleValue = new Animated.Value(1);
@@ -90,8 +104,8 @@ function MyLeague() {
         >
           <Text style={styles.buttonText}>Create League</Text>
         </Pressable>
-
       </View>
+
       {/* Search Button */}
       <Pressable
         style={styles.searchButton}
@@ -103,15 +117,16 @@ function MyLeague() {
         </View>
       </Pressable>
 
-
-
       {/* League Grid */}
       <FlatList
         data={myleagues}
         keyExtractor={(item) => item._id}
         renderItem={renderLeague}
         numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 12 }}
+        columnWrapperStyle={{
+          justifyContent: "space-between",
+          paddingHorizontal: 12,
+        }}
         contentContainerStyle={{ paddingBottom: 16 }}
       />
 
@@ -154,41 +169,31 @@ const styles = StyleSheet.create({
   createButton: {
     backgroundColor: "#10B981",
   },
-searchButton: {
-  flex: 1,
-  paddingVertical: 12,
-  paddingHorizontal: 16,
-  borderRadius: 12,
-  backgroundColor: "#fff",
-  marginHorizontal: 14,
-  marginBottom: 16,
-  elevation: 2,
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  height: 50,
-},
-
-searchContent: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-},
-
-searchText: {
-  color: "#000",
-  fontWeight: "600",
-  fontSize: 16,
-},
-
   buttonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
-    justifyContent: "center",
-    alignItems: "center",
     textAlign: "center",
+    fontFamily: "NedianMedium",
+  },
+  searchButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    marginHorizontal: 14,
+    marginBottom: 16,
+  },
+  searchContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  searchText: {
+    color: "#000",
+    fontWeight: "600",
+    fontSize: 16,
+    fontFamily: "NedianMedium",
   },
   card: {
     backgroundColor: "#ffffff",
@@ -216,14 +221,17 @@ searchText: {
     color: "#1f2937",
     marginLeft: 10,
     flexShrink: 1,
+    fontFamily: "NedianMedium",
   },
   fee: {
     fontSize: 14,
     color: "#6B7280",
     marginBottom: 6,
+    fontFamily: "NedianMedium",
   },
   date: {
     fontSize: 13,
     color: "#9CA3AF",
+    fontFamily: "NedianMedium",
   },
 });

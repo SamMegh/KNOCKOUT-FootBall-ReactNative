@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import * as Yup from "yup";
+import { useFonts } from "expo-font";
 
 import CustomHeader from "../../src/components/customHeader";
 import WeekSelector from "../../src/components/weekComponent";
@@ -23,50 +24,47 @@ function CreateNewLeague() {
   const { isAuthUser } = useAuthStore();
   const { createmyownleague } = useLeagueStore();
 
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
+
+  if (!fontsLoaded) return null;
+
   const handleSubmit = async (values) => {
     const payload = {
       ...values,
       joinfee: {
         ...values.joinfee,
-        amount: Number(values.joinfee.amount), // ensure number
+        amount: Number(values.joinfee.amount),
       },
+    };
+
+    const confirmAction = async () => {
+      try {
+        await createmyownleague(payload);
+        Platform.OS === "web"
+          ? window.alert("League created successfully!")
+          : Alert.alert("Success", "League created successfully!");
+        router.replace("/");
+      } catch (err) {
+        Platform.OS === "web"
+          ? window.alert("Failed to create league. Please try again.")
+          : Alert.alert("Error", "Failed to create league. Please try again.");
+      }
     };
 
     if (Platform.OS === "web") {
       const confirm = window.confirm(
         `Are you sure you want to create the league "${values.name}"?`
       );
-      if (!confirm) return;
-
-      try {
-        await createmyownleague(payload);
-        window.alert("League created successfully!");
-        router.replace("/");
-      } catch (err) {
-        window.alert("Failed to create league. Please try again.");
-      }
+      if (confirm) await confirmAction();
     } else {
       Alert.alert(
         "Create League",
         `Are you sure you want to create the league "${values.name}"?`,
         [
           { text: "Cancel", style: "cancel" },
-          {
-            text: "Create",
-            onPress: async () => {
-              try {
-                await createmyownleague(payload);
-                Alert.alert("Success", "League created successfully!", [
-                  { text: "OK", onPress: () => router.replace("/") },
-                ]);
-              } catch (err) {
-                Alert.alert(
-                  "Error",
-                  "Failed to create league. Please try again."
-                );
-              }
-            },
-          },
+          { text: "Create", onPress: confirmAction },
         ]
       );
     }
@@ -78,7 +76,6 @@ function CreateNewLeague() {
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
 
-      {/* Back Button */}
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
@@ -152,13 +149,13 @@ function CreateNewLeague() {
                 )}
               </View>
 
-              {/* Date Selection */}
+              {/* Week Selector */}
               <WeekSelector values={values} handleChange={handleChange} />
               {touched.totalWeeks && errors.totalWeeks && (
                 <Text style={styles.errorText}>{errors.totalWeeks}</Text>
               )}
 
-              {/* Max Time Team Select */}
+              {/* Max Team Selection */}
               <View>
                 <Text style={styles.label}>⏱️ Max Time Team Can Be Selected</Text>
                 <TextInput
@@ -206,9 +203,6 @@ function CreateNewLeague() {
                       <Picker.Item label="GCoin" value="GCoin" />
                     </Picker>
                   </View>
-                  {touched.joinfee?.type && errors.joinfee?.type && (
-                    <Text style={styles.errorText}>{errors.joinfee.type}</Text>
-                  )}
                 </View>
 
                 <View style={{ flex: 1 }}>
@@ -224,9 +218,6 @@ function CreateNewLeague() {
                     placeholderTextColor="#999"
                     keyboardType="numeric"
                   />
-                  {touched.joinfee?.amount && errors.joinfee?.amount && (
-                    <Text style={styles.errorText}>{errors.joinfee.amount}</Text>
-                  )}
                 </View>
               </View>
 
@@ -253,8 +244,14 @@ const styles = {
     fontSize: 20,
     fontWeight: "600",
     color: "#000",
+    // fontFamily: "NedianMedium",
   },
-  label: { fontSize: 16, color: "#fff", marginBottom: 6 },
+  label: {
+    fontSize: 16,
+    color: "#fff",
+    marginBottom: 6,
+    fontFamily: "NedianMedium",
+  },
   input: {
     height: 48,
     borderWidth: 1,
@@ -264,6 +261,7 @@ const styles = {
     backgroundColor: "#fff",
     fontSize: 16,
     color: "#111827",
+    fontFamily: "NedianMedium",
   },
   pickerContainer: {
     borderWidth: 1,
@@ -272,8 +270,17 @@ const styles = {
     overflow: "hidden",
     backgroundColor: "#fff",
   },
-  picker: { height: 50, color: "#111827" },
-  errorText: { color: "#f87171", fontSize: 14, marginBottom: 8 },
+  picker: {
+    height: 50,
+    color: "#111827",
+    fontFamily: "NedianMedium", // Custom font won't apply to native pickers on iOS/Android
+  },
+  errorText: {
+    color: "#f87171",
+    fontSize: 14,
+    marginBottom: 8,
+    fontFamily: "NedianMedium",
+  },
   button: {
     backgroundColor: "#2563eb",
     borderRadius: 10,
@@ -281,7 +288,12 @@ const styles = {
     alignItems: "center",
     marginTop: 10,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "NedianMedium",
+  },
 };
 
 export default CreateNewLeague;

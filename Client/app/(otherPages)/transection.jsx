@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     paddingTop: 1,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "600",
     fontFamily: "NedianMedium",
     color: "#000",
@@ -270,16 +270,22 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#000",
     marginLeft: 8,
+    fontFamily: "NedianMedium",
+
   },
   transactionDesc: {
     color: "#333",
     fontSize: 14,
     marginTop: 2,
+    fontFamily: "NedianMedium",
+
   },
   transactionTime: {
     color: "#666",
     fontSize: 13,
     marginTop: 2,
+    fontFamily: "NedianMedium",
+
   },
   headerRow: {
     flexDirection: "row",
@@ -302,17 +308,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: "85%",
     elevation: 5,
+    fontFamily: "NedianMedium",
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
     marginBottom: 12,
     color: "#000",
+    fontFamily: "NedianMedium",
   },
   modalItem: {
     fontSize: 15,
     marginBottom: 6,
     color: "#333",
+    fontFamily: "NedianMedium",
   },
   closeButton: {
     marginTop: 16,
@@ -320,5 +329,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: "center",
+    fontFamily: "NedianMedium",
   },
 });

@@ -14,12 +14,18 @@ import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 import CustomHeader from "../../src/components/customHeader";
 
+import { useFonts } from "expo-font";
+
 export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
-  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } =
-    useLeagueStore();
+  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } = useLeagueStore();
   const { id } = useLocalSearchParams();
   const router = useRouter();
+
+  // Load your custom font
+  const [fontsLoaded] = useFonts({
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
+  });
 
   const [showDropDown, setShowDropDown] = useState(false);
   const [loadingTeamData, setLoadingTeamData] = useState(false);
@@ -32,9 +38,7 @@ export default function JoinTeam() {
   const currentDate = new Date();
 
   useEffect(() => {
-    if (id) {
-      getmyteam(id);
-    }
+    if (id) getmyteam(id);
   }, [id]);
 
   useEffect(() => {
@@ -49,18 +53,18 @@ export default function JoinTeam() {
           setLoadingTeamData(false);
         }
       };
-
       fetchData();
     }
   }, [showDropDown, data.day]);
 
+  if (!fontsLoaded) return null; // Wait for fonts to load
   if (!isAuthUser) return <Redirect href="/" />;
 
   if (!myteam) {
     return (
       <SafeAreaView>
-        <View className="flex-1 justify-center items-center">
-          <Text className="color-white text-base">Loading team data...</Text>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Text style={[styles.textBase, { color: "white" }]}>Loading team data...</Text>
         </View>
       </SafeAreaView>
     );
@@ -68,131 +72,106 @@ export default function JoinTeam() {
 
   return (
     <SafeAreaView style={styles.container}>
-             <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-          {/* Back Button */}
-           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-             <Text style={styles.backButtonText}>⋞⋞</Text>
-           </TouchableOpacity>
+      <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={[styles.backButtonText]}>⋞⋞</Text>
+      </TouchableOpacity>
 
       <View style={styles.containermain}>
-        <Text className="color-white text-lg  text-center font-bold mb-2">User: {myteam.userName}</Text>
-        <Text className="color-white text-lg  text-center font-bold">League: {myteam.leagueName}</Text>
-        <Text className="color-white text-lg  text-center font-semibold mb-4">
+        <Text style={[styles.textBase, styles.userLeagueText, { marginBottom: 8 }]}>
+          User: {myteam.userName}
+        </Text>
+        <Text style={[styles.textBase, styles.userLeagueText]}>
+          League: {myteam.leagueName}
+        </Text>
+        <Text style={[styles.textBase, styles.leagueIdText, { marginBottom: 16 }]}>
           League ID: {myteam.leagueId}
         </Text>
 
-        <View className="flex-row border-b border-gray-300 pb-2 mb-2">
-          <Text className="color-white flex-1 font-bold text-center">Day</Text>
-          <Text className="color-white flex-1 font-bold text-center">Team Name</Text>
+        <View style={styles.tableHeader}>
+          <Text style={[styles.textBase, styles.headerText]}>Day</Text>
+          <Text style={[styles.textBase, styles.headerText]}>Team Name</Text>
         </View>
 
         <FlatList
           data={myteam.teams}
           keyExtractor={(_, index) => index.toString()}
-          renderItem={({ item }) => (
-            <View className="flex-row py-2 border-b border-gray-200">
-              <Text className="color-white flex-1 text-center">
-                {new Date(item.day).toDateString()}
-              </Text>
-              <Text
-                className={`flex-1 underline text-center ${
-                  new Date() >=
-                  new Date(new Date(item.day).getTime() - 15 * 60 * 1000)
-                    ? "text-gray-500 cursor-not-allowed"
-                    : "text-blue-500"
-                }`}
-                onPress={() => {
-                  if (
-                    item.day.slice(0, 10) <=
-                    currentDate.toISOString().slice(0, 10)
-                  )
-                    return;
-                  setData({
-                    day: item.day.split("T")[0],
-                    leagueId: myteam.leagueId,
-                    teamName: item.teamName,
-                    startTime: item.startTime,
-                  });
-                  setShowDropDown(true);
-                }}
-              >
-                {item.teamName}
-              </Text>
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const isLocked =
+              new Date() >= new Date(new Date(item.day).getTime() - 15 * 60 * 1000);
+            return (
+              <View style={styles.row}>
+                <Text style={[styles.textBase, styles.cellText]}>
+                  {new Date(item.day).toDateString()}
+                </Text>
+                <Text
+                  style={[
+                    styles.textBase,
+                    styles.linkText,
+                    isLocked && styles.disabledText,
+                  ]}
+                  onPress={() => {
+                    if (item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10)) return;
+                    setData({
+                      day: item.day.split("T")[0],
+                      leagueId: myteam.leagueId,
+                      teamName: item.teamName,
+                      startTime: item.startTime,
+                    });
+                    setShowDropDown(true);
+                  }}
+                >
+                  {item.teamName}
+                </Text>
+              </View>
+            );
+          }}
         />
       </View>
 
       {showDropDown && (
         <TouchableWithoutFeedback onPress={() => setShowDropDown(false)}>
-          <View className="absolute inset-0 justify-center items-center bg-black bg-opacity-40">
+          <View style={styles.overlay}>
             <TouchableWithoutFeedback>
-              <View className="w-[95%] max-h-[70vh] bg-white p-4 rounded">
+              <View style={styles.dropdown}>
                 <Text
-                  className="text-right text-xl font-bold text-red-600 mb-2"
+                  style={[styles.textBase, styles.closeText]}
                   onPress={() => setShowDropDown(false)}
                 >
                   ×
                 </Text>
 
                 {loadingTeamData ? (
-                  <Text className="color-white text-center">Loading Data...</Text>
+                  <Text style={[styles.textBase, { textAlign: "center" }]}>Loading Data...</Text>
                 ) : (
                   <FlatList
                     data={matchOfTheDay}
                     keyExtractor={(_, index) => index.toString()}
-                    style={{ maxHeight: "100%" }}
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item }) => (
-                      <View className="flex-row items-center justify-between bg-black rounded p-2 m-1">
+                      <View style={styles.matchRow}>
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(
-                              data.leagueId,
-                              data.day,
-                              item.home,
-                              item.startTime
-                            );
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                              startTime: "",
-                            });
+                            jointeam(data.leagueId, data.day, item.home, item.startTime);
+                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
                           }}
                         >
-                          <Image
-                            style={styles.tinyLogo}
-                            source={{ uri: item.home_png }}
-                          />
-                          <Text className="color-white  w-28 font-bold">{item.home}</Text>
+                          <Image style={styles.tinyLogo} source={{ uri: item.home_png }} />
+                          <Text style={[styles.textBase, styles.matchText]}>{item.home}</Text>
                         </TouchableOpacity>
 
-                        <Text className="color-white mx-2 font-semibold">Vs</Text>
+                        <Text style={[styles.textBase, styles.vsText]}>Vs</Text>
 
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(
-                              data.leagueId,
-                              data.day,
-                              item.away,
-                              item.startTime
-                            );
-                            setData({
-                              day: "",
-                              teamName: "",
-                              leagueId: "",
-                              startTime: "",
-                            });
+                            jointeam(data.leagueId, data.day, item.away, item.startTime);
+                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
                           }}
                         >
-                          <Image
-                            style={styles.tinyLogo}
-                            source={{ uri: item.away_png }}
-                          />
-                          <Text className="color-white w-28 font-bold">{item.away}</Text>
+                          <Image style={styles.tinyLogo} source={{ uri: item.away_png }} />
+                          <Text style={[styles.textBase, styles.matchText]}>{item.away}</Text>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -208,28 +187,132 @@ export default function JoinTeam() {
 }
 
 const styles = StyleSheet.create({
-     backButtonText: {
-      marginLeft: 20,
+  container: { flex: 1, backgroundColor: "#fff" },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  backButtonText: {
+    marginLeft: 20,
     fontSize: 20,
     fontWeight: "600",
     color: "#000",
   },
-   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-   containermain: {
+  containermain: {
     marginTop: 10,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderTopEndRadius: 40,
     borderTopStartRadius: 40,
   },
-   tinyLogo: {
-    width: 50,
-    height: 50,
-    margin: 'auto',
+  tinyLogo: { width: 50, height: 50, margin: "auto" },
+
+  textBase: {
+    fontFamily: "NedianMedium",
+    fontSize: 16,
+  },
+
+  userLeagueText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+
+  leagueIdText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 16,
+  },
+
+  tableHeader: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#d1d5db",
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+
+  headerText: {
+    flex: 1,
+    textAlign: "center",
+    fontWeight: "bold",
+    color: "white",
+  },
+
+  row: {
+    flexDirection: "row",
+    paddingVertical: 8,
+    paddingHorizontal: 3,
+    borderBottomWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+
+  cellText: {
+    flex: 1,
+    color: "white",
+    // textAlign: "center",
+  },
+
+  linkText: {
+    flex: 1,
+    color: "#3b82f6", // blue-500
+    // textAlign: "center",
+    textDecorationLine: "underline",
+  },
+
+  disabledText: {
+    color: "#9ca3af", // gray-500
+  },
+
+  overlay: {
+    position: "absolute",
+    inset: 0,
+    justifyContent: "center",
+    // alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+
+  dropdown: {
+    width: "95%",
+    maxHeight: "70vh",
+    backgroundColor: "white",
+    padding: 16,
+    borderRadius: 10,
+  },
+
+  closeText: {
+    textAlign: "right",
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#dc2626", // red-600
+    marginBottom: 8,
+  },
+
+  matchRow: {
+    flexDirection: "row",
+    // alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "black",
+    borderRadius: 8,
+    padding: 8,
+    marginVertical: 4,
+  },
+
+  matchText: {
+    width: 112,
+    fontWeight: "bold",
+    color: "white",
+    // textAlign: "center",
+  },
+
+  vsText: {
+    marginHorizontal: 8,
+    fontWeight: "600",
+    color: "white",
   },
 });

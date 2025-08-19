@@ -14,11 +14,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
+import { useFonts } from "expo-font";
 
 export default function Home() {
+  const [fontsLoaded] = useFonts({
+    'NedianMedium': require('../../assets/fonts/Nedian-Medium.otf'),
+  });
+
   const router = useRouter();
   const {
     leagues,
@@ -29,7 +33,7 @@ export default function Home() {
     myleagues,
     getmyleagues,
   } = useLeagueStore();
-  const { isAuthUser,coinUpdates } = useAuthStore();
+  const { isAuthUser, coinUpdates } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
   const tips = [
@@ -49,6 +53,14 @@ export default function Home() {
     })();
     coinUpdates();
   }, [coinUpdates]);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#f59e0b" />
+      </View>
+    );
+  }
 
   const confirmJoin = (league) => {
     const handleJoin = () => {
@@ -118,13 +130,10 @@ export default function Home() {
         style={styles.joinButton}
         onPress={() => confirmJoin(league)}
       >
-        <Text style={{ color: "#fff", fontWeight: "600", textAlign: "center" }}>
-          Join
-        </Text>
+        <Text style={styles.joinButtonText}>Join</Text>
       </TouchableOpacity>
     </View>
   );
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +158,6 @@ export default function Home() {
 
         {/* My Leagues */}
         <Text style={styles.sectionTitle}>⚽ My Leagues</Text>
-
         <FlatList
           data={myleagues.slice(0, 4)}
           renderItem={renderMyLeague}
@@ -158,7 +166,6 @@ export default function Home() {
           columnWrapperStyle={{ justifyContent: "space-between" }}
           scrollEnabled={false}
         />
-
         {myleagues.length > 4 && (
           <TouchableOpacity
             onPress={() => router.push("/league")}
@@ -192,22 +199,20 @@ export default function Home() {
             )}
           </>
         ) : (
-          <Text style={{ fontStyle: "italic", color: "#f59e0b" }}>
+          <Text style={styles.noLeaguesText}>
             No public leagues available yet.
           </Text>
         )}
 
-          {/* Create League Button */}
-          <TouchableOpacity
-            style={styles.createButton}
-            onPress={() => router.push("/createnewleague")}
-          >
-            <Text style={styles.createText}>+ Create New League</Text>
-          </TouchableOpacity>
-          <LoaderCard/>
-        </ScrollView>
-      </SafeAreaView>
-  
+        {/* Create League Button */}
+        <TouchableOpacity
+          style={styles.createButton}
+          onPress={() => router.push("/createnewleague")}
+        >
+          <Text style={styles.createText}>+ Create New League</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -234,6 +239,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#fff",
     marginVertical: 12,
+    fontFamily: "NedianMedium",
   },
   gridCard: {
     backgroundColor: "#fff",
@@ -248,33 +254,14 @@ const styles = StyleSheet.create({
   leagueName: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: "NedianMedium",
     color: "#000",
   },
   leagueMeta: {
     color: "#000",
     fontSize: 14,
     marginTop: 2,
-  },
-  publicCard: {
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: "#3b82f6",
-  },
-  publicName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  leagueData: {
-    color: "#000",
-    fontSize: 14,
-    marginTop: 2,
+    fontFamily: "NedianMedium",
   },
   joinButton: {
     backgroundColor: "#000",
@@ -282,7 +269,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
   },
-
+  joinButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    textAlign: "center",
+    fontFamily: "NedianMedium",
+  },
   createButton: {
     marginTop: 20,
     backgroundColor: "#fff",
@@ -293,6 +285,7 @@ const styles = StyleSheet.create({
   createText: {
     fontSize: 16,
     color: "#000",
+    fontFamily: "NedianMedium",
     fontWeight: "700",
   },
   tipsBox: {
@@ -306,6 +299,7 @@ const styles = StyleSheet.create({
   },
   tipsTitle: {
     fontWeight: "700",
+    fontFamily: "NedianMedium",
     fontSize: 15,
     color: "#000",
     marginBottom: 4,
@@ -313,6 +307,7 @@ const styles = StyleSheet.create({
   tipItem: {
     fontSize: 13,
     color: "#000",
+    fontFamily: "NedianMedium",
   },
   viewMoreBtn: {
     paddingVertical: 8,
@@ -322,6 +317,12 @@ const styles = StyleSheet.create({
   viewMoreText: {
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: "NedianMedium",
     color: "#3b82f6",
+  },
+  noLeaguesText: {
+    fontStyle: "italic",
+    color: "#f59e0b",
+    fontFamily: "NedianMedium",
   },
 });
