@@ -4,12 +4,15 @@ import { create } from 'zustand';
 import { removeItem, setItem } from '../utils/asyncstorage.js';
 import Instance from '../utils/axios.configuration';
 
-const MAINURL=process.env.EXPO_PUBLIC_API_URL
-export const useAuthStore = create((set,get) => ({
+const MAINURL = process.env.EXPO_PUBLIC_API_URL;
+
+export const useAuthStore = create((set, get) => ({
     isAuthUser: null,
-    socket:null,
+    socket: null,
+    loading: false, // ✅ global loading state
 
     login: async (data) => {
+        set({ loading: true });
         try {
             const res = await Instance.post("/auth/login", {
                 email: data.email.toLowerCase(),
@@ -17,14 +20,15 @@ export const useAuthStore = create((set,get) => ({
             });
             set({ isAuthUser: res.data.user });
             await setItem(res.data.token);
+
             Toast.show({
                 type: 'success',
                 text1: `Welcome Back!`,
                 text2: res.data.user.name
             });
-            await get().dailyreward();
-             get().connectSocket();
 
+            await get().dailyreward();
+            get().connectSocket();
         } catch (error) {
             console.log(error);
             Toast.show({
@@ -33,10 +37,13 @@ export const useAuthStore = create((set,get) => ({
                 text2: error?.response?.data?.message || 'Something went wrong'
             });
             get().disconnectSocket();
+        } finally {
+            set({ loading: false });
         }
     },
 
     signup: async (data) => {
+        set({ loading: true });
         try {
             const res = await Instance.post("/auth/signup", {
                 email: data.email.toLowerCase(),
@@ -44,13 +51,15 @@ export const useAuthStore = create((set,get) => ({
                 name: data.name
             });
             set({ isAuthUser: res.data });
+
             Toast.show({
                 type: 'success',
                 text1: 'Signup Successful',
                 text2: `Welcome, ${res.data.user.name}`
             });
+
             await get().dailyreward();
-             get().connectSocket();
+            get().connectSocket();
         } catch (error) {
             console.log(error);
             Toast.show({
@@ -59,6 +68,8 @@ export const useAuthStore = create((set,get) => ({
                 text2: error?.response?.data?.message || 'Something went wrong'
             });
             get().disconnectSocket();
+        } finally {
+            set({ loading: false });
         }
     },
 
@@ -73,20 +84,28 @@ export const useAuthStore = create((set,get) => ({
     },
 
     dailyreward: async () => {
+        set({ loading: true });
         try {
             await Instance.get("/play/dailyreward");
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            Toast.show({
+                type: 'error',
+                text1: 'Daily reward fetch failed'
+            });
             get().disconnectSocket();
+        } finally {
+            set({ loading: false });
         }
     },
 
     check: async () => {
+        set({ loading: true });
         try {
             const res = await Instance.get("/auth/check");
             set({ isAuthUser: res.data });
             await get().dailyreward();
-             get().connectSocket();
+            get().connectSocket();
         } catch (error) {
             set({ isAuthUser: null });
             removeItem();
@@ -95,46 +114,41 @@ export const useAuthStore = create((set,get) => ({
                 text1: 'Session expired'
             });
             get().disconnectSocket();
+        } finally {
+            set({ loading: false });
         }
     },
 
-    connectSocket:()=>{
-        const {isAuthUser} = get();
+    connectSocket: () => {
+        const { isAuthUser } = get();
         if (!isAuthUser || get().socket?.connected) return;
-        const socket = io(MAINURL,{
-            query:{
-                userId:isAuthUser._id
-            }
+        const socket = io(MAINURL, {
+            query: { userId: isAuthUser._id }
         });
-        set({socket});
+        set({ socket });
     },
 
     disconnectSocket: () => {
-    if(get().socket?.connected) get().socket.disconnect();
-  },
+        if (get().socket?.connected) get().socket.disconnect();
+    },
 
-coinUpdates: () => {
-  try {
-    const { socket } = get();
-    if (!socket) return;
-
-    // Remove any old listener first
-    socket.off("coinsUpdated");
-
-    // Attach fresh listener
-    socket.on("coinsUpdated", (data) => {
-      // ✅ Replace the object reference
-      set((state) => ({
-        isAuthUser: { ...state.isAuthUser, ...data }
-      }));
-    });
-
-  } catch (error) {
-    console.error("❌ coinUpdates listener error:", error);
-  }
-}
-
-
-
-
-}))
+    coinUpdates: () => {
+        try {
+            const { socket } = get();
+            if (!socket) return;
+            socket.off("coinsUpdated");
+            socket.on("coinsUpdated", (data) => {
+                set((state) => ({
+                    isAuthUser: { ...state.isAuthUser, ...data }
+                }));
+                Toast.show({
+                    type: 'info',
+                    text1: 'Coins Updated',
+                    text2: `New balance: ${data.gcoin ?? data.scoin ?? ''}`
+                });
+            });
+        } catch (error) {
+            console.error("❌ coinUpdates listener error:", error);
+        }
+    }
+}));
