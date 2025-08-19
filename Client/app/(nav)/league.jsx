@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Animated,
   FlatList,
@@ -10,17 +10,13 @@ import {
   View,
 } from "react-native";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-
-import { useState } from "react";
 import SearchPopup from "../../src/components/searchIconWithBox";
 
 function MyLeague() {
   const { myleagues, getmyleagues } = useLeagueStore();
-
-  // search icon thinks
-  const [searchVisible, setSearchVisible] = useState(false);
-
   const router = useRouter();
+
+  const [searchVisible, setSearchVisible] = useState(false);
 
   useEffect(() => {
     getmyleagues();
@@ -54,6 +50,7 @@ function MyLeague() {
             params: { league: JSON.stringify(item) },
           })
         }
+        style={{ flex: 1 }}
       >
         <Animated.View
           style={[styles.card, { transform: [{ scale: scaleValue }] }]}
@@ -62,7 +59,6 @@ function MyLeague() {
             <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
             <Text style={styles.title}>{item.name}</Text>
           </View>
-
           <Text style={styles.fee}>
             🏷️ Join Fee: {item.joinfee.type} {item.joinfee.amount}
           </Text>
@@ -79,7 +75,7 @@ function MyLeague() {
 
   return (
     <View style={styles.container}>
-      {/* Top Action Buttons */}
+      {/* Top Buttons */}
       <View style={styles.topButtons}>
         <Pressable
           style={styles.button}
@@ -95,24 +91,31 @@ function MyLeague() {
           <Text style={styles.buttonText}>Create League</Text>
         </Pressable>
 
-        {/* search icon */}
-        <Pressable
-          style={[styles.button, styles.searchButton]}
-          onPress={() => setSearchVisible(true)}
-        >
-          <MaterialIcons name="search" size={22} color="#fff" />
-        </Pressable>
       </View>
+      {/* Search Button */}
+      <Pressable
+        style={styles.searchButton}
+        onPress={() => setSearchVisible(true)}
+      >
+        <View style={styles.searchContent}>
+          <Text style={styles.searchText}>Search League</Text>
+          <MaterialIcons name="search" size={22} color="#000" />
+        </View>
+      </Pressable>
 
-      {/* League List */}
+
+
+      {/* League Grid */}
       <FlatList
         data={myleagues}
         keyExtractor={(item) => item._id}
         renderItem={renderLeague}
+        numColumns={2}
+        columnWrapperStyle={{ justifyContent: "space-between", paddingHorizontal: 12 }}
         contentContainerStyle={{ paddingBottom: 16 }}
       />
 
-      {/* search box here  */}
+      {/* Search Popup */}
       <SearchPopup
         visible={searchVisible}
         onClose={() => setSearchVisible(false)}
@@ -127,7 +130,6 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#000",
     flex: 1,
-    paddingHorizontal: 1,
     paddingTop: 1,
     borderTopEndRadius: 40,
     borderTopStartRadius: 40,
@@ -147,26 +149,56 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 2,
   },
   createButton: {
-    backgroundColor: "#10B981", // Emerald green
+    backgroundColor: "#10B981",
   },
+searchButton: {
+  flex: 1,
+  paddingVertical: 12,
+  paddingHorizontal: 16,
+  borderRadius: 12,
+  backgroundColor: "#fff",
+  marginHorizontal: 14,
+  marginBottom: 16,
+  elevation: 2,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  height: 50,
+},
+
+searchContent: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+},
+
+searchText: {
+  color: "#000",
+  fontWeight: "600",
+  fontSize: 16,
+},
+
   buttonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center",
   },
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 20,
-    padding: 20,
-    marginHorizontal: 16,
+    padding: 16,
     marginBottom: 16,
+    flex: 1,
+    marginHorizontal: 4,
+    minHeight: 160,
+    justifyContent: "space-between",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -179,26 +211,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
     color: "#1f2937",
     marginLeft: 10,
+    flexShrink: 1,
   },
   fee: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#6B7280",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   date: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#9CA3AF",
-    marginBottom: 2,
-  },
-
-  // search css
-  searchButton: {
-    backgroundColor: "#F59E0B", // amber
-    flex: 0.2,
-    justifyContent: "center",
   },
 });
