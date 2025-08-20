@@ -44,7 +44,7 @@ export const useLeagueStore = create((set, get) => ({
       const res = await Instance.get("/play/myleagues");
       set({ myleagues: res.data });
     } catch (error) {
-      console.log("Error getting my leagues", error);
+      console.log("Error getting my leagues", error.message);
       Toast.show({ type: 'error', text1: 'Failed to fetch my leagues' });
     } finally {
       set({ isMyLeaguesLoading: false });

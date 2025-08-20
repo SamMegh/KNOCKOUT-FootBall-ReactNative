@@ -1,3 +1,4 @@
+import { useFonts } from "expo-font";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -11,7 +12,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader.jsx";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import { useLeagueStore } from "../../src/store/useLeagueStore.js";
-import { useFonts } from "expo-font";
 
 function LeagueData() {
   const { league } = useLocalSearchParams();
@@ -43,7 +43,10 @@ function LeagueData() {
   useEffect(() => {
     if (parsedLeague?._id) {
       getmyteam(parsedLeague._id);
-      getRequests(parsedLeague._id);
+      if(parsedLeague.type=="private")
+      {
+        getRequests(parsedLeague._id);
+      }
       getleagueteams(parsedLeague._id);
     } else {
       router.back();
