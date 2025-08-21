@@ -88,6 +88,11 @@ export const useAuthStore = create((set, get) => ({
         try {
             await Instance.get("/play/dailyreward");
         } catch (error) {
+            console.log(error);
+            Toast.show({
+                type: 'error',
+                text1: 'Daily reward fetch failed'
+            });
             get().disconnectSocket();
         } finally {
             set({ loading: false });
@@ -99,11 +104,6 @@ export const useAuthStore = create((set, get) => ({
         try {
             const res = await Instance.get("/auth/check");
             set({ isAuthUser: res.data });
-            Toast.show({
-                type: 'success',
-                text1: `Welcome Back!`,
-                text2: res.data.user.name
-            });
             await get().dailyreward();
             get().connectSocket();
         } catch (error) {

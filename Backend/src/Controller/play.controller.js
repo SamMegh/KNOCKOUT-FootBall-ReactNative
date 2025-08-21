@@ -59,8 +59,7 @@ export const getleague = async (req, res) => {
 export const getmyleague = async (req, res) => {
     try {
         // 🔐 Get the current user's ID from the authenticated request
-        const user = req.user;
-        const userId = user._id;
+        const userId = req.user._id;
 
         // 🕒 Get the current date for checking league end times
         const currentDate = new Date();

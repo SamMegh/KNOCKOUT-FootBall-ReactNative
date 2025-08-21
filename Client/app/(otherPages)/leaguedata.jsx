@@ -43,10 +43,7 @@ function LeagueData() {
   useEffect(() => {
     if (parsedLeague?._id) {
       getmyteam(parsedLeague._id);
-      if(parsedLeague.type=="private")
-      {
-        getRequests(parsedLeague._id);
-      }
+      getRequests(parsedLeague._id);
       getleagueteams(parsedLeague._id);
     } else {
       router.back();
