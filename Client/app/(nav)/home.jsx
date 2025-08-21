@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -26,7 +27,7 @@ export default function Home() {
 
   const router = useRouter();
   const {
-    leagues, removeLeague, getleague, joinleague, isLoading, myleagues,  getmyleagues,} = useLeagueStore();
+    leagues, removeLeague, getleague, joinleague, isLoading, myleagues, getmyleagues, } = useLeagueStore();
   const { isAuthUser, coinUpdates, loading } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
@@ -80,7 +81,7 @@ export default function Home() {
   const renderMyLeague = ({ item: league }) => (
     <TouchableOpacity
       key={league._id}
-      style={styles.gridCard}
+      // style={styles.cardContainer}
       onPress={() =>
         router.push({
           pathname: "/leaguedata",
@@ -88,49 +89,94 @@ export default function Home() {
         })
       }
     >
-      <View>
-        <Text style={styles.leagueName}>{league.name}</Text>
-        <Text style={styles.leagueMeta}>
-          {now < new Date(league.end) ? "Upcoming" : "Ongoing"} •{" "}
-          {league.type.charAt(0).toUpperCase() + league.type.slice(1)}
-        </Text>
-        <Text style={styles.leagueMeta}>
-          Time: {league.start.split("T")[0]} to {league.end.split("T")[0]}
+      <View style={styles.cardContainer}>
+
+        {/* Top Row: League ID + Countdown */}
+        <View style={styles.topRow}>
+          <Text style={styles.ownerName}>{league.ownerName}</Text>
+          <View style={styles.countdown}>
+            <Text style={styles.countdownText}>
+              <Text style={styles.timerUnit}>{league.start.split("T")[0]}</Text>
+            </Text>
+            <Text style={styles.countdownText}>
+              <Text style={styles.timerUnit}>{league.end.split("T")[0]}</Text>
+            </Text>
+          </View>
+        </View>
+
+        {/* League Logo and Name */}
+        <View style={styles.leagueInfo}>
+          <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+          <Text style={styles.leagueName}>{league.name}</Text>
+        </View>
+
+        {/* Jackpot */}
+        <View style={styles.jackpotRow}>
+          <Text style={styles.jackpotLabel}>
+            <View style={{ flexDirection: 'row' }}>
+              {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
+                <MaterialIcons key={index} name="favorite" size={16} color="#000" />
+              ))}
+            </View>
+          </Text>
+        </View>
+
+        {/* Play Button */}
+        <Text style={styles.playButton}>
+          <Text style={styles.playButtonText}>{league.type}</Text>
         </Text>
       </View>
-      <Ionicons
-        name={now < new Date(league.start) ? "time" : "flash"}
-        size={20}
-        color="#f59e0b"
-        style={{ marginTop: 8 }}
-      />
-    </TouchableOpacity>
-  );
+
+    </TouchableOpacity>);
 
   const renderPublicLeague = ({ item: league }) => (
-    <View key={league._id} style={styles.gridCard}>
-      <View>
-        <Text style={styles.leagueName}>{league.name}</Text>
-        <Text style={styles.leagueMeta}>League Id: {league._id}</Text>
-        <Text style={styles.leagueMeta}>
-          Time: {league.start.split("T")[0]} to {league.end.split("T")[0]}
-        </Text>
-        <Text style={styles.leagueMeta}>
-          Joining Fee: {league.joinfee.type} {league.joinfee.amount}
-        </Text>
-        <Text style={styles.leagueMeta}>Owner: {league.ownerName}</Text>
+
+
+    <View key={league._id} style={styles.cardContainer}>
+      {/* Top Row: League ID + Countdown */}
+      <View style={styles.topRow}>
+        <Text style={styles.ownerName}>{league.ownerName}</Text>
+        <View style={styles.countdown}>
+          <Text style={styles.countdownText}>
+            <Text style={styles.timerUnit}>{league.start.split("T")[0]}</Text>
+          </Text>
+          <Text style={styles.countdownText}>
+            <Text style={styles.timerUnit}>{league.end.split("T")[0]}</Text>
+          </Text>
+        </View>
       </View>
+      {/* League Logo and Name */}
+      <View style={styles.leagueInfo}>
+        <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+        <Text style={styles.leagueName} >  {league.name.length > 20 ? league.name.slice(0, 20) + '...' : league.name}</Text>
+      </View>
+
+
+      {/* Jackpot */}
+      <View style={styles.jackpotRow}>
+        <Text style={styles.jackpotLabel}>
+          <View style={{ flexDirection: 'row' }}>
+            {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
+              <MaterialIcons key={index} name="favorite" size={16} color="#000" />
+            ))}
+          </View>
+        </Text>
+      </View>
+      {/* Play Button */}
       <TouchableOpacity
-        style={styles.joinButton}
+        style={styles.playButton}
         onPress={() => confirmJoin(league)}
       >
-        <Text style={styles.joinButtonText}>Join</Text>
+        <Text style={styles.playButtonText}>Join</Text>
       </TouchableOpacity>
+
+      <Text style={styles.ownerName}> Joining Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
+
     </View>
   );
-if(loading){
-  return <LoaderCard/>
-}
+  if (loading) {
+    return <LoaderCard />
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -158,8 +204,6 @@ if(loading){
           data={myleagues.slice(0, 4)}
           renderItem={renderMyLeague}
           keyExtractor={(item) => item._id}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
           scrollEnabled={false}
         />
         {myleagues.length > 4 && (
@@ -178,11 +222,9 @@ if(loading){
         ) : leagues?.length > 0 ? (
           <>
             <FlatList
-              data={leagues.slice(0, 4)}
+              data={myleagues.slice(0, 4)}
               renderItem={renderPublicLeague}
               keyExtractor={(item) => item._id}
-              numColumns={2}
-              columnWrapperStyle={{ justifyContent: "space-between" }}
               scrollEnabled={false}
             />
             {leagues.length > 3 && (
@@ -205,7 +247,7 @@ if(loading){
           style={styles.createButton}
           onPress={() => router.push("/createnewleague")}
         >
-          <Text style={styles.createText}>+ Create New League</Text>
+          <Text style={styles.playButtonText}>+ Create New League</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -237,52 +279,101 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     fontFamily: "NedianMedium",
   },
-  gridCard: {
-    backgroundColor: "#fff",
-    flex: 1,
-    margin: 6,
-    borderRadius: 12,
-    padding: 12,
-    elevation: 2,
-    minHeight: 140,
-    justifyContent: "space-between",
+  cardContainer: {
+    backgroundColor: '#ff4800',
+    borderRadius: 16,
+    padding: 20,
+    marginVertical: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  ownerName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+  },
+  countdown: {
+    backgroundColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  countdownText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  timerUnit: {
+    fontSize: 10,
+    fontWeight: '400',
+    fontFamily: 'NedianMedium',
+  },
+  leagueInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  leagueLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 12,
   },
   leagueName: {
+    color: '#ffffff',
     fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "NedianMedium",
-    color: "#000",
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
   },
-  leagueMeta: {
-    color: "#000",
-    fontSize: 14,
-    marginTop: 2,
-    fontFamily: "NedianMedium",
+  jackpotRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginTop: 20,
+    jackpotAmount: {
+      color: '#ffffff',
+      fontSize: 28,
+      fontWeight: '600',
+      fontFamily: 'NedianMedium',
+    },
   },
-  joinButton: {
-    backgroundColor: "#000",
-    marginTop: 10,
-    paddingVertical: 8,
-    borderRadius: 8,
+  jackpotLabel: {
+    color: '#000',
+    fontSize: 12,
+    marginLeft: 6,
+    marginBottom: 4,
   },
-  joinButtonText: {
-    color: "#fff",
-    fontWeight: "600",
-    textAlign: "center",
-    fontFamily: "NedianMedium",
+  playButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignSelf: 'flex-end',
+    marginTop: -36,
+    fontFamily: 'NedianMedium',
   },
+  playButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+  },
+
+ 
   createButton: {
     marginTop: 20,
     backgroundColor: "#fff",
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
-  },
-  createText: {
-    fontSize: 16,
-    color: "#000",
-    fontFamily: "NedianMedium",
-    fontWeight: "700",
   },
   tipsBox: {
     flexDirection: "row",
@@ -311,10 +402,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   viewMoreText: {
+   color: '#fff',
     fontSize: 14,
-    fontWeight: "600",
-    fontFamily: "NedianMedium",
-    color: "#3b82f6",
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
   },
   noLeaguesText: {
     fontStyle: "italic",
