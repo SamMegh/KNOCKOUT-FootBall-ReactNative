@@ -17,6 +17,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
 import { useFonts } from "expo-font";
+import LoaderCard from "../../src/components/loadingComponent";
 
 export default function Home() {
   const [fontsLoaded] = useFonts({
@@ -25,15 +26,8 @@ export default function Home() {
 
   const router = useRouter();
   const {
-    leagues,
-    removeLeague,
-    getleague,
-    joinleague,
-    loading,
-    myleagues,
-    getmyleagues,
-  } = useLeagueStore();
-  const { isAuthUser, coinUpdates } = useAuthStore();
+    leagues, removeLeague, getleague, joinleague, isLoading, myleagues,  getmyleagues,} = useLeagueStore();
+  const { isAuthUser, coinUpdates, loading } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
   const tips = [
@@ -134,7 +128,9 @@ export default function Home() {
       </TouchableOpacity>
     </View>
   );
-
+if(loading){
+  return <LoaderCard/>
+}
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -177,7 +173,7 @@ export default function Home() {
 
         {/* Public Leagues */}
         <Text style={styles.sectionTitle}>🌍 Public Leagues</Text>
-        {loading ? (
+        {isLoading ? (
           <ActivityIndicator size="large" color="#f59e0b" />
         ) : leagues?.length > 0 ? (
           <>
