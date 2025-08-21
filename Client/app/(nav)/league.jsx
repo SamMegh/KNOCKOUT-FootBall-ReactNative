@@ -70,18 +70,20 @@ function MyLeague() {
           style={[styles.card, { transform: [{ scale: scaleValue }] }]}
         >
           <View style={styles.headerRow}>
-            <MaterialIcons name="emoji-events" size={24} color="#6C63FF" />
-            <Text style={styles.title}>{item.name}</Text>
+          <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+            <Text style={styles.ownerName}>{item.name}</Text>
           </View>
-          <Text style={styles.fee}>
-            🏷️ Join Fee: {item.joinfee.type} {item.joinfee.amount}
-          </Text>
-          <Text style={styles.date}>
-            🕒 Start: {new Date(item.start).toDateString()}
-          </Text>
-          <Text style={styles.date}>
-            ⏳ End: {new Date(item.end).toDateString()}
-          </Text>
+
+          <Text style={styles.ownerName}>Join in: {item.joinfee.type==="GCoin"?"🪙" : "⚪"}{item.joinfee.amount}</Text>
+       
+       <View style={styles.countdown}>
+                 <Text style={styles.countdownText}>
+                   <Text style={styles.timerUnit}>IN: {item.start.split("T")[0]}</Text>
+                 </Text>
+                 <Text style={styles.countdownText}>
+                   <Text style={styles.timerUnit}>OUT: {item.end.split("T")[0]}</Text>
+                 </Text>
+               </View>
         </Animated.View>
       </Pressable>
     );
@@ -196,42 +198,53 @@ const styles = StyleSheet.create({
     fontFamily: "NedianMedium",
   },
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 16,
-    flex: 1,
-    marginHorizontal: 4,
-    minHeight: 160,
-    justifyContent: "space-between",
-    shadowColor: "#000",
+     backgroundColor: '#ff4800',
+    borderRadius: 16,
+    padding: 8,
+    margin: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
+  },
+   ownerName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    marginVertical: 5,
+
+  },
+   countdown: {
+    marginVertical: 5,
+    backgroundColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  countdownText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  timerUnit: {
+    fontSize: 10,
+    fontWeight: '400',
+    fontFamily: 'NedianMedium',
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1f2937",
-    marginLeft: 10,
-    flexShrink: 1,
-    fontFamily: "NedianMedium",
-  },
+
   fee: {
     fontSize: 14,
     color: "#6B7280",
     marginBottom: 6,
     fontFamily: "NedianMedium",
   },
-  date: {
-    fontSize: 13,
-    color: "#9CA3AF",
-    fontFamily: "NedianMedium",
-  },
+
 });

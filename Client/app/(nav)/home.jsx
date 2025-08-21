@@ -134,6 +134,8 @@ export default function Home() {
 
     <View key={league._id} style={styles.cardContainer}>
       {/* Top Row: League ID + Countdown */}
+
+      
       <View style={styles.topRow}>
         <Text style={styles.ownerName}>{league.ownerName}</Text>
         <View style={styles.countdown}>
