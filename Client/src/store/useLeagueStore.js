@@ -86,6 +86,10 @@ export const useLeagueStore = create((set, get) => ({
     }
   },
 
+  removeLeague: (id) => set((state) => ({
+    leagues: state.leagues.filter((l) => l._id !== id)
+  })),
+
   getleague: async () => {
     set({ isLeaguesLoading: true });
     try {
