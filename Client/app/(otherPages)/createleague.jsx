@@ -1,7 +1,7 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
-import LoaderCard from "../../src/components/loadingComponent";
 import {
   Animated,
   Pressable,
@@ -13,12 +13,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import { useFonts } from "expo-font";
 
 function CreateLeague() {
-  const { getmecreatedleagues, myownleagues } = useLeagueStore();
+  const { getmecreatedleagues, isGetMyOwnLeaguesLoading, myownleagues } = useLeagueStore();
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
 

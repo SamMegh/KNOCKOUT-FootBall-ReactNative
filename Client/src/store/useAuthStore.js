@@ -88,7 +88,7 @@ export const useAuthStore = create((set, get) => ({
         try {
             await Instance.get("/play/dailyreward");
         } catch (error) {
-            get().disconnectSocket();
+            console.log(error)
         } finally {
             set({ loading: false });
         }

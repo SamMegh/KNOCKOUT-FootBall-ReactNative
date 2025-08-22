@@ -17,7 +17,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-
+import { MaterialIcons } from "@expo/vector-icons";
 export default function Home() {
   const [fontsLoaded] = useFonts({
     NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
@@ -43,6 +43,7 @@ export default function Home() {
     "Build your dream team wisely",
     "Check player stats regularly",
     "Join public leagues to win rewards",
+    "You can only select team before the match start on the same day"
   ];
 
   useEffect(() => {
