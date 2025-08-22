@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   Animated,
   FlatList,

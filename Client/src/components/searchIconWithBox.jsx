@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useLeagueStore } from "../store/useLeagueStore";
+import LoaderCard from "./loadingComponent";
 
 const SearchPopup = ({ visible, onClose }) => {
   const [name, setName] = useState("");

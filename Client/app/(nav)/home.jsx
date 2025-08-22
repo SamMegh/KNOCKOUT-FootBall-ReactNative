@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   ActivityIndicator,
   Alert,

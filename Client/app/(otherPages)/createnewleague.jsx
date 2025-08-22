@@ -1,5 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import { Redirect, useRouter } from "expo-router";
+import LoaderCard from "../../src/components/loadingComponent";
 import { Formik } from "formik";
 import {
   Alert,

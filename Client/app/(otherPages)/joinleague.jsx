@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useEffect } from "react";
 import {
   ActivityIndicator,

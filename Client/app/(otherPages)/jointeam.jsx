@@ -1,5 +1,6 @@
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   FlatList,
   Image,

@@ -26,21 +26,23 @@ export default function LoaderCard() {
   }, [translateY]);
 
   return (
-    <View style={styles.card}>
-      <View style={styles.loader}>
-        <Text style={styles.text}>loading</Text>
-        <View style={styles.wordsContainer}>
-          <Animated.View
-            style={{
-              transform: [{ translateY }],
-            }}
-          >
-            {words.map((word, index) => (
-              <Text key={index} style={styles.word}>
-                {word}
-              </Text>
-            ))}
-          </Animated.View>
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <View style={styles.loader}>
+          <Text style={styles.text}>loading</Text>
+          <View style={styles.wordsContainer}>
+            <Animated.View
+              style={{
+                transform: [{ translateY }],
+              }}
+            >
+              {words.map((word, index) => (
+                <Text key={index} style={styles.word}>
+                  {word}
+                </Text>
+              ))}
+            </Animated.View>
+          </View>
         </View>
       </View>
     </View>
@@ -48,6 +50,12 @@ export default function LoaderCard() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1, // take full screen
+    justifyContent: "center", // vertical center
+    alignItems: "center", // horizontal center
+    backgroundColor: "#fff", // optional: background
+  },
   card: {
     padding: 16,
     borderRadius: 20,

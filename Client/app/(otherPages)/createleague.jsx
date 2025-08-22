@@ -1,6 +1,7 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   Animated,
   Pressable,
