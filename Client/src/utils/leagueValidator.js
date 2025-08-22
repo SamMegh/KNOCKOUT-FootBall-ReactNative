@@ -9,6 +9,7 @@ const leagueValidator = Yup.object().shape({
     amount: Yup.number()
       .typeError("Joining Fee must be a number")
       .min(20, "Joining Fee must be greater than 20")
+      .max(300, "Joining Fee must be less than 300")
       .required("Joining Fee is required"),
     type: Yup.string()
       .oneOf(["SCoin", "GCoin"], "Invalid coin type") // adjust if you allow more

@@ -1,6 +1,7 @@
 import { useFonts } from "expo-font";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   ScrollView,
   StyleSheet,
@@ -23,12 +24,17 @@ function LeagueData() {
   const {
     leagueTeams,
     getleagueteams,
+    isGetLeagueTeamsLoading,
     getmyteam,
+    isGetMyTeamLoading,
     myteam,
     getRequests,
+    isGetRequestsLoading,
     requests,
     rejectRequest,
+    isRejectRequestLoading,
     acceptRequest,
+    isAcceptRequestLoading,
   } = useLeagueStore();
 
   const [activeTab, setActiveTab] = useState("Teams");
@@ -43,7 +49,7 @@ function LeagueData() {
   useEffect(() => {
     if (parsedLeague?._id) {
       getmyteam(parsedLeague._id);
-      getRequests(parsedLeague._id);
+      getRequests(parsedLeague._id, parsedLeague.type);
       getleagueteams(parsedLeague._id);
     } else {
       router.back();
@@ -63,6 +69,16 @@ function LeagueData() {
   const rejectedRequests = requests.filter((r) => r.status === "reject");
   const totalRequests = pendingRequests.length + rejectedRequests.length;
 
+  if (
+    isGetMyTeamLoading ||
+    isGetLeagueTeamsLoading ||
+    isGetRequestsLoading ||
+    isRejectRequestLoading ||
+    isAcceptRequestLoading
+  ) {
+    return <LoaderCard />;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
@@ -72,48 +88,49 @@ function LeagueData() {
       </TouchableOpacity>
 
       {/* Tabs */}
-      {parsedLeague?.ownerId === isAuthUser._id && parsedLeague.type === "private" && (
-        <View style={styles.tabWrapper}>
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={styles.tab}
-              onPress={() => setActiveTab("Teams")}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === "Teams" && styles.activeTabText,
-                ]}
+      {parsedLeague?.ownerId === isAuthUser._id &&
+        parsedLeague.type === "private" && (
+          <View style={styles.tabWrapper}>
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={styles.tab}
+                onPress={() => setActiveTab("Teams")}
               >
-                Teams
-              </Text>
-              {activeTab === "Teams" && <View style={styles.underline} />}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.tab}
-              onPress={() => setActiveTab("Requests")}
-            >
-              <View style={styles.tabBadgeWrapper}>
                 <Text
                   style={[
                     styles.tabText,
-                    activeTab === "Requests" && styles.activeTabText,
+                    activeTab === "Teams" && styles.activeTabText,
                   ]}
                 >
-                  Requests
+                  Teams
                 </Text>
-                {totalRequests > 0 && (
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{totalRequests}</Text>
-                  </View>
-                )}
-              </View>
-              {activeTab === "Requests" && <View style={styles.underline} />}
-            </TouchableOpacity>
+                {activeTab === "Teams" && <View style={styles.underline} />}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.tab}
+                onPress={() => setActiveTab("Requests")}
+              >
+                <View style={styles.tabBadgeWrapper}>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === "Requests" && styles.activeTabText,
+                    ]}
+                  >
+                    Requests
+                  </Text>
+                  {totalRequests > 0 && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{totalRequests}</Text>
+                    </View>
+                  )}
+                </View>
+                {activeTab === "Requests" && <View style={styles.underline} />}
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      )}
+        )}
 
       <ScrollView style={styles.scrollView}>
         {activeTab === "Teams" ? (

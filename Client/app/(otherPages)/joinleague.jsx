@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import {  MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useEffect } from "react";
 import {
   ActivityIndicator,
@@ -10,7 +11,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useFonts } from "expo-font";
 
@@ -18,7 +19,14 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 import CustomHeader from "../../src/components/customHeader";
 
 const JoinLeague = () => {
-  const { getleague, leagues, joinleague, removeLeague } = useLeagueStore();
+  const {
+    getleague,
+    isGetLeaguesLoading,
+    leagues,
+    joinleague,
+    isJoinLeagueLoading,
+    removeLeague,
+  } = useLeagueStore();
   const router = useRouter();
 
   const [fontsLoaded] = useFonts({
@@ -38,32 +46,39 @@ const JoinLeague = () => {
     if (Platform.OS === "web") {
       if (window.confirm(`Join "${league.name}"?`)) onConfirm();
     } else {
-      Alert.alert("Join League", `Are you sure you want to join "${league.name}"?`, [
-        { text: "Cancel", style: "cancel" },
-        { text: "Join", onPress: onConfirm },
-      ]);
+      Alert.alert(
+        "Join League",
+        `Are you sure you want to join "${league.name}"?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Join", onPress: onConfirm },
+        ]
+      );
     }
   };
 
   if (!fontsLoaded) return null;
 
-  if (!leagues) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.loadingText}>Loading leagues...</Text>
-      </View>
-    );
+  if (isJoinLeagueLoading || isGetLeaguesLoading) {
+    return <LoaderCard />;
   }
 
   if (leagues.length === 0) {
     return (
       <View style={styles.container}>
         <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Text style={styles.backButtonText}>⋞⋞</Text>
         </TouchableOpacity>
-        <Text style={[styles.centered, { fontFamily: "NedianMedium", fontSize: 16 }]}>
+        <Text
+          style={[
+            styles.centered,
+            { fontFamily: "NedianMedium", fontSize: 16 },
+          ]}
+        >
           No leagues available.
         </Text>
       </View>

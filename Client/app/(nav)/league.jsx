@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
+import LoaderCard from "../../src/components/loadingComponent";
 import {
   Animated,
   FlatList,
@@ -15,7 +16,7 @@ import { useLeagueStore } from "../../src/store/useLeagueStore";
 import { useFonts } from "expo-font";
 
 function MyLeague() {
-  const { myleagues, getmyleagues } = useLeagueStore();
+  const { myleagues, getmyleagues, isGetMyLeaguesLoading } = useLeagueStore();
   const router = useRouter();
 
   const [searchVisible, setSearchVisible] = useState(false);
@@ -34,6 +35,10 @@ function MyLeague() {
         <ActivityIndicator size="large" color="#6C63FF" />
       </View>
     );
+  }
+
+  if (isGetMyLeaguesLoading) {
+    return <LoaderCard />;
   }
 
   const renderLeague = ({ item }) => {

@@ -575,9 +575,14 @@ export const dailyCoin = async (req, res) => {
 
         // 📆 Check last daily claim
         const lastUpdate = user.coinClams;
-        const hasUpdatedToday =
-            lastUpdate &&
-            new Date(lastUpdate).toDateString() === today.toDateString();
+        const getUTCDate = (date) =>
+            new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+
+        const todayUTC = getUTCDate(new Date());
+        const lastUpdateUTC = lastUpdate ? getUTCDate(new Date(lastUpdate)) : null;
+
+        const hasUpdatedToday = lastUpdateUTC && todayUTC.getTime() === lastUpdateUTC.getTime();
+
 
         // 🚫 Already claimed today
         if (hasUpdatedToday) {

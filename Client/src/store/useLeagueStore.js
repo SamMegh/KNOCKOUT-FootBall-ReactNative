@@ -4,219 +4,268 @@ import { useAuthStore } from '../store/useAuthStore';
 import Instance from '../utils/axios.configuration';
 
 export const useLeagueStore = create((set, get) => ({
-  leagues: null,
+  leagues: [],
   myleagues: [],
-  myteam: null,
+  myteam: [],
   leagueTeams: [],
   matchOfTheDay: [],
   myownleagues: [],
   transactions: [],
   requests: [],
+  leagueSearchResult: [],
 
-  // 🔄 loading flags
-  istransactionsloading: false,
-  isLoading: false,
-  isLeaguesLoading: false,
-  isMyLeaguesLoading: false,
-  isMyOwnLeaguesLoading: false,
-  isMyTeamLoading: false,
-  isLeagueTeamsLoading: false,
-  isDayDataLoading: false,
-  isRequestsLoading: false,
+  // 🔄 loading & error states
+  isJoinLeagueLoading: false,
+  joinLeagueError: null,
 
+  isGetMyLeaguesLoading: false,
+  getMyLeaguesError: null,
+
+  isGetMyOwnLeaguesLoading: false,
+  getMyOwnLeaguesError: null,
+
+  isCreateMyOwnLeagueLoading: false,
+  createMyOwnLeagueError: null,
+
+  isGetLeaguesLoading: false,
+  getLeaguesError: null,
+
+  isJoinTeamLoading: false,
+  joinTeamError: null,
+
+  isGetMyTeamLoading: false,
+  getMyTeamError: null,
+
+  isGetDayDataLoading: false,
+  getDayDataError: null,
+
+  isGetLeagueTeamsLoading: false,
+  getLeagueTeamsError: null,
+
+  isGetTransactionLoading: false,
+  getTransactionError: null,
+
+  isSearchByNameLoading: false,
+  searchByNameError: null,
+
+  isSendRequestLoading: false,
+  sendRequestError: null,
+
+  isGetRequestsLoading: false,
+  getRequestsError: null,
+
+  isRejectRequestLoading: false,
+  rejectRequestError: null,
+
+  isAcceptRequestLoading: false,
+  acceptRequestError: null,
+
+  // ✅ join league
   joinleague: async (leagueId) => {
-    set({ isLoading: true });
+    set({ isJoinLeagueLoading: true, joinLeagueError: null });
     try {
       const res = await Instance.post("/play/joinleague", { leagueId });
       set((state) => ({ myleagues: [...state.myleagues, res.data] }));
       Toast.show({ type: 'success', text1: 'Joined league successfully' });
     } catch (error) {
+      set({ joinLeagueError: error });
       console.log("Error joining league", error);
       Toast.show({ type: 'error', text1: 'Failed to join league' });
     } finally {
-      set({ isLoading: false });
+      set({ isJoinLeagueLoading: false });
     }
   },
 
+  // ✅ get my leagues
   getmyleagues: async () => {
-    set({ isMyLeaguesLoading: true });
+    set({ isGetMyLeaguesLoading: true, getMyLeaguesError: null, myleagues: [] });
     try {
       const res = await Instance.get("/play/myleagues");
       set({ myleagues: res.data });
     } catch (error) {
+      set({ getMyLeaguesError: error });
       console.log("Error getting my leagues", error);
       Toast.show({ type: 'error', text1: 'Failed to fetch my leagues' });
     } finally {
-      set({ isMyLeaguesLoading: false });
+      set({ isGetMyLeaguesLoading: false });
     }
   },
 
+  // ✅ get my created leagues
   getmecreatedleagues: async () => {
-    set({ isMyOwnLeaguesLoading: true });
+    set({ isGetMyOwnLeaguesLoading: true, getMyOwnLeaguesError: null, myownleagues: [] });
     try {
       const res = await Instance.get("/play/myownleagues");
       set({ myownleagues: res.data });
     } catch (error) {
+      set({ getMyOwnLeaguesError: error });
       console.log("Error while getting leagues", error);
       Toast.show({ type: 'error', text1: 'Failed to fetch created leagues' });
     } finally {
-      set({ isMyOwnLeaguesLoading: false });
+      set({ isGetMyOwnLeaguesLoading: false });
     }
   },
 
+  // ✅ create my own league
   createmyownleague: async (data) => {
-    set({ isMyOwnLeaguesLoading: true });
+    set({ isCreateMyOwnLeagueLoading: true, createMyOwnLeagueError: null });
     try {
-      const res = await Instance.post("/play/createleague", {
-        joinfee: data.joinfee,
-        name: data.name,
-        end: data.end,
-        start: data.start,
-        type: data.type,
-        maxTimeTeamSelect: data.maxTimeTeamSelect,
-        lifelinePerUser: data.lifelinePerUser
-      });
+      const res = await Instance.post("/play/createleague", data);
       set({ myownleagues: [...get().myownleagues, res.data] });
       Toast.show({ type: 'success', text1: 'League created successfully' });
     } catch (error) {
+      set({ createMyOwnLeagueError: error });
       console.log("unable to create league ", error);
       Toast.show({ type: 'error', text1: 'Failed to create league' });
     } finally {
-      set({ isMyOwnLeaguesLoading: false });
+      set({ isCreateMyOwnLeagueLoading: false });
     }
   },
 
+  // ✅ remove league
   removeLeague: (id) => set((state) => ({
     leagues: state.leagues.filter((l) => l._id !== id)
   })),
 
+  // ✅ get leagues
   getleague: async () => {
-    set({ isLeaguesLoading: true });
+    set({ isGetLeaguesLoading: true, getLeaguesError: null, leagues: [] });
     try {
       const res = await Instance.get("/play/leagues");
       set({ leagues: res.data });
     } catch (error) {
+      set({ getLeaguesError: error });
       console.log("Error getting leagues", error);
       Toast.show({ type: 'error', text1: 'Failed to fetch leagues' });
     } finally {
-      set({ isLeaguesLoading: false });
+      set({ isGetLeaguesLoading: false });
     }
   },
 
+  // ✅ join team
   jointeam: async (leagueId, day, teamName, startTime) => {
-    set({ isLoading: true });
+    set({ isJoinTeamLoading: true, joinTeamError: null, myteam: [] });
     try {
-      const res = await Instance.post("/play/jointeam", {
-        leagueId,
-        day,
-        teamName,
-        startTime
-      });
+      const res = await Instance.post("/play/jointeam", { leagueId, day, teamName, startTime });
       set({ myteam: res.data });
       Toast.show({ type: 'success', text1: 'Team joined successfully' });
     } catch (error) {
+      set({ joinTeamError: error });
       console.log("Error joining team", error);
       Toast.show({ type: 'error', text1: 'Failed to join team' });
     } finally {
-      set({ isLoading: false });
+      set({ isJoinTeamLoading: false });
     }
   },
 
+  // ✅ get my team
   getmyteam: async (leagueId) => {
-    set({ myteam: null, isMyTeamLoading: true });
+    set({ isGetMyTeamLoading: true, getMyTeamError: null, myteam: [] });
     try {
       const res = await Instance.post("/play/myteam", { leagueId });
       set({ myteam: res.data });
     } catch (error) {
-      set({ myteam: null });
+      set({ getMyTeamError: error, myteam: null });
       Toast.show({ type: 'error', text1: 'Failed to fetch team' });
     } finally {
-      set({ isMyTeamLoading: false });
+      set({ isGetMyTeamLoading: false });
     }
   },
 
+  // ✅ get day data
   getDayData: async (day) => {
-    set({ isDayDataLoading: true });
+    set({ isGetDayDataLoading: true, getDayDataError: null, matchOfTheDay: [] });
     try {
       const res = await Instance.get(`/data/getmatch`, { params: { date: day } });
       set({ matchOfTheDay: res.data });
     } catch (error) {
+      set({ getDayDataError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to fetch match data' });
     } finally {
-      set({ isDayDataLoading: false });
+      set({ isGetDayDataLoading: false });
     }
   },
 
+  // ✅ get league teams
   getleagueteams: async (leagueid) => {
-    set({ isLeagueTeamsLoading: true });
+    set({ isGetLeagueTeamsLoading: true, getLeagueTeamsError: null, leagueTeams: [] });
     try {
       const res = await Instance.get("/play/leagueteams", { params: { leagueid } });
       set({ leagueTeams: res.data });
     } catch (error) {
+      set({ getLeagueTeamsError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to fetch league teams' });
     } finally {
-      set({ isLeagueTeamsLoading: false });
+      set({ isGetLeagueTeamsLoading: false });
     }
   },
 
+  // ✅ get transaction
   gettransaction: async () => {
-    set({ istransactionsloading: true });
+    set({ isGetTransactionLoading: true, getTransactionError: null, transactions: [] });
     try {
       const res = await Instance.get("/play/transaction");
       set({ transactions: res.data });
     } catch (error) {
+      set({ getTransactionError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to fetch transactions' });
     } finally {
-      set({ istransactionsloading: false });
+      set({ isGetTransactionLoading: false });
     }
   },
 
+  // ✅ search by name
   SearchByName: async (name) => {
-    set({ isLoading: true });
+    set({ isSearchByNameLoading: true, searchByNameError: null, leagueSearchResult: [] });
     try {
       const response = await Instance.post("/play/leaguebyname", { name });
       set({ leagueSearchResult: response.data });
     } catch (error) {
+      set({ searchByNameError: error });
       console.log(error.message);
       Toast.show({ type: 'error', text1: 'No league found' });
     } finally {
-      set({ isLoading: false });
+      set({ isSearchByNameLoading: false });
     }
   },
 
+  // ✅ send request
   sendRequest: async (leagueId) => {
-    set({ isLoading: true });
+    set({ isSendRequestLoading: true, sendRequestError: null });
     try {
       const res = await Instance.post("/play/joinrequest", { leagueId });
-      if (res) {
-        Toast.show({ type: 'success', text1: `Request Sent` });
-      }
+      if (res) Toast.show({ type: 'success', text1: `Request Sent` });
     } catch (error) {
+      set({ sendRequestError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to send request' });
     } finally {
-      set({ isLoading: false });
+      set({ isSendRequestLoading: false });
     }
   },
 
-  getRequests: async (leagueId) => {
-    set({ isRequestsLoading: true, requests: [] });
+  // ✅ get requests
+  getRequests: async (leagueId, leagueType) => {
+    set({ isGetRequestsLoading: true, getRequestsError: null, requests: [] });
     try {
+      if (leagueType == "public") return;
       const res = await Instance.post("/play/requests", { leagueId });
       set({ requests: res.data });
     } catch (error) {
+      set({ getRequestsError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to fetch requests' });
     } finally {
-      set({ isRequestsLoading: false });
+      set({ isGetRequestsLoading: false });
     }
   },
 
+  // ✅ reject request
   rejectRequest: async (requestId) => {
-    set({ isLoading: true });
+    set({ isRejectRequestLoading: true, rejectRequestError: null });
     try {
       const res = await Instance.post("/play/rejectrequest", { requestId });
       set((state) => ({
@@ -226,15 +275,17 @@ export const useLeagueStore = create((set, get) => ({
       }));
       Toast.show({ type: 'success', text1: 'Request rejected' });
     } catch (error) {
+      set({ rejectRequestError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to reject request' });
     } finally {
-      set({ isLoading: false });
+      set({ isRejectRequestLoading: false });
     }
   },
 
+  // ✅ accept request
   acceptRequest: async (requestId) => {
-    set({ isLoading: true });
+    set({ isAcceptRequestLoading: true, acceptRequestError: null });
     try {
       const res = await Instance.post("/play/acceptrequest", { requestId });
       set((state) => ({
@@ -244,15 +295,17 @@ export const useLeagueStore = create((set, get) => ({
       }));
       Toast.show({ type: 'success', text1: 'Request accepted' });
     } catch (error) {
+      set({ acceptRequestError: error });
       console.log(error);
       Toast.show({ type: 'error', text1: 'Failed to accept request' });
     } finally {
-      set({ isLoading: false });
+      set({ isAcceptRequestLoading: false });
     }
   },
 
   // 🔌 socket for realtime league search
   leaguebyname: () => {
+    set({ leagueSearchResult: [] });
     const { socket } = useAuthStore.getState();
     socket.off("leaguenameresult");
     socket.on("leaguenameresult", (data) => {

@@ -37,45 +37,24 @@ const CalendarWeekSelector = ({ values, handleChange }) => {
 
     setWeeks(calendar);
   };
-  const isPastOrCurrentWeek = (week) => {
-    const today = moment().startOf("day");
-    const weekEnd = week[6].clone().startOf("day");
-    return weekEnd.isSameOrBefore(today);
-  };
+
   const toggleWeekSelection = (weekIndex) => {
-    // now user can not select the previous weeks or current week
     const today = moment().startOf("day");
-    const weekEnd = weeks[weekIndex][6].clone().startOf("day");
+    const weekStart = weeks[weekIndex][0].clone().startOf("day");
 
-    if (weekEnd.isSameOrBefore(today)) {
-      return;
-    }
+    // ❌ Block if week already started (past or current)
+    if (weekStart.isSameOrBefore(today)) return;
 
-    // Always replace with the newly selected week
+    // ✅ Only future weeks selectable
     const updated = [weekIndex];
     setSelectedWeekIndices(updated);
 
     const start = weeks[weekIndex][0].format("YYYY-MM-DD");
     const end = weeks[weekIndex][6].format("YYYY-MM-DD");
-    const label = `${weeks[weekIndex][0].format("MMM D")} - ${weeks[weekIndex][6].format("D")}`;
 
-    // Update Formik fields
     handleChange("totalWeeks")("1");
     handleChange("start")(start);
     handleChange("end")(end);
-  };
-
-  const getColorForWeek = (index) => {
-    const colors = [
-      "#FFCDD2",
-      "#F8BBD0",
-      "#E1BEE7",
-      "#D1C4E9",
-      "#C5CAE9",
-      "#B2DFDB",
-      "#FFF9C4",
-    ];
-    return colors[index % colors.length];
   };
 
   return (
@@ -114,36 +93,41 @@ const CalendarWeekSelector = ({ values, handleChange }) => {
           ))}
         </View>
 
-        {weeks.map((week, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.weekContainer}
-            onPress={() => toggleWeekSelection(index)}
-            disabled={isPastOrCurrentWeek(week)}
-          >
-            <View
+        {weeks.map((week, index) => {
+          const today = moment().startOf("day");
+          const weekStart = week[0].clone().startOf("day");
+          const isDisabled = weekStart.isSameOrBefore(today);
+          const isSelected = selectedWeekIndices.includes(index);
+
+          return (
+            <TouchableOpacity
+              key={index}
               style={[
-                styles.weekRow,
-                selectedWeekIndices.includes(index) && {
-                  backgroundColor: getColorForWeek(index),
-                },
-                isPastOrCurrentWeek(week) && { opacity: 0.4 },
+                styles.weekContainer,
+                isDisabled && styles.disabledWeek,
+                isSelected && styles.selectedWeek,
               ]}
+              onPress={() => toggleWeekSelection(index)}
+              disabled={isDisabled}
             >
-              {week.map((day, i) => (
-                <Text
-                  key={i}
-                  style={[
-                    styles.dayCell,
-                    day.month() !== selectedMonth && { color: "#9CA3AF" }, // Tailwind gray-400
-                  ]}
-                >
-                  {day.date()}
-                </Text>
-              ))}
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View style={styles.weekRow}>
+                {week.map((day, i) => (
+                  <Text
+                    key={i}
+                    style={[
+                      styles.dayCell,
+                      day.month() !== selectedMonth && { color: "#9CA3AF" },
+                      isSelected && styles.selectedText,
+                      isDisabled && styles.disabledText,
+                    ]}
+                  >
+                    {day.date()}
+                  </Text>
+                ))}
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -175,15 +159,22 @@ const styles = StyleSheet.create({
   },
   weekContainer: {
     borderWidth: 2,
-    borderColor: "#4B5563", // Gray border
+    borderColor: "#4B5563",
     borderRadius: 10,
-    marginBottom: 2,
+    marginBottom: 4,
     overflow: "hidden",
+  },
+  disabledWeek: {
+    opacity: 0.5,
+    backgroundColor: "#1f2937", // Tailwind gray-800
+  },
+  selectedWeek: {
+    backgroundColor: "#2563eb", // Tailwind blue-600
   },
   weekRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 2,
+    paddingVertical: 6,
     paddingHorizontal: 4,
   },
   dayHeader: {
@@ -197,6 +188,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#fff",
     fontSize: 14,
+  },
+  selectedText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  disabledText: {
+    color: "#9CA3AF",
   },
 });
 

@@ -1,33 +1,41 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Image,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import { useFonts } from "expo-font";
-import LoaderCard from "../../src/components/loadingComponent";
-
+import { MaterialIcons } from "@expo/vector-icons";
 export default function Home() {
   const [fontsLoaded] = useFonts({
-    'NedianMedium': require('../../assets/fonts/Nedian-Medium.otf'),
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
   });
 
   const router = useRouter();
   const {
-    leagues, removeLeague, getleague, joinleague, isLoading, myleagues, getmyleagues, } = useLeagueStore();
+    leagues,
+    removeLeague,
+    getleague,
+    isGetLeaguesLoading,
+    joinleague,
+    isJoinLeagueLoading,
+    isLoading,
+    myleagues,
+    getmyleagues,
+    isGetMyLeaguesLoading,
+  } = useLeagueStore();
   const { isAuthUser, coinUpdates, loading } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
@@ -51,7 +59,7 @@ export default function Home() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#f59e0b" />
       </View>
     );
@@ -177,8 +185,8 @@ export default function Home() {
 
     </View>
   );
-  if (loading) {
-    return <LoaderCard />
+  if (isJoinLeagueLoading || isGetMyLeaguesLoading || isGetLeaguesLoading) {
+    return <LoaderCard />;
   }
   return (
     <SafeAreaView style={styles.container}>

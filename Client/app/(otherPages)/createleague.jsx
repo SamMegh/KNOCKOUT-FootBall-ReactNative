@@ -1,4 +1,5 @@
 import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
 import {
@@ -12,12 +13,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import { useFonts } from "expo-font";
 
 function CreateLeague() {
-  const { getmecreatedleagues, myownleagues } = useLeagueStore();
+  const { getmecreatedleagues, isGetMyOwnLeaguesLoading, myownleagues } = useLeagueStore();
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
 
@@ -110,7 +111,9 @@ function CreateLeague() {
       </Pressable>
     );
   };
-
+  if (isGetMyOwnLeaguesLoading) {
+    return <LoaderCard />;
+  }
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
@@ -120,7 +123,9 @@ function CreateLeague() {
       </TouchableOpacity>
 
       <View style={styles.header}>
-        <Text style={styles.heading}>Welcome, Create and manage your leagues!</Text>
+        <Text style={styles.heading}>
+          Welcome, Create and manage your leagues!
+        </Text>
 
         <Pressable
           onPress={() => router.push("/createnewleague")}

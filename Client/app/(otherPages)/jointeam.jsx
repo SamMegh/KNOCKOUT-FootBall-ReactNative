@@ -1,6 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Dimensions,
   FlatList,
   Image,
   StyleSheet,
@@ -10,19 +11,30 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import CustomHeader from "../../src/components/customHeader";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import CustomHeader from "../../src/components/customHeader";
 
 import { useFonts } from "expo-font";
 
 export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
-  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } = useLeagueStore();
+  const {
+    myteam,
+    getmyteam,
+    isGetMyTeamLoading,
+    getDayData,
+    isGetDayDataLoading,
+    matchOfTheDay,
+    jointeam,
+    isJoinTeamLoading,
+  } = useLeagueStore();
+
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
-  // Load your custom font
+  // Load custom font
   const [fontsLoaded] = useFonts({
     NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
   });
@@ -35,7 +47,14 @@ export default function JoinTeam() {
     leagueId: "",
     startTime: "",
   });
-  const currentDate = new Date();
+
+  // UTC helper (strip time)
+  const getUTCDate = (date) =>
+    new Date(
+      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+    );
+
+  const todayUTC = getUTCDate(new Date());
 
   useEffect(() => {
     if (id) getmyteam(id);
@@ -57,28 +76,48 @@ export default function JoinTeam() {
     }
   }, [showDropDown, data.day]);
 
-  if (!fontsLoaded) return null; // Wait for fonts to load
+  if (!fontsLoaded) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <LoaderCard />
+      </SafeAreaView>
+    );
+  }
+
   if (!isAuthUser) return <Redirect href="/" />;
 
   if (!myteam) {
     return (
       <SafeAreaView>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={[styles.textBase, { color: "white" }]}>Loading team data...</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={[styles.textBase, { color: "white" }]}>
+            Loading team data...
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
+  if (isJoinTeamLoading || isGetMyTeamLoading) {
+    return <LoaderCard />;
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
+
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Text style={[styles.backButtonText]}>⋞⋞</Text>
+        <Text style={styles.backButtonText}>⋞⋞</Text>
       </TouchableOpacity>
 
       <View style={styles.containermain}>
-        <Text style={[styles.textBase, styles.userLeagueText, { marginBottom: 8 }]}>
+        <Text
+          style={[styles.textBase, styles.userLeagueText, { marginBottom: 8 }]}
+        >
           User: {myteam.userName}
         </Text>
         <Text style={[styles.textBase, styles.userLeagueText]}>
@@ -94,8 +133,16 @@ export default function JoinTeam() {
           data={myteam.teams}
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {
-            const isLocked =
-              new Date() >= new Date(new Date(item.day).getTime() - 15 * 60 * 1000);
+            const dayUTC = getUTCDate(new Date(item.day));
+            const isToday = dayUTC.getTime() === todayUTC.getTime();
+
+            // match start time in UTC
+            const matchStart = new Date(item.startTime);
+            const now = new Date();
+
+            // user can only select if today AND before match start
+            const canSelect = isToday && now < matchStart;
+
             return (
               <View style={styles.row}>
                 <Text style={[styles.textBase, styles.cellText]}>
@@ -105,10 +152,10 @@ export default function JoinTeam() {
                   style={[
                     styles.ownerName,
                     styles.linkText,
-                    isLocked && styles.disabledText,
+                    !canSelect && styles.disabledText, // disable if not selectable
                   ]}
                   onPress={() => {
-                    if (item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10)) return;
+                    if (!canSelect) return; // block non-today or after start
                     setData({
                       day: item.day.split("T")[0],
                       leagueId: myteam.leagueId,
@@ -139,7 +186,9 @@ export default function JoinTeam() {
                 </Text>
 
                 {loadingTeamData ? (
-                  <Text style={[styles.textBase, { textAlign: "center" }]}>Loading Data...</Text>
+                  <Text style={[styles.textBase, { textAlign: "center" }]}>
+                    Loading Data...
+                  </Text>
                 ) : (
                   <FlatList
                     data={matchOfTheDay}
@@ -150,12 +199,27 @@ export default function JoinTeam() {
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.home, item.startTime);
-                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
+                            jointeam(
+                              data.leagueId,
+                              data.day,
+                              item.home,
+                              item.startTime
+                            );
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                              startTime: "",
+                            });
                           }}
                         >
-                          <Image style={styles.tinyLogo} source={{ uri: item.home_png }} />
-                          <Text style={[styles.textBase, styles.matchText]}>{item.home}</Text>
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.home_png }}
+                          />
+                          <Text style={[styles.textBase, styles.matchText]}>
+                            {item.home}
+                          </Text>
                         </TouchableOpacity>
 
                         <Text style={[styles.textBase, styles.vsText]}>Vs</Text>
@@ -163,12 +227,27 @@ export default function JoinTeam() {
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.away, item.startTime);
-                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
+                            jointeam(
+                              data.leagueId,
+                              data.day,
+                              item.away,
+                              item.startTime
+                            );
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                              startTime: "",
+                            });
                           }}
                         >
-                          <Image style={styles.tinyLogo} source={{ uri: item.away_png }} />
-                          <Text style={[styles.textBase, styles.matchText]}>{item.away}</Text>
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.away_png }}
+                          />
+                          <Text style={[styles.textBase, styles.matchText]}>
+                            {item.away}
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     )}
@@ -182,6 +261,8 @@ export default function JoinTeam() {
     </SafeAreaView>
   );
 }
+
+const { height } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
@@ -205,8 +286,11 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 40,
     borderTopStartRadius: 40,
   },
-  tinyLogo: { width: 50, height: 50, margin: "auto" },
-
+  tinyLogo: {
+    width: 50,
+    height: 50,
+    alignSelf: "center",
+  },
   textBase: {
     color: '#000',
     fontSize: 14,
@@ -223,7 +307,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-
   userLeagueText: {
     borderRadius: 8,
     borderLeftWidth: 1,
@@ -236,14 +319,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginVertical: 12,
   },
-
   leagueIdText: {
     color: "white",
     textAlign: "center",
     fontWeight: "600",
     fontSize: 16,
   },
-
   tableHeader: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -253,14 +334,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     marginBottom: 8,
   },
-
   headerText: {
     flex: 1,
     textAlign: "center",
     fontWeight: "bold",
     color: "white",
   },
-
   row: {
     flexDirection: "row",
     paddingVertical: 8,
@@ -270,13 +349,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#ff4800",
     borderRadius: 8,
   },
-
   cellText: {
     flex: 1,
     color: "white",
-    // textAlign: "center",
   },
-
   linkText: {
     color: '#ff4800',
     fontSize: 14,
@@ -284,27 +360,23 @@ const styles = StyleSheet.create({
     fontFamily: 'NedianMedium',
     textDecorationLine: "underline",
   },
-
   disabledText: {
     color: "#9ca3af", // gray-500
   },
-
   overlay: {
     position: "absolute",
     inset: 0,
     justifyContent: "center",
-    // alignItems: "center",
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.4)",
   },
-
   dropdown: {
     width: "95%",
-    maxHeight: "70vh",
+    maxHeight: height * 0.7,
     backgroundColor: "white",
     padding: 16,
     borderRadius: 10,
   },
-
   closeText: {
     textAlign: "right",
     fontSize: 24,
@@ -312,24 +384,19 @@ const styles = StyleSheet.create({
     color: "#dc2626", // red-600
     marginBottom: 8,
   },
-
   matchRow: {
     flexDirection: "row",
-    // alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "black",
     borderRadius: 8,
     padding: 8,
     marginVertical: 4,
   },
-
   matchText: {
     width: 112,
     fontWeight: "bold",
     color: "white",
-    // textAlign: "center",
   },
-
   vsText: {
     marginHorizontal: 8,
     fontWeight: "600",
