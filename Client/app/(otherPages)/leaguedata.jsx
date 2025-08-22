@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CustomHeader from "../../src/components/customHeader.jsx";
 import { useAuthStore } from "../../src/store/useAuthStore.js";
 import { useLeagueStore } from "../../src/store/useLeagueStore.js";
-
+import { LinearGradient } from "expo-linear-gradient";
 function LeagueData() {
   const { league } = useLocalSearchParams();
   const parsedLeague = league ? JSON.parse(league) : null;
@@ -154,15 +154,24 @@ function LeagueData() {
                 },
               ]}
             >
-              <Text style={styles.teamTitle}>{user.userName}'s Team</Text>
+              <LinearGradient
+                colors={[ '#c7adad', '#ff4800']}
+                start={{ x: 0.85, y: 0.5 }}
+                end={{ x: 0.15, y: 0.15 }}
+                key={league._id}
+                style={styles.cardContainer}>
 
-              {user.teams?.map((team, idx) => (
-                <View key={idx} style={{ marginBottom: 4, paddingLeft: 8 }}>
-                  <Text style={styles.teamInfo}>
-                    * {new Date(team.day).toDateString()} — {team.teamName}
-                  </Text>
-                </View>
-              ))}
+                <Text style={styles.teamTitle}>{user.userName}'s Team</Text>
+
+                {user.teams?.map((team, idx) => (
+                  <View key={idx} style={{ marginBottom: 4, paddingLeft: 0 }}>
+                    <Text style={styles.teamInfo}>
+                      * {new Date(team.day).toDateString()} — {team.teamName}
+                    </Text>
+                  </View>
+                ))}
+              </LinearGradient>
+
             </TouchableOpacity>
           ))
         ) : (
@@ -293,6 +302,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontFamily: "NedianMedium",
   },
+  cardContainer: {
+    backgroundColor: '#ff4800',
+    borderRadius: 16,
+    padding: 7,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
+  },
   scrollView: {
     paddingHorizontal: 32,
     paddingVertical: 40,
@@ -302,20 +322,33 @@ const styles = StyleSheet.create({
   },
   teamCard: {
     marginBottom: 16,
-    padding: 16,
+
     borderRadius: 12,
   },
   teamTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#003366",
-    marginBottom: 8,
-    fontFamily: "NedianMedium",
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    backgroundColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 12,
   },
   teamInfo: {
-    fontSize: 12,
-    color: "#333",
-    fontFamily: "NedianMedium",
+    color: '#000',
+    fontSize: 13,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    borderLeftWidth: 1,
+    borderLeftColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    paddingVertical: 4,
+    paddingHorizontal: 1,
   },
   sectionTitle: {
     fontSize: 14,

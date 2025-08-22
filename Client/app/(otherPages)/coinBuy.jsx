@@ -34,7 +34,7 @@ export default function CoinBuy() {
         onPress={() => goToCoinBuy(item)}
       >
         <LinearGradient
-          colors={isGcoin ? ["#222", "#555"] : ["#111", "#333"]}
+          colors={isGcoin ? ["#ff4800", "#000"] : ["#000", "#ff4800"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.gradient}

@@ -2,6 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import LoaderCard from "../../src/components/loadingComponent";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   Animated,
   FlatList,
@@ -71,8 +72,11 @@ function MyLeague() {
         }
         style={{ flex: 1 }}
       >
-        <Animated.View
-          style={[styles.card, { transform: [{ scale: scaleValue }] }]}
+        <LinearGradient
+          style={[styles.card]}
+          colors={['#ff4800', '#c7adad', '#000000']}
+          start={{ x: 0.85, y: 0.85 }}
+          end={{ x: 0.15, y: 0.15 }}
         >
           <View style={styles.headerRow}>
             <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
@@ -89,7 +93,7 @@ function MyLeague() {
               <Text style={styles.timerUnit}>OUT: {item.end.split("T")[0]}</Text>
             </Text>
           </View>
-        </Animated.View>
+        </LinearGradient>
       </Pressable>
     );
   };
