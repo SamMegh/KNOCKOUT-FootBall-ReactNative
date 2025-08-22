@@ -19,7 +19,7 @@ export default function Login() {
   });
 
   const router = useRouter();
-  const { isAuthUser, login } = useAuthStore();
+  const { isAuthUser, login, loading } = useAuthStore();
 
   const handleSubmit = async (values) => {
     await login(values);
@@ -27,6 +27,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthUser) {
+      console.log(isAuthUser)
       router.replace("/home");
     }
   }, [isAuthUser, router]);
@@ -106,7 +107,7 @@ export default function Login() {
                   {/* Submit Button */}
                   <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                     <Text style={styles.buttonText}>
-                      Submit
+                      {loading?"Submit":"Loading..."}
                     </Text>
                   </TouchableOpacity>
                 </View>

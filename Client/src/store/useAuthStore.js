@@ -30,11 +30,10 @@ export const useAuthStore = create((set, get) => ({
             await get().dailyreward();
             get().connectSocket();
         } catch (error) {
-            console.log(error);
             Toast.show({
                 type: 'error',
                 text1: 'Login Failed',
-                text2: error?.response?.data?.message || 'Something went wrong'
+                text2: error.message || 'Something went wrong'
             });
             get().disconnectSocket();
         } finally {
