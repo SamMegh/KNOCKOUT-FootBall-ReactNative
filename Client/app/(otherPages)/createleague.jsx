@@ -62,28 +62,50 @@ function CreateLeague() {
         }
       >
         <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
-          <View style={styles.headerRow}>
-            <MaterialIcons name="sports-soccer" size={22} color="#4F46E5" />
-            <Text style={styles.title}>{league.name}</Text>
+          <View key={league._id} style={styles.cardContainer}>
+            {/* Top Row: League ID + Countdown */}
+
+
+            <View style={styles.topRow}>
+              <Text style={styles.ownerName}>{league.ownerName}</Text>
+              <View style={styles.countdown}>
+                <Text style={styles.countdownText}>
+                  <Text style={styles.timerUnit}>{league.start.split("T")[0]}</Text>
+                </Text>
+                <Text style={styles.countdownText}>
+                  <Text style={styles.timerUnit}>{league.end.split("T")[0]}</Text>
+                </Text>
+              </View>
+            </View>
+            {/* League Logo and Name */}
+            <View style={styles.leagueInfo}>
+              <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+              <Text style={styles.leagueName} >  {league.name.length > 20 ? league.name.slice(0, 20) + '...' : league.name}</Text>
+            </View>
+
+            <Text style={styles.leagueData} >Total Weeks: {league.totalWeeks}</Text>
+            <Text style={styles.leagueData} >Team Repeat Limit: {league.maxTimeTeamSelect}</Text>
+
+            {/* Jackpot */}
+            <View style={styles.jackpotRow}>
+              <Text style={styles.jackpotAmount}>{league.joinfee.type === "GCoin" ? "🪙" : "⚪"}{league.joinfee.amount}</Text>
+              <Text style={styles.jackpotLabel}>
+                <View style={{ flexDirection: 'row' }}>
+                  {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
+                    <MaterialIcons key={index} name="favorite" size={16} color="#fff" />
+                  ))}
+                </View>
+              </Text>
+            </View>
+            {/* Play Button */}
+            <View
+              style={styles.playButton}
+            >
+              <Text style={styles.playButtonText}>{league.type}</Text>
+            </View>
+
+
           </View>
-          <Text style={styles.detail}>🆔 ID: {league._id}</Text>
-          <Text style={styles.detail}>
-            🕒 Start: {new Date(league.start).toDateString()}
-          </Text>
-          <Text style={styles.detail}>
-            ⏳ End: {new Date(league.end).toDateString()}
-          </Text>
-          <Text style={styles.detail}>📆 Total Weeks: {league.totalWeeks}</Text>
-          <Text style={styles.detail}>
-            💰 Join Fee: {league.joinfee.type} {league.joinfee.amount}
-          </Text>
-          <Text style={styles.detail}>🎮 Type: {league.type}</Text>
-          <Text style={styles.detail}>
-            ❤️ Life Lines / User: {league.lifelinePerUser}
-          </Text>
-          <Text style={styles.detail}>
-            🔁 Team Repeat Limit: {league.maxTimeTeamSelect}
-          </Text>
         </Animated.View>
       </Pressable>
     );
@@ -154,7 +176,7 @@ const styles = StyleSheet.create({
   },
   createBtn: {
     flexDirection: "row",
-    backgroundColor: "#4F46E5",
+    backgroundColor: "#ff4800",
     marginHorizontal: 16,
     marginVertical: 16,
     paddingVertical: 12,
@@ -174,7 +196,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 16,
-    padding: 18,
+    
     marginHorizontal: 16,
     marginBottom: 12,
     shadowColor: "#000",
@@ -200,5 +222,127 @@ const styles = StyleSheet.create({
     color: "#4B5563",
     marginBottom: 4,
     fontFamily: "NedianMedium",
+  },
+
+  cardContainer: {
+    backgroundColor: '#ff4800',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  ownerName: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  countdown: {
+    // backgroundColor: '#000',
+    borderRadius: 8,
+    borderLeftWidth: 1,
+    borderLeftColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  countdownText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  timerUnit: {
+    fontSize: 10,
+    fontWeight: '400',
+    fontFamily: 'NedianMedium',
+  },
+  leagueInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  leagueLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 12,
+  },
+  leagueName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    borderLeftWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  leagueData: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    borderLeftWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginTop: 12,
+  },
+  jackpotRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginTop: 20,
+  },
+  jackpotAmount: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+  },
+  jackpotLabel: {
+    color: '#fff',
+    fontSize: 12,
+    marginLeft: 6,
+    // backgroundColor: '#000',
+    borderLeftWidth: 1,
+    borderLeftColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  playButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignSelf: 'flex-end',
+    marginTop: -36,
+    fontFamily: 'NedianMedium',
+  },
+  playButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
   },
 });

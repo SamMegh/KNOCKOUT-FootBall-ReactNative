@@ -70,20 +70,20 @@ function MyLeague() {
           style={[styles.card, { transform: [{ scale: scaleValue }] }]}
         >
           <View style={styles.headerRow}>
-          <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
-            <Text style={styles.ownerName}>{item.name}</Text>
+            <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+            <Text style={styles.ownerName}>{item.name.length > 5 ? item.name.slice(0, 5) + '...' : item.name}</Text>
           </View>
 
-          <Text style={styles.ownerName}>Join in: {item.joinfee.type==="GCoin"?"🪙" : "⚪"}{item.joinfee.amount}</Text>
-       
-       <View style={styles.countdown}>
-                 <Text style={styles.countdownText}>
-                   <Text style={styles.timerUnit}>IN: {item.start.split("T")[0]}</Text>
-                 </Text>
-                 <Text style={styles.countdownText}>
-                   <Text style={styles.timerUnit}>OUT: {item.end.split("T")[0]}</Text>
-                 </Text>
-               </View>
+          <Text style={styles.priceText}>Used: {item.joinfee.type === "GCoin" ? "🪙" : "⚪"}{item.joinfee.amount}</Text>
+
+          <View style={styles.countdown}>
+            <Text style={styles.countdownText}>
+              <Text style={styles.timerUnit}>IN: {item.start.split("T")[0]}</Text>
+            </Text>
+            <Text style={styles.countdownText}>
+              <Text style={styles.timerUnit}>OUT: {item.end.split("T")[0]}</Text>
+            </Text>
+          </View>
         </Animated.View>
       </Pressable>
     );
@@ -162,17 +162,17 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#ff4800",
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
     elevation: 2,
   },
   createButton: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#fff",
   },
   buttonText: {
-    color: "#fff",
+    color: "#000",
     fontWeight: "600",
     fontSize: 16,
     textAlign: "center",
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     fontFamily: "NedianMedium",
   },
   card: {
-     backgroundColor: '#ff4800',
+    backgroundColor: '#ff4800',
     borderRadius: 16,
     padding: 8,
     margin: 5,
@@ -209,17 +209,31 @@ const styles = StyleSheet.create({
     elevation: 8,
     position: 'relative',
   },
-   ownerName: {
-    color: '#fff',
+  ownerName: {
+    color: '#000',
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'NedianMedium',
-    marginVertical: 5,
-
   },
-   countdown: {
-    marginVertical: 5,
-    backgroundColor: '#000',
+  priceText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    borderLeftWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  countdown: {
+    marginVertical: 8,
+    borderWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -237,7 +251,12 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    justifyContent: "space-between",
+    marginBottom: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
 
   fee: {

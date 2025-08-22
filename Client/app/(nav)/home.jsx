@@ -34,7 +34,7 @@ export default function Home() {
   const tips = [
     "Build your dream team wisely",
     "Check player stats regularly",
-    "Join public leagues to win rewards",
+    "Join public leagues to\n win rewards",
   ];
 
   useEffect(() => {
@@ -112,10 +112,11 @@ export default function Home() {
 
         {/* Jackpot */}
         <View style={styles.jackpotRow}>
+          <Text style={styles.jackpotAmount}>{league.joinfee.type === "GCoin" ? "🪙" : "⚪"}{league.joinfee.amount}</Text>
           <Text style={styles.jackpotLabel}>
             <View style={{ flexDirection: 'row' }}>
               {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
-                <MaterialIcons key={index} name="favorite" size={16} color="#000" />
+                <MaterialIcons key={index} name="favorite" size={16} color="#fff" />
               ))}
             </View>
           </Text>
@@ -135,7 +136,7 @@ export default function Home() {
     <View key={league._id} style={styles.cardContainer}>
       {/* Top Row: League ID + Countdown */}
 
-      
+
       <View style={styles.topRow}>
         <Text style={styles.ownerName}>{league.ownerName}</Text>
         <View style={styles.countdown}>
@@ -156,10 +157,11 @@ export default function Home() {
 
       {/* Jackpot */}
       <View style={styles.jackpotRow}>
+        <Text style={styles.jackpotAmount}>{league.joinfee.type === "GCoin" ? "🪙" : "⚪"}{league.joinfee.amount}</Text>
         <Text style={styles.jackpotLabel}>
           <View style={{ flexDirection: 'row' }}>
             {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
-              <MaterialIcons key={index} name="favorite" size={16} color="#000" />
+              <MaterialIcons key={index} name="favorite" size={16} color="#fff" />
             ))}
           </View>
         </Text>
@@ -172,7 +174,6 @@ export default function Home() {
         <Text style={styles.playButtonText}>Join</Text>
       </TouchableOpacity>
 
-      <Text style={styles.ownerName}> Joining Fee: {league.joinfee.type} {league.joinfee.amount}</Text>
 
     </View>
   );
@@ -191,7 +192,7 @@ export default function Home() {
         <View style={styles.tipsBox}>
           <Ionicons name="bulb-outline" size={24} color="#f59e0b" />
           <View style={{ marginLeft: 12 }}>
-            <Text style={styles.tipsTitle}>Quick Tips</Text>
+            <Text style={styles.ownerName}>Quick Tips</Text>
             {tips.map((tip, i) => (
               <Text key={i} style={styles.tipItem}>
                 • {tip}
@@ -299,13 +300,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ownerName: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'NedianMedium',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   countdown: {
-    backgroundColor: '#000',
+    // backgroundColor: '#000',
+    borderRadius: 8,
+    borderLeftWidth: 1,
+    borderLeftColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -331,27 +341,40 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   leagueName: {
-    color: '#ffffff',
+    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
     fontFamily: 'NedianMedium',
+    borderLeftWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
   },
   jackpotRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     marginTop: 20,
-    jackpotAmount: {
-      color: '#ffffff',
-      fontSize: 28,
-      fontWeight: '600',
-      fontFamily: 'NedianMedium',
-    },
+  },
+  jackpotAmount: {
+    color: '#fff',
+    fontSize: 28,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
   },
   jackpotLabel: {
-    color: '#000',
+    color: '#fff',
     fontSize: 12,
     marginLeft: 6,
-    marginBottom: 4,
+    // backgroundColor: '#000',
+    borderLeftWidth: 1,
+    borderLeftColor: '#000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   playButton: {
     backgroundColor: '#fff',
@@ -369,7 +392,7 @@ const styles = StyleSheet.create({
     fontFamily: 'NedianMedium',
   },
 
- 
+
   createButton: {
     marginTop: 20,
     backgroundColor: "#fff",
@@ -404,7 +427,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   viewMoreText: {
-   color: '#fff',
+    color: '#fff',
     fontSize: 14,
     fontWeight: '600',
     fontFamily: 'NedianMedium',

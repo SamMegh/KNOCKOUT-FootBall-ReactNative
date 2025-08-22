@@ -84,9 +84,6 @@ export default function JoinTeam() {
         <Text style={[styles.textBase, styles.userLeagueText]}>
           League: {myteam.leagueName}
         </Text>
-        <Text style={[styles.textBase, styles.leagueIdText, { marginBottom: 16 }]}>
-          League ID: {myteam.leagueId}
-        </Text>
 
         <View style={styles.tableHeader}>
           <Text style={[styles.textBase, styles.headerText]}>Day</Text>
@@ -106,7 +103,7 @@ export default function JoinTeam() {
                 </Text>
                 <Text
                   style={[
-                    styles.textBase,
+                    styles.ownerName,
                     styles.linkText,
                     isLocked && styles.disabledText,
                   ]}
@@ -201,7 +198,7 @@ const styles = StyleSheet.create({
   },
   containermain: {
     marginTop: 10,
-    backgroundColor: "#000",
+    backgroundColor: "#ff4800",
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 20,
@@ -211,15 +208,33 @@ const styles = StyleSheet.create({
   tinyLogo: { width: 50, height: 50, margin: "auto" },
 
   textBase: {
-    fontFamily: "NedianMedium",
-    fontSize: 16,
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+  },
+  ownerName: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
 
   userLeagueText: {
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 18,
+    borderRadius: 8,
+    borderLeftWidth: 1,
+    borderLeftColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    color: '#fff',
+    marginVertical: 12,
   },
 
   leagueIdText: {
@@ -233,7 +248,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderColor: "#d1d5db",
-    paddingBottom: 8,
+    backgroundColor: "#ff4800",
+    borderRadius: 8,
+    paddingVertical: 4,
     marginBottom: 8,
   },
 
@@ -249,7 +266,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 3,
     borderBottomWidth: 1,
-    borderColor: "#e5e7eb",
+    // borderColor: "#e5e7eb",
+        backgroundColor: "#ff4800",
+    borderRadius: 8,
   },
 
   cellText: {
@@ -259,9 +278,10 @@ const styles = StyleSheet.create({
   },
 
   linkText: {
-    flex: 1,
-    color: "#3b82f6", // blue-500
-    // textAlign: "center",
+    color: '#ff4800',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'NedianMedium',
     textDecorationLine: "underline",
   },
 
