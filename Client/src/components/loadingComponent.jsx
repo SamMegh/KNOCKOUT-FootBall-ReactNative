@@ -14,11 +14,11 @@ export default function LoaderCard() {
       animations.push(
         Animated.timing(translateY, {
           toValue: -wordHeight * i,
-          duration: 400, // slide speed
+          duration: 300, // slide speed
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.delay(800) // pause on each word
+        Animated.delay(300) // pause on each word
       );
     }
 

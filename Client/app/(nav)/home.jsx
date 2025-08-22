@@ -1,7 +1,6 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
-import LoaderCard from "../../src/components/loadingComponent";
 import {
   ActivityIndicator,
   Alert,
@@ -15,10 +14,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import LoaderCard from "../../src/components/loadingComponent";
 import { useAuthStore } from "../../src/store/useAuthStore";
 import { useLeagueStore } from "../../src/store/useLeagueStore";
-import { useFonts } from "expo-font";
-import LoaderCard from "../../src/components/loadingComponent";
 
 export default function Home() {
   const [fontsLoaded] = useFonts({
