@@ -21,12 +21,22 @@ import LoaderCard from "../../src/components/loadingComponent";
 
 export default function Home() {
   const [fontsLoaded] = useFonts({
-    'NedianMedium': require('../../assets/fonts/Nedian-Medium.otf'),
+    NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
   });
 
   const router = useRouter();
   const {
-    leagues, removeLeague, getleague, joinleague, isLoading, myleagues,  getmyleagues,} = useLeagueStore();
+    leagues,
+    removeLeague,
+    getleague,
+    isGetLeaguesLoading,
+    joinleague,
+    isJoinLeagueLoading,
+    isLoading,
+    myleagues,
+    getmyleagues,
+    isGetMyLeaguesLoading,
+  } = useLeagueStore();
   const { isAuthUser, coinUpdates, loading } = useAuthStore();
   const now = useMemo(() => new Date(), []);
 
@@ -50,7 +60,7 @@ export default function Home() {
 
   if (!fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#f59e0b" />
       </View>
     );
@@ -128,9 +138,9 @@ export default function Home() {
       </TouchableOpacity>
     </View>
   );
-if(loading){
-  return <LoaderCard/>
-}
+  if (isJoinLeagueLoading || isGetMyLeaguesLoading || isGetLeaguesLoading) {
+    return <LoaderCard />;
+  }
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView

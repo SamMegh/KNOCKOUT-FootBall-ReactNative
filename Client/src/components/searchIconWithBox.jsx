@@ -17,12 +17,13 @@ import { useLeagueStore } from "../store/useLeagueStore";
 
 const SearchPopup = ({ visible, onClose }) => {
   const [name, setName] = useState("");
-  const { 
-    leagueSearchResult, 
-    leaguebyname, 
-    SearchByName, 
-    isLoading, 
-    sendRequest 
+  const {
+    leagueSearchResult,
+    leaguebyname,
+    SearchByName,
+    isSearchByNameLoading,
+    sendRequest,
+    isSendRequestLoading,
   } = useLeagueStore();
 
   // ⚡ Fetch initial leagues once on mount
@@ -49,7 +50,7 @@ const SearchPopup = ({ visible, onClose }) => {
           text: "Join",
           onPress: () => {
             sendRequest(league._id);
-            setName("")
+            setName("");
             onClose(); // optionally close popup after joining
           },
         },
@@ -57,6 +58,10 @@ const SearchPopup = ({ visible, onClose }) => {
       { cancelable: true }
     );
   };
+
+  if (isSendRequestLoading) {
+    return <LoaderCard />;
+  }
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -73,15 +78,18 @@ const SearchPopup = ({ visible, onClose }) => {
               onChangeText={setName}
               autoFocus
             />
-            <TouchableOpacity onPress={()=>{
-              setName("");
-              onClose();}}>
+            <TouchableOpacity
+              onPress={() => {
+                setName("");
+                onClose();
+              }}
+            >
               <MaterialIcons name="close" size={24} color="red" />
             </TouchableOpacity>
           </View>
 
           {/* Search Results */}
-          {isLoading ? (
+          {isSearchByNameLoading ? (
             <ActivityIndicator
               size="large"
               color="#6200ee"
@@ -106,7 +114,8 @@ const SearchPopup = ({ visible, onClose }) => {
                 </TouchableOpacity>
               )}
               ListEmptyComponent={
-                !isLoading && name.length > 0 && (
+                !isSearchByNameLoading &&
+                name.length > 0 && (
                   <Text style={styles.noResult}>No results found</Text>
                 )
               }

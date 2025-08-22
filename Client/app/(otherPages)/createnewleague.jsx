@@ -22,7 +22,7 @@ import leagueValidator from "../../src/utils/leagueValidator";
 function CreateNewLeague() {
   const router = useRouter();
   const { isAuthUser } = useAuthStore();
-  const { createmyownleague } = useLeagueStore();
+  const { createmyownleague, isCreateMyOwnLeagueLoading } = useLeagueStore();
 
   const [fontsLoaded] = useFonts({
     NedianMedium: require("../../assets/fonts/Nedian-Medium.otf"),
@@ -71,7 +71,9 @@ function CreateNewLeague() {
   };
 
   if (!isAuthUser) return <Redirect href="/" />;
-
+  if (isCreateMyOwnLeagueLoading) {
+    return <LoaderCard />;
+  }
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
@@ -157,7 +159,9 @@ function CreateNewLeague() {
 
               {/* Max Team Selection */}
               <View>
-                <Text style={styles.label}>⏱️ Max Time Team Can Be Selected</Text>
+                <Text style={styles.label}>
+                  ⏱️ Max Time Team Can Be Selected
+                </Text>
                 <TextInput
                   style={styles.input}
                   onChangeText={handleChange("maxTimeTeamSelect")}
@@ -168,7 +172,9 @@ function CreateNewLeague() {
                   keyboardType="numeric"
                 />
                 {touched.maxTimeTeamSelect && errors.maxTimeTeamSelect && (
-                  <Text style={styles.errorText}>{errors.maxTimeTeamSelect}</Text>
+                  <Text style={styles.errorText}>
+                    {errors.maxTimeTeamSelect}
+                  </Text>
                 )}
               </View>
 
@@ -190,13 +196,17 @@ function CreateNewLeague() {
               </View>
 
               {/* Coin Type + Join Fee */}
-              <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+              <View
+                style={{ flexDirection: "row", gap: 10, alignItems: "center" }}
+              >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>💰 Coin Type</Text>
                   <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={values.joinfee.type}
-                      onValueChange={(val) => setFieldValue("joinfee.type", val)}
+                      onValueChange={(val) =>
+                        setFieldValue("joinfee.type", val)
+                      }
                       style={styles.picker}
                     >
                       <Picker.Item label="SCoin" value="SCoin" />
@@ -210,7 +220,10 @@ function CreateNewLeague() {
                   <TextInput
                     style={styles.input}
                     onChangeText={(text) =>
-                      setFieldValue("joinfee.amount", text.replace(/[^0-9]/g, ""))
+                      setFieldValue(
+                        "joinfee.amount",
+                        text.replace(/[^0-9]/g, "")
+                      )
                     }
                     onBlur={handleBlur("joinfee.amount")}
                     value={String(values.joinfee.amount)}

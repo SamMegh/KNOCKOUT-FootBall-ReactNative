@@ -88,7 +88,9 @@ function CreateLeague() {
       </Pressable>
     );
   };
-
+  if (isGetMyOwnLeaguesLoading) {
+    return <LoaderCard />;
+  }
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader title="Knockout" subtitle="Manage your leagues easily" />
@@ -98,7 +100,9 @@ function CreateLeague() {
       </TouchableOpacity>
 
       <View style={styles.header}>
-        <Text style={styles.heading}>Welcome, Create and manage your leagues!</Text>
+        <Text style={styles.heading}>
+          Welcome, Create and manage your leagues!
+        </Text>
 
         <Pressable
           onPress={() => router.push("/createnewleague")}

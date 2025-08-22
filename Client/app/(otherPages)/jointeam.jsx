@@ -18,7 +18,16 @@ import { useFonts } from "expo-font";
 
 export default function JoinTeam() {
   const { isAuthUser } = useAuthStore();
-  const { myteam, getmyteam, getDayData, matchOfTheDay, jointeam } = useLeagueStore();
+  const {
+    myteam,
+    getmyteam,
+    isGetMyTeamLoading,
+    getDayData,
+    isGetDayDataLoading,
+    matchOfTheDay,
+    jointeam,
+    isJoinTeamLoading,
+  } = useLeagueStore();
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
@@ -63,11 +72,18 @@ export default function JoinTeam() {
   if (!myteam) {
     return (
       <SafeAreaView>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={[styles.textBase, { color: "white" }]}>Loading team data...</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text style={[styles.textBase, { color: "white" }]}>
+            Loading team data...
+          </Text>
         </View>
       </SafeAreaView>
     );
+  }
+  if (isJoinTeamLoading || isGetMyTeamLoading || isGetDayDataLoading) {
+    return <LoaderCard />;
   }
 
   return (
@@ -78,13 +94,17 @@ export default function JoinTeam() {
       </TouchableOpacity>
 
       <View style={styles.containermain}>
-        <Text style={[styles.textBase, styles.userLeagueText, { marginBottom: 8 }]}>
+        <Text
+          style={[styles.textBase, styles.userLeagueText, { marginBottom: 8 }]}
+        >
           User: {myteam.userName}
         </Text>
         <Text style={[styles.textBase, styles.userLeagueText]}>
           League: {myteam.leagueName}
         </Text>
-        <Text style={[styles.textBase, styles.leagueIdText, { marginBottom: 16 }]}>
+        <Text
+          style={[styles.textBase, styles.leagueIdText, { marginBottom: 16 }]}
+        >
           League ID: {myteam.leagueId}
         </Text>
 
@@ -98,7 +118,8 @@ export default function JoinTeam() {
           keyExtractor={(_, index) => index.toString()}
           renderItem={({ item }) => {
             const isLocked =
-              new Date() >= new Date(new Date(item.day).getTime() - 15 * 60 * 1000);
+              new Date() >=
+              new Date(new Date(item.day).getTime() - 15 * 60 * 1000);
             return (
               <View style={styles.row}>
                 <Text style={[styles.textBase, styles.cellText]}>
@@ -111,7 +132,11 @@ export default function JoinTeam() {
                     isLocked && styles.disabledText,
                   ]}
                   onPress={() => {
-                    if (item.day.slice(0, 10) <= currentDate.toISOString().slice(0, 10)) return;
+                    if (
+                      item.day.slice(0, 10) <=
+                      currentDate.toISOString().slice(0, 10)
+                    )
+                      return;
                     setData({
                       day: item.day.split("T")[0],
                       leagueId: myteam.leagueId,
@@ -142,7 +167,9 @@ export default function JoinTeam() {
                 </Text>
 
                 {loadingTeamData ? (
-                  <Text style={[styles.textBase, { textAlign: "center" }]}>Loading Data...</Text>
+                  <Text style={[styles.textBase, { textAlign: "center" }]}>
+                    Loading Data...
+                  </Text>
                 ) : (
                   <FlatList
                     data={matchOfTheDay}
@@ -153,12 +180,27 @@ export default function JoinTeam() {
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.home, item.startTime);
-                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
+                            jointeam(
+                              data.leagueId,
+                              data.day,
+                              item.home,
+                              item.startTime
+                            );
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                              startTime: "",
+                            });
                           }}
                         >
-                          <Image style={styles.tinyLogo} source={{ uri: item.home_png }} />
-                          <Text style={[styles.textBase, styles.matchText]}>{item.home}</Text>
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.home_png }}
+                          />
+                          <Text style={[styles.textBase, styles.matchText]}>
+                            {item.home}
+                          </Text>
                         </TouchableOpacity>
 
                         <Text style={[styles.textBase, styles.vsText]}>Vs</Text>
@@ -166,12 +208,27 @@ export default function JoinTeam() {
                         <TouchableOpacity
                           onPress={() => {
                             setShowDropDown(false);
-                            jointeam(data.leagueId, data.day, item.away, item.startTime);
-                            setData({ day: "", teamName: "", leagueId: "", startTime: "" });
+                            jointeam(
+                              data.leagueId,
+                              data.day,
+                              item.away,
+                              item.startTime
+                            );
+                            setData({
+                              day: "",
+                              teamName: "",
+                              leagueId: "",
+                              startTime: "",
+                            });
                           }}
                         >
-                          <Image style={styles.tinyLogo} source={{ uri: item.away_png }} />
-                          <Text style={[styles.textBase, styles.matchText]}>{item.away}</Text>
+                          <Image
+                            style={styles.tinyLogo}
+                            source={{ uri: item.away_png }}
+                          />
+                          <Text style={[styles.textBase, styles.matchText]}>
+                            {item.away}
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     )}

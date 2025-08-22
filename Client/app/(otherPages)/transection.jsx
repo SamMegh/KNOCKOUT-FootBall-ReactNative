@@ -43,8 +43,12 @@ const typeStyles = {
 };
 
 export default function CoinTransaction() {
-  const { gettransaction, transactions, istransactionsloading } =
-    useLeagueStore();
+  const {
+    gettransaction,
+    isGetTransactionLoading,
+    transactions,
+    istransactionsloading,
+  } = useLeagueStore();
   const router = useRouter();
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -101,7 +105,7 @@ export default function CoinTransaction() {
     );
   };
 
-  if (istransactionsloading) {
+  if (isGetTransactionLoading) {
     return (
       <SafeAreaView style={[styles.container, styles.loaderContainer]}>
         <CustomHeader title="Knockout" subtitle="Track your coin activity" />
@@ -271,21 +275,18 @@ const styles = StyleSheet.create({
     color: "#000",
     marginLeft: 8,
     fontFamily: "NedianMedium",
-
   },
   transactionDesc: {
     color: "#333",
     fontSize: 14,
     marginTop: 2,
     fontFamily: "NedianMedium",
-
   },
   transactionTime: {
     color: "#666",
     fontSize: 13,
     marginTop: 2,
     fontFamily: "NedianMedium",
-
   },
   headerRow: {
     flexDirection: "row",
