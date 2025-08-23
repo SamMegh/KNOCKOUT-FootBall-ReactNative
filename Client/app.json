@@ -18,11 +18,7 @@
       "edgeToEdgeEnabled": true,
       "package": "com.sam.megh0305.FootBallReactNative"
     },
-    "web": {
-      "bundler": "metro",
-      "output": "server",
-      "favicon": "./assets/images/splash-icon.png"
-    },
+    "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       [
@@ -45,7 +41,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6946117b-cfe3-4bfc-831c-a9ee7410cf23"
+        "projectId": "915a8a9c-3532-4707-910e-555c201bafd1"
       }
     }
   }
