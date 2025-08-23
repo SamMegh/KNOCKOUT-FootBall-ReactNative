@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import {  MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import LoaderCard from "../../src/components/loadingComponent";
+import { LinearGradient } from "expo-linear-gradient";
 import { useEffect } from "react";
 import {
   ActivityIndicator,
@@ -102,50 +103,55 @@ const JoinLeague = () => {
               onPress={() => confirmJoin(league)}
               style={styles.card}
             >
-            <View key={league._id} style={styles.cardContainer}>
-            {/* Top Row: League ID + Countdown */}
+              <LinearGradient
+                colors={['#000000', '#c7adad', '#ff4800']}
+                start={{ x: 0.85, y: 0.85 }}
+                end={{ x: 0.15, y: 0.15 }}
+                key={league._id}
+                style={styles.cardContainer}>
+                {/* Top Row: League ID + Countdown */}
 
 
-            <View style={styles.topRow}>
-              <Text style={styles.ownerName}>{league.ownerName}</Text>
-              <View style={styles.countdown}>
-                <Text style={styles.countdownText}>
-                  <Text style={styles.timerUnit}>{league.start.split("T")[0]}</Text>
-                </Text>
-                <Text style={styles.countdownText}>
-                  <Text style={styles.timerUnit}>{league.end.split("T")[0]}</Text>
-                </Text>
-              </View>
-            </View>
-            {/* League Logo and Name */}
-            <View style={styles.leagueInfo}>
-              <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
-              <Text style={styles.leagueName} >  {league.name.length > 20 ? league.name.slice(0, 20) + '...' : league.name}</Text>
-            </View>
-
-            <Text style={styles.leagueData} >Total Weeks: {league.totalWeeks}</Text>
-            <Text style={styles.leagueData} >Team Repeat Limit: {league.maxTimeTeamSelect}</Text>
-
-            {/* Jackpot */}
-            <View style={styles.jackpotRow}>
-              <Text style={styles.jackpotAmount}>{league.joinfee.type === "GCoin" ? "🪙" : "⚪"}{league.joinfee.amount}</Text>
-              <Text style={styles.jackpotLabel}>
-                <View style={{ flexDirection: 'row' }}>
-                  {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
-                    <MaterialIcons key={index} name="favorite" size={16} color="#fff" />
-                  ))}
+                <View style={styles.topRow}>
+                  <Text style={styles.ownerName}>{league.ownerName}</Text>
+                  <View style={styles.countdown}>
+                    <Text style={styles.countdownText}>
+                      <Text style={styles.timerUnit}>{league.start.split("T")[0]}</Text>
+                    </Text>
+                    <Text style={styles.countdownText}>
+                      <Text style={styles.timerUnit}>{league.end.split("T")[0]}</Text>
+                    </Text>
+                  </View>
                 </View>
-              </Text>
-            </View>
-            {/* Play Button */}
-            <View
-              style={styles.playButton}
-            >
-              <Text style={styles.playButtonText}>{league.type}</Text>
-            </View>
+                {/* League Logo and Name */}
+                <View style={styles.leagueInfo}>
+                  <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+                  <Text style={styles.leagueName} >  {league.name.length > 20 ? league.name.slice(0, 20) + '...' : league.name}</Text>
+                </View>
+
+                <Text style={styles.leagueData} >Total Weeks: {league.totalWeeks}</Text>
+                <Text style={styles.leagueData} >Team Repeat Limit: {league.maxTimeTeamSelect}</Text>
+
+                {/* Jackpot */}
+                <View style={styles.jackpotRow}>
+                  <Text style={styles.jackpotAmount}>{league.joinfee.type === "GCoin" ? "🪙" : "⚪"}{league.joinfee.amount}</Text>
+                  <Text style={styles.jackpotLabel}>
+                    <View style={{ flexDirection: 'row' }}>
+                      {Array.from({ length: league.lifelinePerUser }).map((_, index) => (
+                        <MaterialIcons key={index} name="favorite" size={16} color="#fff" />
+                      ))}
+                    </View>
+                  </Text>
+                </View>
+                {/* Play Button */}
+                <View
+                  style={styles.playButton}
+                >
+                  <Text style={styles.playButtonText}>{league.type}</Text>
+                </View>
 
 
-          </View>
+              </LinearGradient>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -252,7 +258,7 @@ const styles = StyleSheet.create({
   },
   countdown: {
     // backgroundColor: '#000',
-  
+
   },
   countdownText: {
     color: '#fff',

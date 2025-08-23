@@ -2,6 +2,7 @@ import { FontAwesome5, MaterialIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect } from "react";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   Animated,
   Pressable,
@@ -63,7 +64,12 @@ function CreateLeague() {
         }
       >
         <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
-          <View key={league._id} style={styles.cardContainer}>
+          <LinearGradient
+            colors={['#000000', '#c7adad', '#ff4800']}
+            start={{ x: 0.85, y: 0.85 }}
+            end={{ x: 0.15, y: 0.15 }}
+            key={league._id}
+            style={styles.cardContainer}>
             {/* Top Row: League ID + Countdown */}
 
 
@@ -106,7 +112,7 @@ function CreateLeague() {
             </View>
 
 
-          </View>
+          </LinearGradient>
         </Animated.View>
       </Pressable>
     );
@@ -201,7 +207,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 16,
-    
+
     marginHorizontal: 16,
     marginBottom: 12,
     shadowColor: "#000",
@@ -262,7 +268,6 @@ const styles = StyleSheet.create({
     borderLeftColor: '#000',
     borderBottomWidth: 1,
     borderBottomColor: '#000',
-    borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },

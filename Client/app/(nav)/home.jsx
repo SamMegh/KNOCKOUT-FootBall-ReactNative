@@ -1,6 +1,7 @@
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
   Alert,
@@ -97,7 +98,11 @@ export default function Home() {
         })
       }
     >
-      <View style={styles.cardContainer}>
+      <LinearGradient style={styles.cardContainer}
+        colors={['#000000', '#c7adad', '#ff4800']}
+        start={{ x: 0.85, y: 0.85 }}
+        end={{ x: 0.15, y: 0.15 }}
+      >
 
         {/* Top Row: League ID + Countdown */}
         <View style={styles.topRow}>
@@ -134,14 +139,17 @@ export default function Home() {
         <Text style={styles.playButton}>
           <Text style={styles.playButtonText}>{league.type}</Text>
         </Text>
-      </View>
+      </LinearGradient>
 
     </TouchableOpacity>);
 
   const renderPublicLeague = ({ item: league }) => (
 
 
-    <View key={league._id} style={styles.cardContainer}>
+    <LinearGradient key={league._id} style={styles.cardContainer} colors={['#ff4800', '#c7adad', '#000000']}
+      start={{ x: 0.85, y: 0.85 }}
+      end={{ x: 0.15, y: 0.15 }}
+    >
       {/* Top Row: League ID + Countdown */}
 
 
@@ -158,7 +166,7 @@ export default function Home() {
       </View>
       {/* League Logo and Name */}
       <View style={styles.leagueInfo}>
-        <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#000" />
+        <MaterialIcons name="sports-soccer" style={styles.leagueLogo} size={28} color="#ff4800" />
         <Text style={styles.leagueName} >  {league.name.length > 20 ? league.name.slice(0, 20) + '...' : league.name}</Text>
       </View>
 
@@ -183,7 +191,7 @@ export default function Home() {
       </TouchableOpacity>
 
 
-    </View>
+    </LinearGradient>
   );
   if (isJoinLeagueLoading || isGetMyLeaguesLoading || isGetLeaguesLoading) {
     return <LoaderCard />;
